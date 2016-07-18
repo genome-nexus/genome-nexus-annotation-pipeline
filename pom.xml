@@ -1,0 +1,45 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.cbioportal.genome.nexus.annotation.pipeline</groupId>
+  <artifactId>master</artifactId>
+  <packaging>pom</packaging>
+  <name>cBioPortal Genome Nexus Annotation Pipeline Master</name>
+  <version>0.1.0</version>
+  <description>master maven module</description>
+  <url>https://github.com/cBioPortal/genome-nexus-annotation-pipeline/</url>
+
+  <modules>
+    <module>annotationPipeline</module>
+    <module>annotator</module>
+  </modules>
+
+  <!-- inherit defaults from spring boot -->
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>1.2.7.RELEASE</version>
+  </parent>
+
+  <properties>
+    <java.version>1.7</java.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-batch</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <!-- required to build an executable jar -->
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>               
+    </plugins>
+  </build>
+
+</project>
