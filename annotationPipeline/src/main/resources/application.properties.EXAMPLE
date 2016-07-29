@@ -1,0 +1,6 @@
+spring.batch.job.enabled=false
+genomenexus.base_url=
+genomenexus.hgvs=variant_annotation/hgvs/
+genomenexus.isoform_override=variant_annotation/isoform_override/
+genomenexus.overrides_source=uniprot
+genomenexus.output_filename=data_mutations_annotated.txt
