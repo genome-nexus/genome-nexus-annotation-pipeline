@@ -51,6 +51,6 @@ public class MutationRecordProcessor implements ItemProcessor<AnnotatedRecord, S
             to_write += additionalValue + "\t";
         }
         
-        return to_write.trim();
+        return to_write.substring(0, to_write.length());
     }   
 }

@@ -109,7 +109,7 @@ public class AnnotatorImpl implements Annotator {
         // make the rest call to genome nexus
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity();
-        log.info("Annotating: " + hgvsNotation + " from sample " + record.getTumor_Sample_Barcode());
+        log.debug("Annotating: " + hgvsNotation + " from sample " + record.getTumor_Sample_Barcode());
         ResponseEntity<GenomeNexusAnnotationResponse[]> responseEntity = restTemplate.exchange(hgvsServiceUrl + hgvsNotation, HttpMethod.GET, requestEntity, GenomeNexusAnnotationResponse[].class);
         gnResponse = responseEntity.getBody()[0];
         
@@ -274,12 +274,7 @@ public class AnnotatorImpl implements Annotator {
                     }
                 }
             }
-        }
-        
-        // If this field is blank, something is wrong
-        if (hgvsp.equals("")) {
-            log.warn("Failed: " + convertToHgvs(mRecord) + " " + mRecord.getTumor_Sample_Barcode());
-        }
+        }        
         return hgvsp;
     }
     
@@ -379,11 +374,14 @@ public class AnnotatorImpl implements Annotator {
 
             int nStart = Integer.valueOf(start);
             int nEnd = Integer.valueOf(end);
-            nStart += prefix.length();
-            nEnd += prefix.length();
-
+            nStart += prefix.length();            
+            
+            record.setStart_Position(Integer.toString(nStart));
+            record.setEnd_Position(Integer.toString(nEnd));
             start = Integer.toString(nStart);
-            end = Integer.toString(nEnd);
+
+            record.setReference_Allele(record.getReference_Allele().substring(prefix.length()));
+            record.setTumor_Seq_Allele1(record.getTumor_Seq_Allele1().substring(prefix.length()));
         }
 
         String hgvs;
