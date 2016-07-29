@@ -109,7 +109,9 @@ public class AnnotatorImpl implements Annotator {
         // make the rest call to genome nexus
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity();
+
         log.debug("Annotating: " + hgvsNotation + " from sample " + record.getTumor_Sample_Barcode());
+        
         ResponseEntity<GenomeNexusAnnotationResponse[]> responseEntity = restTemplate.exchange(hgvsServiceUrl + hgvsNotation, HttpMethod.GET, requestEntity, GenomeNexusAnnotationResponse[].class);
         gnResponse = responseEntity.getBody()[0];
         
@@ -374,6 +376,7 @@ public class AnnotatorImpl implements Annotator {
 
             int nStart = Integer.valueOf(start);
             int nEnd = Integer.valueOf(end);
+
             nStart += prefix.length();            
             
             record.setStart_Position(Integer.toString(nStart));

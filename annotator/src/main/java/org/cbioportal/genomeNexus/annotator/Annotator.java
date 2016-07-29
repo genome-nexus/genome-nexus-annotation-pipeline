@@ -39,7 +39,7 @@ import org.cbioportal.genomeNexus.models.*;
  */
 
 public interface Annotator {
-    
+
     Annotator annotator(); 
      
     AnnotatedRecord annotateRecord(MutationRecord record);

@@ -49,8 +49,7 @@ public class MutationRecordProcessor implements ItemProcessor<AnnotatedRecord, S
         
         for (String additionalValue : i.getAdditionalProperties().values()) {
             to_write += additionalValue + "\t";
-        }
-        
+        }        
         return to_write.substring(0, to_write.length());
     }   
 }
