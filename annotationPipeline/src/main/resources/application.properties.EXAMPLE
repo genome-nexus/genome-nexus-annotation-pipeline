@@ -1,0 +1,4 @@
+spring.batch.job.enabled=false
+genomenexus.hgvs=<HOST>/variant_annotation/hgvs/
+genomenexus.isoform_override=<HOST>/variant_annotation/isoform_override/
+chunk=10
