@@ -39,6 +39,8 @@ import org.cbioportal.models.GenomeNexusIsoformOverridesResponse;
 import org.cbioportal.annotator.Annotator;
 
 import java.util.*;
+import java.util.regex.*;
+import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -86,6 +88,8 @@ public class GenomeNexusImpl implements Annotator {
     };        
     
     private Map<String, String> variantMap = new HashMap<String, String>();
+    
+    private Pattern cDnaExtractor = Pattern.compile(".*c.(\\d+).*");
     
     @Bean
     public GenomeNexusImpl annotator() {
@@ -303,7 +307,7 @@ public class GenomeNexusImpl implements Annotator {
                         variantClassification += "_Ins";
                     }
                     else if (variantType != null && variantType.equals("DEL")) {
-                        variantType += "_Del";
+                        variantClassification += "_Del";
                     }
                 }
             }            
@@ -360,7 +364,18 @@ public class GenomeNexusImpl implements Annotator {
                     }
                 }
             }
-        }        
+            else if (canonicalTranscript.getHgvsc() != null && (canonicalTranscript.getConsequenceTerms().get(0).equals("splice_acceptor_variant") || canonicalTranscript.getConsequenceTerms().get(0).equals("splice_donor_variant"))) {
+                Integer cPos = 0;
+                Integer pPos = 0;
+                Matcher m = cDnaExtractor.matcher(canonicalTranscript.getHgvsc());
+                if (m.matches()) {
+                    cPos = Integer.parseInt(m.group(1));
+                    cPos = cPos < 1 ? 1 : cPos;
+                    pPos = (cPos + cPos % 3) / 3;
+                    hgvsp = "p.X" + String.valueOf(pPos) + "_splice";
+                }
+            }
+        }
         return hgvsp;
     }
     
@@ -428,6 +443,10 @@ public class GenomeNexusImpl implements Annotator {
         varLength = varAllele.equals("-") ? 0 : varLength;
 
         if (refLength == varLength) {
+            if (refLength - 1 < 0) {
+                    log.info("Check " + mRecord.getTumor_Sample_Barcode() + " " + mRecord.getHugo_Symbol());
+                    return "";
+            }
             String npType[] = {"SNP", "DNP", "TNP"};
             return (refLength < 3 ? npType[refLength - 1] : "ONP");
         } else {

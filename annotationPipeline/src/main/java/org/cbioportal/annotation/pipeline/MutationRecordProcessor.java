@@ -43,12 +43,13 @@ public class MutationRecordProcessor implements ItemProcessor<AnnotatedRecord, S
      @Override
     public String process(AnnotatedRecord i) throws Exception {
         String to_write = "";
-        for (String field : i.getHeader()) {
-            to_write += i.getClass().getMethod("get" + field).invoke(i) + "\t";
-        }
-        
-        for (String additionalValue : i.getAdditionalProperties().values()) {
-            to_write += additionalValue + "\t";
+        for (String field : i.getHeaderWithAdditionalFields()) {
+            try {
+                to_write += i.getClass().getMethod("get" + field).invoke(i) + "\t";
+            }
+            catch (Exception e) {
+                to_write += i.getAdditionalProperties().get(field);
+            }
         }        
         return to_write.substring(0, to_write.length());
     }   
