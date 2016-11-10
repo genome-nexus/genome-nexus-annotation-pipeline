@@ -90,6 +90,7 @@ public class GenomeNexusImpl implements Annotator {
     private Map<String, String> variantMap = new HashMap<String, String>();
     
     private Pattern cDnaExtractor = Pattern.compile(".*c.(\\d+).*");
+    private String variantType;
     
     @Bean
     public GenomeNexusImpl annotator() {
@@ -102,55 +103,54 @@ public class GenomeNexusImpl implements Annotator {
         
         //check if record already is annotated
         Map<String, String> additionalProperties = mRecord.getAdditionalProperties();
-        if(additionalProperties.containsKey("HGVSp_Short") && !reannotate) {
+        if(additionalProperties.containsKey("HGVSp_Short") && !reannotate && !additionalProperties.get("HGVSp_Short").isEmpty()) {
             return new AnnotatedRecord(mRecord.getHugo_Symbol(),
-                    mRecord.getEntrez_Gene_Id(),
-                    mRecord.getCenter(),
-                    mRecord.getNCBI_Build(),
-                    mRecord.getChromosome(),
-                    mRecord.getStart_Position(),
-                    mRecord.getEnd_Position(),
-                    mRecord.getStrand(),
-                    mRecord.getVariant_Classification(),
-                    mRecord.getVariant_Type(),
-                    mRecord.getReference_Allele(),
-                    mRecord.getTumor_Seq_Allele1(),
-                    mRecord.getTumor_Seq_Allele2(),
-                    mRecord.getdbSNP_RS(),
-                    mRecord.getdbSNP_Val_Status(),
-                    mRecord.getTumor_Sample_Barcode(),
-                    mRecord.getMatched_Norm_Sample_Barcode(),
-                    mRecord.getMatch_Norm_Seq_Allele1(),
-                    mRecord.getMatch_Norm_Seq_Allele2(),
-                    mRecord.getTumor_Validation_Allele1(),
-                    mRecord.getTumor_Validation_Allele2(),
-                    mRecord.getMatch_Norm_Validation_Allele1(),
-                    mRecord.getMatch_Norm_Validation_Allele2(),
-                    mRecord.getVerification_Status(),
-                    mRecord.getValidation_Status(),
-                    mRecord.getMutation_Status(),
-                    mRecord.getSequencing_Phase(),
-                    mRecord.getSequence_Source(),
-                    mRecord.getValidation_Method(),
-                    mRecord.getScore(),
-                    mRecord.getBAM_File(),
-                    mRecord.getSequencer(),
-                    mRecord.getTumor_Sample_UUID(),
-                    mRecord.getMatched_Norm_Sample_UUID(),
-                    mRecord.gett_ref_count(),
-                    mRecord.gett_alt_count(),
-                    mRecord.getn_ref_count(),
-                    mRecord.getn_alt_count(),
-                    additionalProperties.get("HGVSc") != null ? additionalProperties.get("HGVSc") : "",
-                    additionalProperties.get("HGVSp") != null ? additionalProperties.get("HGVSp") : "",
-                    additionalProperties.get("HGVSp_Short"),
-                    additionalProperties.get("Transcript_ID") != null ? additionalProperties.get("Transcript_ID") : "",
-                    additionalProperties.get("RefSeq") != null ? additionalProperties.get("RefSeq") : "",
-                    additionalProperties.get("Protein_Position") != null ? additionalProperties.get("Protein_Position") : "",
-                    additionalProperties.get("Protein_Position") != null ? additionalProperties.get("Protein_Position") : "",
-                    additionalProperties.get("Codons") != null ? additionalProperties.get("Codons") : "",
-                    additionalProperties);                
-            
+                mRecord.getEntrez_Gene_Id(),
+                mRecord.getCenter(),
+                mRecord.getNCBI_Build(),
+                mRecord.getChromosome(),
+                mRecord.getStart_Position(),
+                mRecord.getEnd_Position(),
+                mRecord.getStrand(),
+                mRecord.getVariant_Classification(),
+                mRecord.getVariant_Type(),
+                mRecord.getReference_Allele(),
+                mRecord.getTumor_Seq_Allele1(),
+                mRecord.getTumor_Seq_Allele2(),
+                mRecord.getdbSNP_RS(),
+                mRecord.getdbSNP_Val_Status(),
+                mRecord.getTumor_Sample_Barcode(),
+                mRecord.getMatched_Norm_Sample_Barcode(),
+                mRecord.getMatch_Norm_Seq_Allele1(),
+                mRecord.getMatch_Norm_Seq_Allele2(),
+                mRecord.getTumor_Validation_Allele1(),
+                mRecord.getTumor_Validation_Allele2(),
+                mRecord.getMatch_Norm_Validation_Allele1(),
+                mRecord.getMatch_Norm_Validation_Allele2(),
+                mRecord.getVerification_Status(),
+                mRecord.getValidation_Status(),
+                mRecord.getMutation_Status(),
+                mRecord.getSequencing_Phase(),
+                mRecord.getSequence_Source(),
+                mRecord.getValidation_Method(),
+                mRecord.getScore(),
+                mRecord.getBAM_File(),
+                mRecord.getSequencer(),
+                mRecord.getTumor_Sample_UUID(),
+                mRecord.getMatched_Norm_Sample_UUID(),
+                mRecord.gett_ref_count(),
+                mRecord.gett_alt_count(),
+                mRecord.getn_ref_count(),
+                mRecord.getn_alt_count(),
+                additionalProperties.get("HGVSc") != null ? additionalProperties.get("HGVSc") : "",
+                additionalProperties.get("HGVSp") != null ? additionalProperties.get("HGVSp") : "",
+                additionalProperties.get("HGVSp_Short"),
+                additionalProperties.get("Transcript_ID") != null ? additionalProperties.get("Transcript_ID") : "",
+                additionalProperties.get("RefSeq") != null ? additionalProperties.get("RefSeq") : "",
+                additionalProperties.get("Protein_Position") != null ? additionalProperties.get("Protein_Position") : "",
+                additionalProperties.get("Protein_Position") != null ? additionalProperties.get("Protein_Position") : "",
+                additionalProperties.get("Codons") != null ? additionalProperties.get("Codons") : "",
+                additionalProperties);                                   
         }
         
         // first, get the mutation in the right notation
@@ -287,14 +287,13 @@ public class GenomeNexusImpl implements Annotator {
     private String resolveVariantClassification() {
         String variantClassification = null;
         String[] alleles = null;
-        String variantType = null;
         if (gnResponse.getAlleleString() != null) {
             alleles = gnResponse.getAlleleString().split("/", -1);
         }
         if(alleles != null) {
             if (alleles.length == 2) {
-                variantType = getVariantType(alleles[0], alleles[1]);
-            }            
+                variantType = getVariantType(alleles[0], alleles[1]);                
+            }
         }        
         if (canonicalTranscript != null) {
             if (canonicalTranscript.getConsequenceTerms().size() > 0) {
@@ -316,8 +315,20 @@ public class GenomeNexusImpl implements Annotator {
     }
     
     private String resolveVariantType() {
-        String variantType = getVariantType(mRecord.getReference_Allele(), mRecord.getTumor_Seq_Allele2());        
-        return variantType != null ? variantType : "";
+        if (variantType != null) {
+            return variantType;
+        }
+        String[] alleles = null;
+        if (gnResponse.getAlleleString() != null) {
+            alleles = gnResponse.getAlleleString().split("/", -1);
+        }
+        if (alleles != null) {
+            if (alleles.length == 2) {
+                variantType = getVariantType(alleles[0], alleles[1]);
+                return variantType != null ? variantType : "";
+            }
+        }
+        return "";
     }
     
     private String resolveReferenceAllele() {
@@ -467,7 +478,7 @@ public class GenomeNexusImpl implements Annotator {
         String var = record.getTumor_Seq_Allele2();
 
         if (ref.equals(var)){
-            log.info("Warning: Reference allele extracted from " + chr + ":" + start + "-" + end + " matches alt allele");
+            log.info("Warning: Reference allele extracted from " + chr + ":" + start + "-" + end + " matches alt allele. Sample: " + record.getTumor_Sample_Barcode());
             return null;
         }
 
