@@ -49,12 +49,12 @@ public class AnnotatedRecord extends MutationRecord{
     protected String codonChange;
     
     static {                       
-        HEADER.add("Hgvsc");
-        HEADER.add("Hgvsp");
-        HEADER.add("Hgvsp_Short");
+        HEADER.add("HGVSc");
+        HEADER.add("HGVSp");
+        HEADER.add("HGVSp_Short");
         HEADER.add("Transcript_ID");
         HEADER.add("RefSeq");
-        HEADER.add("Protein_Position");
+        HEADER.add("Protein_position");
         HEADER.add("Codons");        
     }       
 
@@ -157,27 +157,27 @@ public class AnnotatedRecord extends MutationRecord{
         this.codonChange = codonChange;
     }  
 
-    public String getHgvsc() {
+    public String getHGVSc() {
         return this.hgvsc;
     }
     
-    public void setHgvsc(String hgvsc) {
+    public void setHGVSc(String hgvsc) {
         this.hgvsc = hgvsc;
     }   
     
-    public String getHgvsp() {
+    public String getHGVSp() {
         return this.hgvsp;
     }
     
-    public void setHgvsp(String hgvsp) {
+    public void setHGVSp(String hgvsp) {
         this.hgvsp = hgvsp;
     } 
 
-    public String getHgvsp_Short() {
+    public String getHGVSp_Short() {
         return this.hgvspShort;
     }
     
-    public void setHgvsp_Short(String hgvspShort) {
+    public void setHGVSp_Short(String hgvspShort) {
         this.hgvspShort = hgvspShort;
     }    
     
@@ -197,11 +197,11 @@ public class AnnotatedRecord extends MutationRecord{
         this.refSeq = refSeq;
     }    
     
-    public String getProtein_Position() {
+    public String getProtein_position() {
         return this.proteinPosStart;
     }
     
-    public void setProtein_Position(String proteinPosStart) {
+    public void setProtein_position(String proteinPosStart) {
         this.proteinPosStart = proteinPosStart;
     }
     
