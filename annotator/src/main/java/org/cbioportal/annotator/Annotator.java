@@ -32,6 +32,7 @@
 package org.cbioportal.annotator;
 import org.cbioportal.models.AnnotatedRecord;
 import org.cbioportal.models.MutationRecord;
+import java.util.Map;
 
 /**
  *
@@ -41,5 +42,6 @@ import org.cbioportal.models.MutationRecord;
 public interface Annotator {
      
     AnnotatedRecord annotateRecord(MutationRecord record, boolean replaceHugo, String isoformOverride, boolean reannotate);
+    MutationRecord createRecord(Map<String, String> mafLine) throws Exception; 
     
 }
