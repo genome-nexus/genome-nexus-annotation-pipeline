@@ -97,6 +97,13 @@ public class GenomeNexusImpl implements Annotator {
         return this;
     }
     
+    @Bean
+    public GenomeNexusImpl annotator(String hgvsServiceUrl, String overrideServiceUrl) {
+        this.hgvsServiceUrl = hgvsServiceUrl;
+        this.overrideServiceUrl = overrideServiceUrl;
+        return this;
+    }
+    
     @Override
     public AnnotatedRecord annotateRecord(MutationRecord record, boolean replaceHugo, String isoformOverridesSource, boolean reannotate) {
         this.mRecord = record;
@@ -218,7 +225,19 @@ public class GenomeNexusImpl implements Annotator {
                 mRecord.getAdditionalProperties());
                 
         return annotatedRecord;
-    }    
+    }
+    
+    @Override
+    public MutationRecord createRecord(Map<String, String> mafLine) throws Exception {
+        MutationRecord record = new MutationRecord();
+        for (String header : new MutationRecord().getHeader()) {
+            if(mafLine.keySet().contains(header)) {
+                record.getClass().getMethod("set" + header, String.class).invoke(record, mafLine.remove(header));
+            }
+        }
+        record.setAdditionalProperties(mafLine);
+        return record;
+    }
     
     private String resolveHugoSymbol(boolean replaceHugo) {
         if (replaceHugo && canonicalTranscript.getGeneSymbol() != null && canonicalTranscript.getGeneSymbol().trim().length() > 0) {
@@ -475,7 +494,13 @@ public class GenomeNexusImpl implements Annotator {
         String start = record.getStart_Position();
         String end = record.getEnd_Position();
         String ref = record.getReference_Allele();
-        String var = record.getTumor_Seq_Allele2();
+        String var;
+        if (record.getTumor_Seq_Allele1().equals(ref) || record.getTumor_Seq_Allele1().equals("") || record.getTumor_Seq_Allele1().equals("NA")) {
+            var = record.getTumor_Seq_Allele2();
+        }
+        else {
+            var = record.getTumor_Seq_Allele1();
+        }
 
         if (ref.equals(var)){
             log.info("Warning: Reference allele extracted from " + chr + ":" + start + "-" + end + " matches alt allele. Sample: " + record.getTumor_Sample_Barcode());
@@ -505,10 +530,10 @@ public class GenomeNexusImpl implements Annotator {
         /*
          Process Insertion
          Example insertion: 17 36002277 36002278 - A
-         Example output: 17:g.36002278_36002277insA
+         Example output: 17:g.36002277_36002278insA
          */
         if(ref.equals("-") || ref.length() == 0){
-            hgvs = chr+":g."+end+"_"+start+"ins"+var;
+            hgvs = chr+":g."+start+"_"+String.valueOf(Integer.parseInt(start) + 1)+"ins"+var;
         }
         /*
          Process Deletion
@@ -684,6 +709,22 @@ public class GenomeNexusImpl implements Annotator {
         
         return variantMap.get(variant.toLowerCase());
     }
+    
+    public String getHgvsServiceUrl() {
+        return hgvsServiceUrl;
+    }
+    
+    public void setHgvsServiceUrl(String hgvsServiceUrl) {
+        this.hgvsServiceUrl = hgvsServiceUrl;
+    }
+    
+    public String getOverrideServiceUrl() {
+        return overrideServiceUrl;
+    }
+    
+    public void setOverrideServiceUrl(String overrideServiceUrl) {
+        this.overrideServiceUrl = overrideServiceUrl;
+    }    
     
     public static void main(String[] args) {}
 }
