@@ -34,16 +34,21 @@ package org.cbioportal.annotation.pipeline;
 
 import org.cbioportal.models.AnnotatedRecord;
 import org.springframework.batch.item.ItemProcessor;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  *
  * @author Zachary Heins
  */
 public class MutationRecordProcessor implements ItemProcessor<AnnotatedRecord, String>{
-     @Override
+    @Value("#{stepExecutionContext['mutation_header']}")
+    private List<String> header;
+    
+    @Override
     public String process(AnnotatedRecord i) throws Exception {
         String to_write = "";
-        for (String field : i.getHeaderWithAdditionalFields()) {
+        for (String field : header) {
             try {
                 to_write += i.getClass().getMethod("get" + field).invoke(i) + "\t";
             }

@@ -47,6 +47,7 @@ public class AnnotatedRecord extends MutationRecord{
     protected String proteinPosStart;
     protected String proteinPosEnd;
     protected String codonChange;
+    protected String hotspot;
     
     static {                       
         HEADER.add("HGVSc");
@@ -56,6 +57,7 @@ public class AnnotatedRecord extends MutationRecord{
         HEADER.add("RefSeq");
         HEADER.add("Protein_position");
         HEADER.add("Codons");        
+        HEADER.add("Hotspot");
     }       
 
     public AnnotatedRecord() {}
@@ -106,6 +108,7 @@ public class AnnotatedRecord extends MutationRecord{
         String proteinPosStart,
         String proteinPosEnd,
         String codonChange,
+        String hotspot,
         Map<String, String> additionalProperties
     ) {        
         super(hugoSymbol,
@@ -155,6 +158,7 @@ public class AnnotatedRecord extends MutationRecord{
         this.proteinPosStart = proteinPosStart;
         this.proteinPosEnd = proteinPosEnd;
         this.codonChange = codonChange;
+        this.hotspot = hotspot;
     }  
 
     public String getHGVSc() {
@@ -211,5 +215,13 @@ public class AnnotatedRecord extends MutationRecord{
     
     public void setCodons(String codonChange) {
         this.codonChange = codonChange;
-    }        
+    }
+    
+    public String getHotspot() {
+        return this.hotspot;
+    }
+    
+    public void setHotspot(String hotspot) {
+        this.hotspot = hotspot;
+    }      
 }

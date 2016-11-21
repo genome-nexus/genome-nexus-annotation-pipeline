@@ -32,7 +32,7 @@
 
 package org.cbioportal.annotation.pipeline;
 
-import java.util.List;
+import java.util.*;
 import org.cbioportal.models.MutationRecord;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
@@ -47,17 +47,17 @@ public class MutationFieldSetMapper implements  FieldSetMapper<MutationRecord> {
     @Override
     public MutationRecord mapFieldSet(FieldSet fs) throws BindException {
         MutationRecord record = new MutationRecord();
-        List<String> fields = record.getHeader();
+        Set<String> names = new HashSet(Arrays.asList(fs.getNames()));
+        names.addAll(record.getHeader());
         
-        for (int i = 0; i < fs.getFieldCount(); i++)
+        for (String field : names)
         {            
             try {
-                String field = fields.get(i);
-                record.getClass().getMethod("set" + field, String.class).invoke(record, fs.readString(i));                
+                record.getClass().getMethod("set" + field, String.class).invoke(record, fs.readRawString(field));                
             }
             catch(Exception e) {
                 if (e.getClass().equals(NoSuchMethodException.class) || e.getClass().equals(IndexOutOfBoundsException.class)) {
-                    record.addAdditionalProperty(fs.getNames()[i], fs.readString(i));
+                    record.addAdditionalProperty(field, fs.readRawString(field));
                 }                
             }
          }       

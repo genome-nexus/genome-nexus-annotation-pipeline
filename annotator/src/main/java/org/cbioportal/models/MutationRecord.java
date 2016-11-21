@@ -185,7 +185,7 @@ public class MutationRecord {
     }
     
     public String getEntrez_Gene_Id() {
-        return this.endPosition == null ? "" : this.entrezGeneId;
+        return this.entrezGeneId == null ? "" : this.entrezGeneId;
     }
 
     public void setEntrez_Gene_Id(String entrezGeneId) {

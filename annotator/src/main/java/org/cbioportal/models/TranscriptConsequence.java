@@ -59,7 +59,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "hgvsp",
     "protein_end",
     "protein_start",
-    "refseq_transcript_ids"
+    "refseq_transcript_ids",
+    "isHotspot"
 })
 public class TranscriptConsequence {
 
@@ -93,6 +94,8 @@ public class TranscriptConsequence {
     private String proteinStart;
     @JsonProperty("refseq_transcript_ids")
     private List<String> refseqTranscriptIds = new ArrayList<String>();
+    @JsonProperty("isHotspot")
+    private String isHotspot;    
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -119,8 +122,9 @@ public class TranscriptConsequence {
     * @param proteinEnd
     * @param hgncId
     * @param canonical
+    * @param isHotspot
     */
-    public TranscriptConsequence(List<String> consequenceTerms, String geneId, String geneSymbol, String hgncId, String proteinId, String transcriptId, String variantAllele, String aminoAcids, String canonical, String codons, String hgvsc, String hgvsp, String proteinEnd, String proteinStart, List<String> refseqTranscriptIds) {
+    public TranscriptConsequence(List<String> consequenceTerms, String geneId, String geneSymbol, String hgncId, String proteinId, String transcriptId, String variantAllele, String aminoAcids, String canonical, String codons, String hgvsc, String hgvsp, String proteinEnd, String proteinStart, List<String> refseqTranscriptIds, String isHotspot) {
         this.consequenceTerms = consequenceTerms;
         this.geneId = geneId;
         this.geneSymbol = geneSymbol;
@@ -136,6 +140,7 @@ public class TranscriptConsequence {
         this.proteinEnd = proteinEnd;
         this.proteinStart = proteinStart;
         this.refseqTranscriptIds = refseqTranscriptIds;
+        this.isHotspot = isHotspot;
     }
 
     /**
@@ -305,7 +310,7 @@ public class TranscriptConsequence {
     */
     @JsonProperty("canonical")
     public String getCanonical() {
-        return canonical;
+        return canonical != null ? canonical : "0";
     }
 
     /**
@@ -437,6 +442,26 @@ public class TranscriptConsequence {
     public void setRefseqTranscriptIds(List<String> refseqTranscriptIds) {
         this.refseqTranscriptIds = refseqTranscriptIds;
     }
+    
+    /**
+    * 
+    * @return
+    * The isHotspot
+    */
+    @JsonProperty("isHotspot")
+    public String getIsHotspot() {
+        return isHotspot;
+    }
+
+    /**
+    * 
+    * @param isHotspot
+    * The isHotspot
+    */
+    @JsonProperty("isHotspot")
+    public void setIsHotspot(String isHotspot) {
+        this.isHotspot = isHotspot;
+    }    
 
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
