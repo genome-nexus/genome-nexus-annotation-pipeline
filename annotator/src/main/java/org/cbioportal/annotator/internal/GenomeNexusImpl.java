@@ -67,9 +67,10 @@ public class GenomeNexusImpl implements Annotator {
     
     @Value("${genomenexus.hgvs}")
     private String hgvsServiceUrl;
-    
-    @Value("${genomenexus.isoform_override}")
-    private String overrideServiceUrl;   
+    @Value("${genomenexus.isoform_query_parameter}")
+    private String isoformQueryParameter;
+    @Value("${genomenexus.hotspot_parameter}")
+    private String hotspotParameter;
     
     private MutationRecord mRecord;
     private GenomeNexusAnnotationResponse gnResponse;
@@ -78,7 +79,6 @@ public class GenomeNexusImpl implements Annotator {
     private List<GenomeNexusIsoformOverridesResponse> overrides = new ArrayList<>();
     
     private final Logger log = Logger.getLogger(GenomeNexusImpl.class);
-    
     
     private String aa3to1[][] = {
         {"Ala", "A"}, {"Arg", "R"}, {"Asn", "N"}, {"Asp", "D"}, {"Asx", "B"}, {"Cys", "C"},
@@ -98,9 +98,8 @@ public class GenomeNexusImpl implements Annotator {
     }
     
     @Bean
-    public GenomeNexusImpl annotator(String hgvsServiceUrl, String overrideServiceUrl) {
+    public GenomeNexusImpl annotator(String hgvsServiceUrl) {
         this.hgvsServiceUrl = hgvsServiceUrl;
-        this.overrideServiceUrl = overrideServiceUrl;
         return this;
     }
     
@@ -157,6 +156,7 @@ public class GenomeNexusImpl implements Annotator {
                 additionalProperties.get("Protein_Position") != null ? additionalProperties.get("Protein_Position") : "",
                 additionalProperties.get("Protein_Position") != null ? additionalProperties.get("Protein_Position") : "",
                 additionalProperties.get("Codons") != null ? additionalProperties.get("Codons") : "",
+                additionalProperties.get("Hotspot") != null ? additionalProperties.get("Hotspot") : "",
                 additionalProperties);                                   
         }
         
@@ -169,11 +169,11 @@ public class GenomeNexusImpl implements Annotator {
 
         log.debug("Annotating: " + hgvsNotation + " from sample " + record.getTumor_Sample_Barcode());
         
-        ResponseEntity<GenomeNexusAnnotationResponse[]> responseEntity = restTemplate.exchange(hgvsServiceUrl + hgvsNotation, HttpMethod.GET, requestEntity, GenomeNexusAnnotationResponse[].class);
+        ResponseEntity<GenomeNexusAnnotationResponse[]> responseEntity = restTemplate.exchange(hgvsServiceUrl + hgvsNotation + "?" + isoformQueryParameter + "=" + isoformOverridesSource + "&" + hotspotParameter + "=summary", HttpMethod.GET, requestEntity, GenomeNexusAnnotationResponse[].class);
         gnResponse = responseEntity.getBody()[0];
         
         // get the canonical trnascript
-        canonicalTranscript = getCanonicalTranscript(gnResponse, isoformOverridesSource);
+        canonicalTranscript = getCanonicalTranscript(gnResponse);
         
         // annotate the record
         AnnotatedRecord annotatedRecord= new AnnotatedRecord(resolveHugoSymbol(replaceHugo),
@@ -222,8 +222,8 @@ public class GenomeNexusImpl implements Annotator {
                 resolveProteinPosStart(),
                 resolveProteinPosEnd(),
                 resolveCodonChange(),
-                mRecord.getAdditionalProperties());
-                
+                resolveHotspot(),
+                mRecord.getAdditionalProperties());                
         return annotatedRecord;
     }
     
@@ -454,7 +454,17 @@ public class GenomeNexusImpl implements Annotator {
         }        
         
         return codonChange != null ? codonChange : "";
-    }    
+    }
+    
+    private String resolveHotspot() {
+        String hotspot = "0";
+        if (canonicalTranscript != null) {
+            if (canonicalTranscript.getIsHotspot() != null) {
+                hotspot = canonicalTranscript.getIsHotspot().equals("true") ? "1" : "0";
+            }            
+        }
+        return hotspot;
+    }
     
     private String getProcessedHgvsp(String hgvsp) {
         int iHgvsp = hgvsp.indexOf(":");
@@ -533,7 +543,12 @@ public class GenomeNexusImpl implements Annotator {
          Example output: 17:g.36002277_36002278insA
          */
         if(ref.equals("-") || ref.length() == 0){
-            hgvs = chr+":g."+start+"_"+String.valueOf(Integer.parseInt(start) + 1)+"ins"+var;
+            try {
+                hgvs = chr+":g."+start+"_"+String.valueOf(Integer.parseInt(start) + 1)+"ins"+var;
+            }
+            catch (NumberFormatException e) {
+                return "";
+            }
         }
         /*
          Process Deletion
@@ -581,41 +596,15 @@ public class GenomeNexusImpl implements Annotator {
         return new HttpEntity<Object>(headers);
     }    
     
-    private TranscriptConsequence getCanonicalTranscript(GenomeNexusAnnotationResponse gnResponse, String isoformOverridesSource) {
+    private TranscriptConsequence getCanonicalTranscript(GenomeNexusAnnotationResponse gnResponse) {
         List<TranscriptConsequence> transcripts = new ArrayList<>();
         List<String> ids = new ArrayList<>();
-        Map<String, TranscriptConsequence> map = new HashMap<>();
         
-        // construct a list of transcripts to be queried
         for(TranscriptConsequence transcript : gnResponse.getTranscriptConsequences()) {
             if(transcript.getTranscriptId() != null) {
-                ids.add(transcript.getTranscriptId());
-                map.put(transcript.getTranscriptId(), transcript);
-            }
-        }
-        
-        // get isoform override from genome nexus
-        if (overrides.isEmpty()) {
-            overrides = getIsoformOverrides(ids, isoformOverridesSource);
-        }
-        
-        
-        for (GenomeNexusIsoformOverridesResponse override : overrides) {
-            TranscriptConsequence transcript = map.get(override.getTranscriptId());
-            if (transcript != null) {
-                transcripts.add(transcript);
-            }
-        }
-        
-        // If no canonical transcript is found, use information provided by the annotation service
-        if (transcripts.size() == 0) {
-            for (TranscriptConsequence transcript : gnResponse.getTranscriptConsequences()) {
-                if (transcript.getCanonical() != null)
-                {
-                    if (transcript.getCanonical().equals("1")) {
-                        transcripts.add(transcript);
-                    }
-                }
+                if (transcript.getCanonical().equals("1")) {
+                    transcripts.add(transcript);
+                }                
             }
         }
         
@@ -645,17 +634,6 @@ public class GenomeNexusImpl implements Annotator {
         // no match
         return null;
     }
-    
-    private List<GenomeNexusIsoformOverridesResponse> getIsoformOverrides(List<String> ids, String isoformOverridesSource) {
-        List<GenomeNexusIsoformOverridesResponse> overrides = new ArrayList<>();
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity();
-        ResponseEntity<GenomeNexusIsoformOverridesResponse[]> responseEntity = restTemplate.exchange(overrideServiceUrl + isoformOverridesSource + "/" + StringUtils.join(ids, ","), HttpMethod.GET, requestEntity, GenomeNexusIsoformOverridesResponse[].class);
-        if(responseEntity.getBody().length > 0) {
-            overrides = Arrays.asList(responseEntity.getBody());
-        }                    
-        return overrides;
-    }   
     
     private String getVariantClassificationFromMap(String variant) {
         if(variantMap.isEmpty()) {
@@ -716,15 +694,7 @@ public class GenomeNexusImpl implements Annotator {
     
     public void setHgvsServiceUrl(String hgvsServiceUrl) {
         this.hgvsServiceUrl = hgvsServiceUrl;
-    }
-    
-    public String getOverrideServiceUrl() {
-        return overrideServiceUrl;
-    }
-    
-    public void setOverrideServiceUrl(String overrideServiceUrl) {
-        this.overrideServiceUrl = overrideServiceUrl;
-    }    
+    }  
     
     public static void main(String[] args) {}
 }

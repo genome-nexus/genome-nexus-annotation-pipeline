@@ -55,6 +55,9 @@ public class MutationRecordWriter implements ItemStreamWriter<String> {
     @Value("#{stepExecutionContext['commentLines']}")
     private List<String> commentLines;   
     
+    @Value("#{stepExecutionContext['mutation_header']}")
+    private List<String> header;
+    
     private Path stagingFile;
     private FlatFileItemWriter<String> flatFileItemWriter = new FlatFileItemWriter<>();
 
@@ -75,7 +78,7 @@ public class MutationRecordWriter implements ItemStreamWriter<String> {
                 for (String comment : commentLines) {
                     writer.write(comment + "\n");
                 }
-                writer.write(StringUtils.join(record.getHeaderWithAdditionalFields(), "\t"));
+                writer.write(StringUtils.join(header, "\t"));
             }                
         });  
         flatFileItemWriter.open(ec);        

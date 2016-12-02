@@ -1,0 +1,10 @@
+spring.batch.job.enabled=false
+genomenexus.hgvs=<HOST>/variant_annotation/hgvs/
+genomenexus.isoform_override=<HOST>/variant_annotation/isoform_override/
+genomenexus.hotspot_parameter=summary
+chunk=10
+
+
+input.inputfile=genome-nexus-annotation-pipeline/annotationPipeline/src/main/resources/data/testmaf.txt
+input.expectedfile=genome-nexus-annotation-pipeline/annotationPipeline/src/main/resources/data/expectedmaf.txt
+input.outputfile=genome-nexus-annotation-pipeline/annotationPipeline/target/test-outputs/output.txt

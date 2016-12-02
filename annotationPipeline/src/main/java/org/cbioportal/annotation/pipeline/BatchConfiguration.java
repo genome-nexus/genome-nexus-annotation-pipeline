@@ -90,6 +90,7 @@ public class BatchConfiguration
     }
 
     @Bean
+    @StepScope
     public MutationRecordProcessor processor()
     {
         return new MutationRecordProcessor();

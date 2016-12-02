@@ -59,6 +59,7 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
     
     private List<MutationRecord> mutationRecords = new ArrayList<>();
     private List<AnnotatedRecord> annotatedRecords = new ArrayList<>();
+    private Set<String> header = new LinkedHashSet<>();
     
     @Autowired
     Annotator annotator;
@@ -99,7 +100,10 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
         
         for(MutationRecord record : mutationRecords) {
             annotatedRecords.add(annotator.annotateRecord(record, replace.equals("true"), isoformOverride, true));
+            header.addAll(record.getHeaderWithAdditionalFields());
         }
+        List<String> full_header = new ArrayList(header);
+        ec.put("mutation_header", full_header);
     }
 
     @Override
