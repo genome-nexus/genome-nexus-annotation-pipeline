@@ -649,8 +649,8 @@ public class GenomeNexusImpl implements Annotator {
             variantMap.put("inframe_insertion",             "In_Frame_Ins");
             variantMap.put("inframe_deletion",              "In_Frame_Del");    
             variantMap.put("missense_variant",              "Missense_Mutation");
-            variantMap.put("protein_altering_variant",      "Missense_Mutation"); // Not sure if this is correct
-            variantMap.put("coding_sequence_variant",       "Missense_Mutation");
+            variantMap.put("protein_altering_variant",      "Missense_Mutation"); // Not always correct, code below to handle exceptions
+            variantMap.put("coding_sequence_variant",       "Missense_Mutation"); // Not always correct, code below to handle exceptions
             variantMap.put("conservative_missense_variant", "Missense_Mutation");
             variantMap.put("rare_amino_acid_variant",       "Missense_Mutation");
             variantMap.put("transcript_amplification",      "Intron");
@@ -684,7 +684,15 @@ public class GenomeNexusImpl implements Annotator {
             variantMap.put("feature_elongation",            "Targeted_Region"); 
             variantMap.put("feature_truncation",            "Targeted_Region"); 
         }
-        
+        if (variant.toLowerCase().equals("protein_altering_variant") || variant.toLowerCase().equals("coding_sequence_variant")) {
+            String resolvedVariantType = resolveVariantType();
+            if (resolvedVariantType.equals("DEL")) {
+                return "In_Frame_Del";
+            }
+            else if (resolvedVariantType.equals("INS")) {
+                return "In_Frame_Ins";
+            }
+        }
         return variantMap.get(variant.toLowerCase());
     }
     
