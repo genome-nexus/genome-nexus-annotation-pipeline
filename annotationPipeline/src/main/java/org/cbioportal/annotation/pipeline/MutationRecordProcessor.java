@@ -53,7 +53,7 @@ public class MutationRecordProcessor implements ItemProcessor<AnnotatedRecord, S
                 to_write += i.getClass().getMethod("get" + field).invoke(i) + "\t";
             }
             catch (Exception e) {
-                to_write += i.getAdditionalProperties().get(field);
+                to_write += i.getAdditionalProperties().get(field) + "\t";
             }
         }        
         return to_write.substring(0, to_write.length());
