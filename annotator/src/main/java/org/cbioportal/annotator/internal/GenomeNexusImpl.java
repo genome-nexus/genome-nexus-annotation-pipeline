@@ -355,7 +355,7 @@ public class GenomeNexusImpl implements Annotator {
         {
             return gnResponse.getAlleleString().split("/", -1)[0];
         }
-        return "";
+        return mRecord.getReference_Allele();
     }
     
     private String resolveTumorSeqAllele() {
@@ -363,7 +363,7 @@ public class GenomeNexusImpl implements Annotator {
         {
             return gnResponse.getAlleleString().split("/", -1)[1];
         }
-        return "";
+        return getTumorSeqAllele(mRecord);
     }
     
     private String resolveHgvsc() {
@@ -504,13 +504,7 @@ public class GenomeNexusImpl implements Annotator {
         String start = record.getStart_Position();
         String end = record.getEnd_Position();
         String ref = record.getReference_Allele();
-        String var;
-        if (record.getTumor_Seq_Allele1().equals(ref) || record.getTumor_Seq_Allele1().equals("") || record.getTumor_Seq_Allele1().equals("NA")) {
-            var = record.getTumor_Seq_Allele2();
-        }
-        else {
-            var = record.getTumor_Seq_Allele1();
-        }
+        String var = getTumorSeqAllele(record);
 
         if (ref.equals(var)){
             log.info("Warning: Reference allele extracted from " + chr + ":" + start + "-" + end + " matches alt allele. Sample: " + record.getTumor_Sample_Barcode());
@@ -702,7 +696,17 @@ public class GenomeNexusImpl implements Annotator {
     
     public void setHgvsServiceUrl(String hgvsServiceUrl) {
         this.hgvsServiceUrl = hgvsServiceUrl;
-    }  
+    }
+    
+    private String getTumorSeqAllele(MutationRecord record) {
+        String tumorSeqAllele;
+        if (record.getTumor_Seq_Allele1().equals(ref) || record.getTumor_Seq_Allele1().equals("") || record.getTumor_Seq_Allele1().equals("NA")) {
+            return tumorSeqAllele = record.getTumor_Seq_Allele2();
+        }
+        else {
+            return tumorSeqAllele = record.getTumor_Seq_Allele1();
+        }    
+    }
     
     public static void main(String[] args) {}
 }
