@@ -240,7 +240,7 @@ public class GenomeNexusImpl implements Annotator {
     }
     
     private String resolveHugoSymbol(boolean replaceHugo) {
-        if (replaceHugo && canonicalTranscript.getGeneSymbol() != null && canonicalTranscript.getGeneSymbol().trim().length() > 0) {
+        if (replaceHugo && canonicalTranscript != null && canonicalTranscript.getGeneSymbol() != null && canonicalTranscript.getGeneSymbol().trim().length() > 0) {
             return canonicalTranscript.getGeneSymbol();
         }
         
@@ -421,9 +421,12 @@ public class GenomeNexusImpl implements Annotator {
     private String resolveRefSeq() {
         String refSeq = "";
         if(canonicalTranscript != null) {
-            if(canonicalTranscript.getRefseqTranscriptIds().size() > 0) {
-                refSeq = canonicalTranscript.getRefseqTranscriptIds().get(0);
-            }            
+	    if (canonicalTranscript.getRefseqTranscriptIds() != null) {
+            	List<String> refseqTranscriptIds = Arrays.asList(canonicalTranscript.getRefseqTranscriptIds().split(","));
+            	if(refseqTranscriptIds.size() > 0) {
+                	refSeq = refseqTranscriptIds.get(0);
+            	}            
+	    }
         }
         
         return refSeq != null ? refSeq : "";
@@ -527,7 +530,8 @@ public class GenomeNexusImpl implements Annotator {
             start = Integer.toString(nStart);
 
             record.setReference_Allele(record.getReference_Allele().substring(prefix.length()));
-            record.setTumor_Seq_Allele1(record.getTumor_Seq_Allele1().substring(prefix.length()));
+            record.setTumor_Seq_Allele1(record.getReference_Allele());
+            record.setTumor_Seq_Allele2(getTumorSeqAllele(record).substring(prefix.length()));
         }
 
         String hgvs;
@@ -700,7 +704,7 @@ public class GenomeNexusImpl implements Annotator {
     
     private String getTumorSeqAllele(MutationRecord record) {
         String tumorSeqAllele;
-        if (record.getTumor_Seq_Allele1().equals(ref) || record.getTumor_Seq_Allele1().equals("") || record.getTumor_Seq_Allele1().equals("NA")) {
+        if (record.getTumor_Seq_Allele1().equals(record.getReference_Allele()) || record.getTumor_Seq_Allele1().equals("") || record.getTumor_Seq_Allele1().equals("NA")) {
             return tumorSeqAllele = record.getTumor_Seq_Allele2();
         }
         else {
