@@ -1,4 +1,6 @@
 annotationPipeline/target/*
 annotator/target/*
 annotationPipeline/src/main/resources/application.properties
+databaseAnnotator/target/*
+databaseAnnotator/src/main/resources/application.properties
 .DS_Store
