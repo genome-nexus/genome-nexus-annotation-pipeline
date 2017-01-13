@@ -93,7 +93,7 @@ public class TranscriptConsequence {
     @JsonProperty("protein_start")
     private String proteinStart;
     @JsonProperty("refseq_transcript_ids")
-    private List<String> refseqTranscriptIds = new ArrayList<String>();
+    private String refseqTranscriptIds; 
     @JsonProperty("isHotspot")
     private String isHotspot;    
     @JsonIgnore
@@ -124,7 +124,7 @@ public class TranscriptConsequence {
     * @param canonical
     * @param isHotspot
     */
-    public TranscriptConsequence(List<String> consequenceTerms, String geneId, String geneSymbol, String hgncId, String proteinId, String transcriptId, String variantAllele, String aminoAcids, String canonical, String codons, String hgvsc, String hgvsp, String proteinEnd, String proteinStart, List<String> refseqTranscriptIds, String isHotspot) {
+    public TranscriptConsequence(List<String> consequenceTerms, String geneId, String geneSymbol, String hgncId, String proteinId, String transcriptId, String variantAllele, String aminoAcids, String canonical, String codons, String hgvsc, String hgvsp, String proteinEnd, String proteinStart, String refseqTranscriptIds, String isHotspot) {
         this.consequenceTerms = consequenceTerms;
         this.geneId = geneId;
         this.geneSymbol = geneSymbol;
@@ -429,7 +429,7 @@ public class TranscriptConsequence {
     * The refseqTranscriptIds
     */
     @JsonProperty("refseq_transcript_ids")
-    public List<String> getRefseqTranscriptIds() {
+    public String getRefseqTranscriptIds() {
         return refseqTranscriptIds;
     }
 
@@ -439,7 +439,7 @@ public class TranscriptConsequence {
     * The refseq_transcript_ids
     */
     @JsonProperty("refseq_transcript_ids")
-    public void setRefseqTranscriptIds(List<String> refseqTranscriptIds) {
+    public void setRefseqTranscriptIds(String refseqTranscriptIds) {
         this.refseqTranscriptIds = refseqTranscriptIds;
     }
     
