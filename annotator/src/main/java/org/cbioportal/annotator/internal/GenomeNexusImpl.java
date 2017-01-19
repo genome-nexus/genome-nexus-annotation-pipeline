@@ -57,56 +57,57 @@ import org.apache.log4j.Logger;
 /**
  *
  * @author Zachary Heins
- * 
+ *
  * Use GenomeNexus to annotate mutation records
- * 
+ *
  */
 
 @Configuration
-public class GenomeNexusImpl implements Annotator {    
-    
+public class GenomeNexusImpl implements Annotator {
+
     @Value("${genomenexus.hgvs}")
     private String hgvsServiceUrl;
     @Value("${genomenexus.isoform_query_parameter}")
     private String isoformQueryParameter;
     @Value("${genomenexus.hotspot_parameter}")
     private String hotspotParameter;
-    
+
     private MutationRecord mRecord;
     private GenomeNexusAnnotationResponse gnResponse;
     private TranscriptConsequence canonicalTranscript;
-    
+
     private List<GenomeNexusIsoformOverridesResponse> overrides = new ArrayList<>();
-    
+
     private final Logger log = Logger.getLogger(GenomeNexusImpl.class);
-    
+
     private String aa3to1[][] = {
         {"Ala", "A"}, {"Arg", "R"}, {"Asn", "N"}, {"Asp", "D"}, {"Asx", "B"}, {"Cys", "C"},
         {"Glu", "E"}, {"Gln", "Q"}, {"Glx", "Z"}, {"Gly", "G"}, {"His", "H"}, {"Ile", "I"},
         {"Leu", "L"}, {"Lys", "K"}, {"Met", "M"}, {"Phe", "F"}, {"Pro", "P"}, {"Ser", "S"},
         {"Thr", "T"}, {"Trp", "W"}, {"Tyr", "Y"}, {"Val", "V"}, {"Xxx", "X"}, {"Ter", "*"}
-    };        
-    
+    };
+
     private Map<String, String> variantMap = new HashMap<String, String>();
-    
-    private Pattern cDnaExtractor = Pattern.compile(".*c.(\\d+).*");
+    private List<String> hgvspNullClassifications = new ArrayList<>();
+
+    private Pattern cDnaExtractor = Pattern.compile(".*[cn].-?\\*?(\\d+).*");
     private String variantType;
-    
+
     @Bean
     public GenomeNexusImpl annotator() {
         return this;
     }
-    
+
     @Bean
     public GenomeNexusImpl annotator(String hgvsServiceUrl) {
         this.hgvsServiceUrl = hgvsServiceUrl;
         return this;
     }
-    
+
     @Override
     public AnnotatedRecord annotateRecord(MutationRecord record, boolean replaceHugo, String isoformOverridesSource, boolean reannotate) {
         this.mRecord = record;
-        
+
         //check if record already is annotated
         Map<String, String> additionalProperties = mRecord.getAdditionalProperties();
         if(additionalProperties.containsKey("HGVSp_Short") && !reannotate && !additionalProperties.get("HGVSp_Short").isEmpty()) {
@@ -157,29 +158,29 @@ public class GenomeNexusImpl implements Annotator {
                 additionalProperties.get("Protein_Position") != null ? additionalProperties.get("Protein_Position") : "",
                 additionalProperties.get("Codons") != null ? additionalProperties.get("Codons") : "",
                 additionalProperties.get("Hotspot") != null ? additionalProperties.get("Hotspot") : "",
-                additionalProperties);                                   
+                additionalProperties);
         }
-        
+
         // first, get the mutation in the right notation
         String hgvsNotation = convertToHgvs(record);
-        
+
         // make the rest call to genome nexus
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity();
 
         log.debug("Annotating: " + hgvsNotation + " from sample " + record.getTumor_Sample_Barcode());
-        
+
         ResponseEntity<GenomeNexusAnnotationResponse[]> responseEntity = restTemplate.exchange(hgvsServiceUrl + hgvsNotation + "?" + isoformQueryParameter + "=" + isoformOverridesSource + "&" + hotspotParameter + "=summary", HttpMethod.GET, requestEntity, GenomeNexusAnnotationResponse[].class);
         gnResponse = responseEntity.getBody()[0];
-        
+
         // get the canonical trnascript
         canonicalTranscript = getCanonicalTranscript(gnResponse);
-        
+
         // annotate the record
         AnnotatedRecord annotatedRecord= new AnnotatedRecord(resolveHugoSymbol(replaceHugo),
                 mRecord.getEntrez_Gene_Id(),
                 mRecord.getCenter(),
-                gnResponse.getAssemblyName(),               
+                gnResponse.getAssemblyName(),
                 resolveChromosome(),
                 resolveStart(),
                 resolveEnd(),
@@ -223,10 +224,10 @@ public class GenomeNexusImpl implements Annotator {
                 resolveProteinPosEnd(),
                 resolveCodonChange(),
                 resolveHotspot(),
-                mRecord.getAdditionalProperties());                
+                mRecord.getAdditionalProperties());
         return annotatedRecord;
     }
-    
+
     @Override
     public MutationRecord createRecord(Map<String, String> mafLine) throws Exception {
         MutationRecord record = new MutationRecord();
@@ -238,21 +239,21 @@ public class GenomeNexusImpl implements Annotator {
         record.setAdditionalProperties(mafLine);
         return record;
     }
-    
+
     private String resolveHugoSymbol(boolean replaceHugo) {
         if (replaceHugo && canonicalTranscript != null && canonicalTranscript.getGeneSymbol() != null && canonicalTranscript.getGeneSymbol().trim().length() > 0) {
             return canonicalTranscript.getGeneSymbol();
         }
-        
+
         return mRecord.getHugo_Symbol();
-    }    
+    }
     private String resolveChromosome() {
         if (gnResponse.getSeqRegionName() != null) {
             return gnResponse.getSeqRegionName();
         }
-        return mRecord.getChromosome();        
+        return mRecord.getChromosome();
     }
-    
+
     private String resolveStart() {
         try {
             if (gnResponse.getStart() != null) {
@@ -266,7 +267,7 @@ public class GenomeNexusImpl implements Annotator {
             return mRecord.getStart_Position();
         }
     }
-    
+
     private String resolveEnd() {
         try {
             if(gnResponse.getEnd() != null) {
@@ -279,12 +280,12 @@ public class GenomeNexusImpl implements Annotator {
         catch (NumberFormatException e) {
             return mRecord.getEnd_Position();
         }
-    }    
-    
+    }
+
     private String resolveStrandSign() {
-        String strand = gnResponse.getStrand();        
-        
-        if (strand != null && !strand.equals("+") && !strand.equals("-")) {                   
+        String strand = gnResponse.getStrand();
+
+        if (strand != null && !strand.equals("+") && !strand.equals("-")) {
             try {
                 int i = Integer.parseInt(strand);
                 if (i < 0) {
@@ -299,11 +300,20 @@ public class GenomeNexusImpl implements Annotator {
         else {
             strand = mRecord.getStrand();
         }
-        
+
         return strand;
     }
-    
+
     private String resolveVariantClassification() {
+        if (hgvspNullClassifications.size() == 0) {
+            hgvspNullClassifications.add("3'UTR");
+            hgvspNullClassifications.add("5'UTR");
+            hgvspNullClassifications.add("3'Flank");
+            hgvspNullClassifications.add("5'Flank");
+            hgvspNullClassifications.add("IGR");
+            hgvspNullClassifications.add("Intron");
+            hgvspNullClassifications.add("RNA");
+        }
         String variantClassification = null;
         String[] alleles = null;
         if (gnResponse.getAlleleString() != null) {
@@ -311,15 +321,12 @@ public class GenomeNexusImpl implements Annotator {
         }
         if(alleles != null) {
             if (alleles.length == 2) {
-                variantType = getVariantType(alleles[0], alleles[1]);                
+                variantType = getVariantType(alleles[0], alleles[1]);
             }
-        }        
+        }
         if (canonicalTranscript != null) {
-            if (canonicalTranscript.getConsequenceTerms().size() > 0) {
-                if (canonicalTranscript.getConsequenceTerms().size() > 0)
-                {
-                    variantClassification = getVariantClassificationFromMap(canonicalTranscript.getConsequenceTerms().get(0));
-                }                
+            for (String consequence : canonicalTranscript.getConsequenceTerms()) {
+                variantClassification = getVariantClassificationFromMap(consequence);
                 if (variantClassification != null && variantClassification.equals("Frame_Shift")) {
                     if (variantType != null && variantType.equals("INS")) {
                         variantClassification += "_Ins";
@@ -328,11 +335,19 @@ public class GenomeNexusImpl implements Annotator {
                         variantClassification += "_Del";
                     }
                 }
-            }            
+                if (canonicalTranscript.getHgvsp() == null && hgvspNullClassifications.contains(variantClassification)) {
+                    return variantClassification;
+                }
+            }
+        }
+        else {
+            if (gnResponse.getMostSevereConsequence() != null) {
+                variantClassification = getVariantClassificationFromMap(gnResponse.getMostSevereConsequence());
+            }
         }
         return variantClassification != null ? variantClassification : "";
     }
-    
+
     private String resolveVariantType() {
         if (variantType != null) {
             return variantType;
@@ -349,7 +364,7 @@ public class GenomeNexusImpl implements Annotator {
         }
         return "";
     }
-    
+
     private String resolveReferenceAllele() {
         if (gnResponse.getAlleleString() != null)
         {
@@ -357,7 +372,7 @@ public class GenomeNexusImpl implements Annotator {
         }
         return mRecord.getReference_Allele();
     }
-    
+
     private String resolveTumorSeqAllele() {
         if (gnResponse.getAlleleString() != null)
         {
@@ -365,14 +380,14 @@ public class GenomeNexusImpl implements Annotator {
         }
         return getTumorSeqAllele(mRecord);
     }
-    
+
     private String resolveHgvsc() {
         if (canonicalTranscript != null) {
             return canonicalTranscript.getHgvsc() != null ? canonicalTranscript.getHgvsc() : "" ;
         }
         return "";
     }
-    
+
     private String resolveHgvsp() {
         if (canonicalTranscript != null) {
             String hgvsp = canonicalTranscript.getHgvsp();
@@ -382,7 +397,7 @@ public class GenomeNexusImpl implements Annotator {
         }
         return "";
     }
-    
+
     private String resolveHgvspShort() {
         String hgvsp = "";
         if(canonicalTranscript != null) {
@@ -394,81 +409,102 @@ public class GenomeNexusImpl implements Annotator {
                     }
                 }
             }
-            else if (canonicalTranscript.getHgvsc() != null && (canonicalTranscript.getConsequenceTerms().get(0).equals("splice_acceptor_variant") || canonicalTranscript.getConsequenceTerms().get(0).equals("splice_donor_variant"))) {
-                Integer cPos = 0;
-                Integer pPos = 0;
-                Matcher m = cDnaExtractor.matcher(canonicalTranscript.getHgvsc());
-                if (m.matches()) {
-                    cPos = Integer.parseInt(m.group(1));
-                    cPos = cPos < 1 ? 1 : cPos;
-                    pPos = (cPos + cPos % 3) / 3;
-                    hgvsp = "p.X" + String.valueOf(pPos) + "_splice";
+            else if (canonicalTranscript.getHgvsc() != null) {
+                for (String consequence : canonicalTranscript.getConsequenceTerms()) {
+                    if (consequence.equals("splice_acceptor_variant") || consequence.equals("splice_donor_variant") || consequence.equals("splice_region_variant")) {
+                        Integer cPos = 0;
+                        Integer pPos = 0;
+                        Matcher m = cDnaExtractor.matcher(canonicalTranscript.getHgvsc());
+                        if (m.matches()) {
+                            cPos = Integer.parseInt(m.group(1));
+                            cPos = cPos < 1 ? 1 : cPos;
+                            pPos = (cPos + cPos % 3) / 3;
+                            hgvsp = "p.X" + String.valueOf(pPos) + "_splice";
+                            break;
+                        }
+                    }
+                }
+            }
+            else {
+                // try to salvage using protein_start, amino_acids, and consequence_terms
+                try {
+                    String[] aaParts = canonicalTranscript.getAminoAcids().split("/");
+                    hgvsp = aaParts[0] + canonicalTranscript.getProteinStart();
+                    if (canonicalTranscript.getConsequenceTerms() != null && canonicalTranscript.getConsequenceTerms().get(0).equals("frameshift_variant")) {
+                        hgvsp += "fs";
+                    }
+                    else {
+                        hgvsp += aaParts[1];
+                    }
+                }
+                catch (NullPointerException e) {
+                    log.debug("Failed to salvage HGVSp_Short from protein start, amino acids, and consequence terms");
                 }
             }
         }
         return hgvsp;
     }
-    
+
     private String resolveTranscriptId() {
         String transcriptId = "";
         if(canonicalTranscript != null) {
             transcriptId = canonicalTranscript.getTranscriptId();
         }
-        
+
         return transcriptId != null ? transcriptId : "";
     }
-    
+
     private String resolveRefSeq() {
         String refSeq = "";
         if(canonicalTranscript != null) {
-	    if (canonicalTranscript.getRefseqTranscriptIds() != null) {
-            	List<String> refseqTranscriptIds = Arrays.asList(canonicalTranscript.getRefseqTranscriptIds().split(","));
-            	if(refseqTranscriptIds.size() > 0) {
-                	refSeq = refseqTranscriptIds.get(0);
-            	}            
-	    }
+            if (canonicalTranscript.getRefseqTranscriptIds() != null) {
+                List<String> refseqTranscriptIds = Arrays.asList(canonicalTranscript.getRefseqTranscriptIds().split(","));
+                if(refseqTranscriptIds.size() > 0) {
+                    refSeq = refseqTranscriptIds.get(0);
+                }
+            }
         }
-        
+
         return refSeq != null ? refSeq : "";
     }
-    
+
     private String resolveProteinPosStart() {
         String proteinStart = "";
         if(canonicalTranscript != null) {
             proteinStart = canonicalTranscript.getProteinStart();
-        }        
-        
+        }
+
         return proteinStart != null ? proteinStart : "";
     }
-    
+
     private String resolveProteinPosEnd() {
         String proteinEnd = "";
         if(canonicalTranscript != null) {
             proteinEnd = canonicalTranscript.getProteinEnd();
-        }        
-        
+        }
+
         return proteinEnd != null ? proteinEnd : "";
-    }    
-    
+    }
+
     private String resolveCodonChange() {
         String codonChange = "";
         if(canonicalTranscript != null) {
             codonChange = canonicalTranscript.getCodons();
-        }        
-        
+        }
+
         return codonChange != null ? codonChange : "";
     }
-    
+
     private String resolveHotspot() {
         String hotspot = "0";
         if (canonicalTranscript != null) {
             if (canonicalTranscript.getIsHotspot() != null) {
                 hotspot = canonicalTranscript.getIsHotspot().equals("true") ? "1" : "0";
-            }            
+            }
         }
         return hotspot;
     }
-    
+
     private String getProcessedHgvsp(String hgvsp) {
         int iHgvsp = hgvsp.indexOf(":");
         if (hgvsp.contains("(p.%3D)")) {
@@ -478,7 +514,7 @@ public class GenomeNexusImpl implements Annotator {
             return hgvsp.substring(iHgvsp+1);
         }
     }
-    
+
     private String getVariantType(String refAllele, String varAllele) {
         int refLength = refAllele.length();
         int varLength = varAllele.length();
@@ -500,9 +536,9 @@ public class GenomeNexusImpl implements Annotator {
             }
         }
     }
-    
+
     private String convertToHgvs(MutationRecord record)
-    {        
+    {
         String chr = record.getChromosome();
         String start = record.getStart_Position();
         String end = record.getEnd_Position();
@@ -522,9 +558,9 @@ public class GenomeNexusImpl implements Annotator {
 
             int nStart = Integer.valueOf(start);
             int nEnd = Integer.valueOf(end);
-            
+
             nStart += prefix.length();
-            
+
             record.setStart_Position(Integer.toString(nStart));
             record.setEnd_Position(Integer.toString(nEnd));
             start = Integer.toString(nStart);
@@ -564,7 +600,7 @@ public class GenomeNexusImpl implements Annotator {
         else if (ref.length() > 1) {
             hgvs = chr + ":g."+start+"_"+end+"del"+ref+"ins"+var;
         }
-            
+
         /*
          Process SNV
          Example SNP   : 2 216809708 216809708 C T
@@ -575,7 +611,7 @@ public class GenomeNexusImpl implements Annotator {
         }
         return hgvs;
     }
-    
+
     private String longestCommonPrefix(String str1, String str2) {
         for (int prefixLen = 0; prefixLen < str1.length(); prefixLen++) {
             char c = str1.charAt(prefixLen);
@@ -586,26 +622,26 @@ public class GenomeNexusImpl implements Annotator {
         }
         return str1;
     }
-    
+
     private HttpEntity getRequestEntity()
-    {  
+    {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         return new HttpEntity<Object>(headers);
-    }    
-    
+    }
+
     private TranscriptConsequence getCanonicalTranscript(GenomeNexusAnnotationResponse gnResponse) {
         List<TranscriptConsequence> transcripts = new ArrayList<>();
         List<String> ids = new ArrayList<>();
-        
+
         for(TranscriptConsequence transcript : gnResponse.getTranscriptConsequences()) {
             if(transcript.getTranscriptId() != null) {
                 if (transcript.getCanonical().equals("1")) {
                     transcripts.add(transcript);
-                }                
+                }
             }
         }
-        
+
         // only one transcript marked as canonical
         if (transcripts.size() == 1) {
             return transcripts.iterator().next();
@@ -618,7 +654,7 @@ public class GenomeNexusImpl implements Annotator {
             return transcriptWithMostSevereConsequence(gnResponse.getTranscriptConsequences(), gnResponse.getMostSevereConsequence());
         }
     }
-    
+
     private TranscriptConsequence transcriptWithMostSevereConsequence(List<TranscriptConsequence> transcripts, String mostSevereConsequence) {
         for (TranscriptConsequence transcript : transcripts) {
             List<String> consequenceTerms = transcript.getConsequenceTerms();
@@ -628,24 +664,28 @@ public class GenomeNexusImpl implements Annotator {
                 }
             }
         }
-        
-        // no match
+
+        // no match, return the first one
+        if (transcripts.size() > 0) {
+            return transcripts.get(0);
+        }
+
         return null;
     }
-    
+
     private String getVariantClassificationFromMap(String variant) {
         if(variantMap.isEmpty()) {
             // TODO we need to identify all possible variant classifications!
             variantMap.put("splice_acceptor_variant",       "Splice_Site");
             variantMap.put("splice_donor_variant",          "Splice_Site");
             variantMap.put("transcript_ablation",           "Splice_Site");
-            variantMap.put("stop_gained",                   "Nonsense_Mutation");    
+            variantMap.put("stop_gained",                   "Nonsense_Mutation");
             variantMap.put("frameshift_variant",            "Frame_Shift");
             variantMap.put("stop_lost",                     "Nonstop_Mutation");
             variantMap.put("initiator_codon_variant",       "Translation_Start_Site");
             variantMap.put("start_lost",                    "Translation_Start_Site");
             variantMap.put("inframe_insertion",             "In_Frame_Ins");
-            variantMap.put("inframe_deletion",              "In_Frame_Del");    
+            variantMap.put("inframe_deletion",              "In_Frame_Del");
             variantMap.put("missense_variant",              "Missense_Mutation");
             variantMap.put("protein_altering_variant",      "Missense_Mutation"); // Not always correct, code below to handle exceptions
             variantMap.put("coding_sequence_variant",       "Missense_Mutation"); // Not always correct, code below to handle exceptions
@@ -655,32 +695,32 @@ public class GenomeNexusImpl implements Annotator {
             variantMap.put("splice_region_variant",         "Intron");
             variantMap.put("intron_variant",                "Intron");
             variantMap.put("intragenic",                    "Intron");
-            variantMap.put("intragenic_variant",            "Intron");                
+            variantMap.put("intragenic_variant",            "Intron");
             variantMap.put("incomplete_terminal_codon_variant", "Silent");
             variantMap.put("synonymous_variant",            "Silent");
             variantMap.put("stop_retained_variant",         "Silent");
-            variantMap.put("nmd_transcript_variant",        "Silent");                                                   
+            variantMap.put("nmd_transcript_variant",        "Silent");
             variantMap.put("mature_mirna_variant",          "RNA");
             variantMap.put("non_coding_exon_variant",       "RNA");
             variantMap.put("non_coding_transcript_exon_variant", "RNA");
-            variantMap.put("non_coding_transcript_variant", "RNA");                                
-            variantMap.put("nc_transcript_variant",         "RNA"); 
+            variantMap.put("non_coding_transcript_variant", "RNA");
+            variantMap.put("nc_transcript_variant",         "RNA");
             variantMap.put("5_prime_utr_variant",           "5'UTR");
             variantMap.put("5_prime_utr_premature_start_codon_gain_variant", "5'UTR");
-            variantMap.put("3_prime_utr_variant",           "3'UTR");                
-            variantMap.put("TF_binding_site_variant",       "IGR");                                
-            variantMap.put("regulatory_region_variant",     "IGR"); 
-            variantMap.put("regulatory_region",             "IGR");                                
-            variantMap.put("intergenic_variant",            "IGR"); 
-            variantMap.put("intergenic_region",             "IGR");                
-            variantMap.put("upstream_gene_variant",         "5'Flank"); 
-            variantMap.put("downstream_gene_variant",       "3'Flank"); 
-            variantMap.put("tfbs_ablation",                 "Targeted_Region"); 
-            variantMap.put("tfbs_amplification",            "Targeted_Region"); 
-            variantMap.put("regulatory_region_ablation",    "Targeted_Region"); 
-            variantMap.put("regulatory_region_amplification", "Targeted_Region"); 
-            variantMap.put("feature_elongation",            "Targeted_Region"); 
-            variantMap.put("feature_truncation",            "Targeted_Region"); 
+            variantMap.put("3_prime_utr_variant",           "3'UTR");
+            variantMap.put("TF_binding_site_variant",       "IGR");
+            variantMap.put("regulatory_region_variant",     "IGR");
+            variantMap.put("regulatory_region",             "IGR");
+            variantMap.put("intergenic_variant",            "IGR");
+            variantMap.put("intergenic_region",             "IGR");
+            variantMap.put("upstream_gene_variant",         "5'Flank");
+            variantMap.put("downstream_gene_variant",       "3'Flank");
+            variantMap.put("tfbs_ablation",                 "Targeted_Region");
+            variantMap.put("tfbs_amplification",            "Targeted_Region");
+            variantMap.put("regulatory_region_ablation",    "Targeted_Region");
+            variantMap.put("regulatory_region_amplification", "Targeted_Region");
+            variantMap.put("feature_elongation",            "Targeted_Region");
+            variantMap.put("feature_truncation",            "Targeted_Region");
         }
         if (variant.toLowerCase().equals("protein_altering_variant") || variant.toLowerCase().equals("coding_sequence_variant")) {
             String resolvedVariantType = resolveVariantType();
@@ -693,15 +733,15 @@ public class GenomeNexusImpl implements Annotator {
         }
         return variantMap.get(variant.toLowerCase());
     }
-    
+
     public String getHgvsServiceUrl() {
         return hgvsServiceUrl;
     }
-    
+
     public void setHgvsServiceUrl(String hgvsServiceUrl) {
         this.hgvsServiceUrl = hgvsServiceUrl;
     }
-    
+
     private String getTumorSeqAllele(MutationRecord record) {
         String tumorSeqAllele;
         if (record.getTumor_Seq_Allele1().equals(record.getReference_Allele()) || record.getTumor_Seq_Allele1().equals("") || record.getTumor_Seq_Allele1().equals("NA")) {
@@ -709,8 +749,8 @@ public class GenomeNexusImpl implements Annotator {
         }
         else {
             return tumorSeqAllele = record.getTumor_Seq_Allele1();
-        }    
+        }
     }
-    
+
     public static void main(String[] args) {}
 }

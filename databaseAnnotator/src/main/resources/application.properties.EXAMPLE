@@ -1,0 +1,10 @@
+spring.batch.job.enabled=false
+databaseannotator.chunk_size=500
+databaseannotator.user=
+databaseannotator.pass=
+databaseannotator.driver=com.mysql.jdbc.Driver
+databaseannotator.connection_string=jdbc:mysql://<HOST>/<DATABASE>
+
+genomenexus.hgvs=http://<HOST>:<PORT>/variant_annotation/hgvs/
+genomenexus.isoform_query_parameter=isoformOverrideSource
+genomenexus.hotspot_parameter=cancerHotspots
