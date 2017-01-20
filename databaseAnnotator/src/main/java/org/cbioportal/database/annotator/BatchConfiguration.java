@@ -48,6 +48,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 @Configuration
 @EnableBatchProcessing
+@ComponentScan(basePackages="org.cbioportal.annotator")
 public class BatchConfiguration {
 
     public static final String DATABASE_ANNOTATOR_JOB = "databaseAnnotatorJob";
