@@ -32,9 +32,11 @@
 
 package org.cbioportal.annotation.pipeline;
 
+import java.util.ArrayList;
 import org.cbioportal.models.AnnotatedRecord;
 import org.springframework.batch.item.ItemProcessor;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
@@ -47,15 +49,15 @@ public class MutationRecordProcessor implements ItemProcessor<AnnotatedRecord, S
     
     @Override
     public String process(AnnotatedRecord i) throws Exception {
-        String to_write = "";
+        List<String> record = new ArrayList();
         for (String field : header) {
             try {
-                to_write += i.getClass().getMethod("get" + field).invoke(i) + "\t";
+                record.add(i.getClass().getMethod("get" + field).invoke(i).toString());
             }
             catch (Exception e) {
-                to_write += i.getAdditionalProperties().get(field) + "\t";
+                record.add(i.getAdditionalProperties().getOrDefault(field,""));
             }
         }        
-        return to_write.substring(0, to_write.length());
+        return StringUtils.join(record, "\t");
     }   
 }

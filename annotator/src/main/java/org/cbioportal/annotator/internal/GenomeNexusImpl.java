@@ -86,6 +86,8 @@ public class GenomeNexusImpl implements Annotator {
         {"Leu", "L"}, {"Lys", "K"}, {"Met", "M"}, {"Phe", "F"}, {"Pro", "P"}, {"Ser", "S"},
         {"Thr", "T"}, {"Trp", "W"}, {"Tyr", "Y"}, {"Val", "V"}, {"Xxx", "X"}, {"Ter", "*"}
     };
+    private Set<String> spliceSiteVariants = new HashSet<String>(Arrays.asList(
+            "splice_acceptor_variant", "splice_donor_variant", "splice_region_variant"));
 
     private Map<String, String> variantMap = new HashMap<String, String>();
     private List<String> hgvspNullClassifications = new ArrayList<>();
@@ -180,7 +182,7 @@ public class GenomeNexusImpl implements Annotator {
         AnnotatedRecord annotatedRecord= new AnnotatedRecord(resolveHugoSymbol(replaceHugo),
                 mRecord.getEntrez_Gene_Id(),
                 mRecord.getCenter(),
-                gnResponse.getAssemblyName(),
+                resolveAssemblyName(),
                 resolveChromosome(),
                 resolveStart(),
                 resolveEnd(),
@@ -254,6 +256,10 @@ public class GenomeNexusImpl implements Annotator {
         return mRecord.getChromosome();
     }
 
+    private String resolveAssemblyName() {
+        return (gnResponse.getAssemblyName() == null) ? mRecord.getNCBI_Build() : gnResponse.getAssemblyName();
+    }
+    
     private String resolveStart() {
         try {
             if (gnResponse.getStart() != null) {
@@ -305,7 +311,7 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     private String resolveVariantClassification() {
-        if (hgvspNullClassifications.size() == 0) {
+        if (hgvspNullClassifications.isEmpty()) {
             hgvspNullClassifications.add("3'UTR");
             hgvspNullClassifications.add("5'UTR");
             hgvspNullClassifications.add("3'Flank");
@@ -319,10 +325,8 @@ public class GenomeNexusImpl implements Annotator {
         if (gnResponse.getAlleleString() != null) {
             alleles = gnResponse.getAlleleString().split("/", -1);
         }
-        if(alleles != null) {
-            if (alleles.length == 2) {
-                variantType = getVariantType(alleles[0], alleles[1]);
-            }
+        if(alleles != null && alleles.length == 2) {
+            variantType = getVariantType(alleles[0], alleles[1]);
         }
         if (canonicalTranscript != null) {
             for (String consequence : canonicalTranscript.getConsequenceTerms()) {
@@ -345,7 +349,7 @@ public class GenomeNexusImpl implements Annotator {
                 variantClassification = getVariantClassificationFromMap(gnResponse.getMostSevereConsequence());
             }
         }
-        return variantClassification != null ? variantClassification : "";
+        return variantClassification != null ? variantClassification : mRecord.getVariant_Classification();
     }
 
     private String resolveVariantType() {
@@ -409,39 +413,50 @@ public class GenomeNexusImpl implements Annotator {
                     }
                 }
             }
-            else if (canonicalTranscript.getHgvsc() != null) {
-                for (String consequence : canonicalTranscript.getConsequenceTerms()) {
-                    if (consequence.equals("splice_acceptor_variant") || consequence.equals("splice_donor_variant") || consequence.equals("splice_region_variant")) {
-                        Integer cPos = 0;
-                        Integer pPos = 0;
-                        Matcher m = cDnaExtractor.matcher(canonicalTranscript.getHgvsc());
-                        if (m.matches()) {
-                            cPos = Integer.parseInt(m.group(1));
-                            cPos = cPos < 1 ? 1 : cPos;
-                            pPos = (cPos + cPos % 3) / 3;
-                            hgvsp = "p.X" + String.valueOf(pPos) + "_splice";
-                            break;
-                        }
-                    }
+            else if (canonicalTranscript.getHgvsc() != null && spliceSiteVariants.contains(canonicalTranscript.getConsequenceTerms().get(0))) {
+                Integer cPos = 0;
+                Integer pPos = 0;
+                Matcher m = cDnaExtractor.matcher(canonicalTranscript.getHgvsc());
+                if (m.matches()) {
+                    cPos = Integer.parseInt(m.group(1));
+                    cPos = cPos < 1 ? 1 : cPos;
+                    pPos = (cPos + cPos % 3) / 3;
+                    hgvsp = "p.X" + String.valueOf(pPos) + "_splice";
                 }
             }
             else {
                 // try to salvage using protein_start, amino_acids, and consequence_terms
-                try {
-                    String[] aaParts = canonicalTranscript.getAminoAcids().split("/");
-                    hgvsp = aaParts[0] + canonicalTranscript.getProteinStart();
-                    if (canonicalTranscript.getConsequenceTerms() != null && canonicalTranscript.getConsequenceTerms().get(0).equals("frameshift_variant")) {
-                        hgvsp += "fs";
-                    }
-                    else {
-                        hgvsp += aaParts[1];
-                    }
+                hgvsp = resolveHgvspShortFromAAs();
+            }
+        }
+        return hgvsp;
+    }
+    
+    private String resolveHgvspShortFromAAs() {
+        String hgvsp = "";
+        try {
+            String[] aaParts = canonicalTranscript.getAminoAcids().split("/");
+            if (canonicalTranscript.getConsequenceTerms() != null && canonicalTranscript.getConsequenceTerms().get(0).equals("inframe_insertion")) {
+                hgvsp = aaParts[1].substring(0,1) + canonicalTranscript.getProteinStart() + "_" + aaParts[1].substring(1, 2) + "ins" + 
+                        canonicalTranscript.getProteinEnd() + aaParts[1].substring(2);
+            }
+            else if (canonicalTranscript.getConsequenceTerms() != null && canonicalTranscript.getConsequenceTerms().get(0).equals("inframe_deletion")) {
+                hgvsp = aaParts[0] + "del";
+            }
+            else {
+                hgvsp = aaParts[0] + canonicalTranscript.getProteinStart();
+                if (canonicalTranscript.getConsequenceTerms() != null && canonicalTranscript.getConsequenceTerms().get(0).equals("frameshift_variant")) {
+                    hgvsp += "fs";
                 }
-                catch (NullPointerException e) {
-                    log.debug("Failed to salvage HGVSp_Short from protein start, amino acids, and consequence terms");
+                else {
+                    hgvsp += aaParts[1];
                 }
             }
         }
+        catch (NullPointerException e) {
+            log.debug("Failed to salvage HGVSp_Short from protein start, amino acids, and consequence terms");
+        }
+        
         return hgvsp;
     }
 

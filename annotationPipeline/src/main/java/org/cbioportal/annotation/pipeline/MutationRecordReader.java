@@ -34,6 +34,8 @@ package org.cbioportal.annotation.pipeline;
 
 import java.io.*;
 import java.util.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.cbioportal.models.*;
 import org.cbioportal.annotator.Annotator;
 import org.springframework.batch.item.*;
@@ -64,6 +66,8 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
     @Autowired
     Annotator annotator;
     
+    private static final Log LOG = LogFactory.getLog(MutationRecordReader.class);
+    
     @Override
     public void open(ExecutionContext ec) throws ItemStreamException {
         
@@ -83,12 +87,10 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
                 public void handleLine(String line) {
                     tokenizer.setNames(line.split("\t"));
                 }
-        });
-        
+        });        
         reader.open(ec);
         
-        MutationRecord mutationRecord;
-        
+        MutationRecord mutationRecord;        
         try {
             while((mutationRecord = reader.read()) != null) {
                 mutationRecords.add(mutationRecord);
@@ -97,9 +99,17 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
         catch(Exception e) {
             throw new ItemStreamException(e);
         }
+        reader.close();
         
         for(MutationRecord record : mutationRecords) {
-            annotatedRecords.add(annotator.annotateRecord(record, replace.equals("true"), isoformOverride, true));
+            AnnotatedRecord annotatedRecord = annotator.annotateRecord(record, replace.equals("true"), isoformOverride, true);
+            if (annotatedRecord.getHGVSc().isEmpty() && annotatedRecord.getHGVSp().isEmpty()) {
+                LOG.info("Failed to annotate record for sample " + record.getTumor_Sample_Barcode() + 
+                        " and variant (chr,start,end,ref,alt): (" + record.getChromosome() + "," + 
+                        record.getStart_Position() + "," + record.getEnd_Position() + "," + 
+                        record.getReference_Allele() + "," + annotatedRecord.getTumor_Seq_Allele2() + ")");
+            }
+            annotatedRecords.add(annotatedRecord);
             header.addAll(record.getHeaderWithAdditionalFields());
         }
         List<String> full_header = new ArrayList(header);
