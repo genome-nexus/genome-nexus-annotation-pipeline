@@ -77,7 +77,7 @@ public class AnnotationPipeline
         JobParameters jobParameters = new JobParametersBuilder()
             .addString("filename", filename)
             .addString("outputFilename", outputFilename)
-            .addString("replace", replace == true ? "true" : "false")
+            .addString("replace", String.valueOf(replace))
             .addString("isoformOverride", isoformOverride)
     		.toJobParameters();  
         JobExecution jobExecution = jobLauncher.run(annotationJob, jobParameters);
