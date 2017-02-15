@@ -54,10 +54,14 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
     private String filename;
     
     @Value("#{jobParameters[replace]}")
-    private String replace;
+    private boolean replace;
     
     @Value("#{jobParameters[isoformOverride]}")
     private String isoformOverride;    
+    
+    private int failedAnnotations;
+    private int failedNullHgvspAnnotations;
+    private int failedMitochondrialAnnotations;
     
     private List<MutationRecord> mutationRecords = new ArrayList<>();
     private List<AnnotatedRecord> annotatedRecords = new ArrayList<>();
@@ -102,16 +106,31 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
         reader.close();
         
         for(MutationRecord record : mutationRecords) {
-            AnnotatedRecord annotatedRecord = annotator.annotateRecord(record, replace.equals("true"), isoformOverride, true);
+            AnnotatedRecord annotatedRecord = annotator.annotateRecord(record, replace, isoformOverride, true);
             if (annotatedRecord.getHGVSc().isEmpty() && annotatedRecord.getHGVSp().isEmpty()) {
-                LOG.info("Failed to annotate record for sample " + record.getTumor_Sample_Barcode() + 
-                        " and variant (chr,start,end,ref,alt): (" + record.getChromosome() + "," + 
-                        record.getStart_Position() + "," + record.getEnd_Position() + "," + 
-                        record.getReference_Allele() + "," + annotatedRecord.getTumor_Seq_Allele2() + ")");
-            }
+                String message = "Failed to annotate record for sample " + record.getTumor_Sample_Barcode() + 
+                            " and variant (chr,start,end,ref,alt): (" + record.getChromosome() + "," + 
+                            record.getStart_Position() + "," + record.getEnd_Position() + "," + 
+                            record.getReference_Allele() + "," + annotatedRecord.getTumor_Seq_Allele2() + ")";                
+                if (annotator.isHgvspNullClassifications(annotatedRecord.getVariant_Classification())) {
+                    failedNullHgvspAnnotations++;
+                    message += " - Ignoring record with HGVSp null classification: " + annotatedRecord.getVariant_Classification();
+                }
+                else if (annotatedRecord.getChromosome().equals("M")) {
+                    failedMitochondrialAnnotations++;
+                    message += " - Cannot annotate mitochondrial variants at this time.";
+                }
+                failedAnnotations++;
+                LOG.info(message);
+            }            
             annotatedRecords.add(annotatedRecord);
             header.addAll(record.getHeaderWithAdditionalFields());
         }
+        // log number of records that failed annotations
+        LOG.info("Total records that failed annotation: " + failedAnnotations);
+        LOG.info("# records with HGVSp null variant classification: " + failedNullHgvspAnnotations);
+        LOG.info("# records with Mitochondrial variants: " + failedMitochondrialAnnotations);
+        
         List<String> full_header = new ArrayList(header);
         ec.put("mutation_header", full_header);
     }

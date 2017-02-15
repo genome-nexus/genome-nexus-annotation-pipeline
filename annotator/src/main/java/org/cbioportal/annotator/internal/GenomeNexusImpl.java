@@ -766,6 +766,11 @@ public class GenomeNexusImpl implements Annotator {
             return tumorSeqAllele = record.getTumor_Seq_Allele1();
         }
     }
+    
+    @Override
+    public boolean isHgvspNullClassifications(String variantClassification) {
+        return hgvspNullClassifications.contains(variantClassification);
+    }
 
     public static void main(String[] args) {}
 }
