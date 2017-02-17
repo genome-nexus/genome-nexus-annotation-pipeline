@@ -90,7 +90,7 @@ public class GenomeNexusImpl implements Annotator {
             "splice_acceptor_variant", "splice_donor_variant", "splice_region_variant"));
 
     private Map<String, String> variantMap = new HashMap<String, String>();
-    private List<String> hgvspNullClassifications = new ArrayList<>();
+    private static List<String> hgvspNullClassifications = initNullClassifications();
 
     private Pattern cDnaExtractor = Pattern.compile(".*[cn].-?\\*?(\\d+).*");
     private String variantType;
@@ -106,13 +106,21 @@ public class GenomeNexusImpl implements Annotator {
         return this;
     }
 
+    private boolean annotationNeeded(MutationRecord record) {
+        Map<String, String> additionalProperties = record.getAdditionalProperties();
+        if (!additionalProperties.containsKey("HGVSp_Short")) {
+            return true;
+        }
+        return additionalProperties.get("HGVSp_Short").isEmpty() && !hgvspNullClassifications.contains(record.getVariant_Classification());
+    }
+
     @Override
     public AnnotatedRecord annotateRecord(MutationRecord record, boolean replaceHugo, String isoformOverridesSource, boolean reannotate) {
         this.mRecord = record;
 
         //check if record already is annotated
         Map<String, String> additionalProperties = mRecord.getAdditionalProperties();
-        if(additionalProperties.containsKey("HGVSp_Short") && !reannotate && !additionalProperties.get("HGVSp_Short").isEmpty()) {
+        if(!reannotate && !annotationNeeded(record)) {
             return new AnnotatedRecord(mRecord.getHugo_Symbol(),
                 mRecord.getEntrez_Gene_Id(),
                 mRecord.getCenter(),
@@ -259,7 +267,7 @@ public class GenomeNexusImpl implements Annotator {
     private String resolveAssemblyName() {
         return (gnResponse.getAssemblyName() == null) ? mRecord.getNCBI_Build() : gnResponse.getAssemblyName();
     }
-    
+
     private String resolveStart() {
         try {
             if (gnResponse.getStart() != null) {
@@ -311,15 +319,6 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     private String resolveVariantClassification() {
-        if (hgvspNullClassifications.isEmpty()) {
-            hgvspNullClassifications.add("3'UTR");
-            hgvspNullClassifications.add("5'UTR");
-            hgvspNullClassifications.add("3'Flank");
-            hgvspNullClassifications.add("5'Flank");
-            hgvspNullClassifications.add("IGR");
-            hgvspNullClassifications.add("Intron");
-            hgvspNullClassifications.add("RNA");
-        }
         String variantClassification = null;
         String[] alleles = null;
         if (gnResponse.getAlleleString() != null) {
@@ -431,13 +430,13 @@ public class GenomeNexusImpl implements Annotator {
         }
         return hgvsp;
     }
-    
+
     private String resolveHgvspShortFromAAs() {
         String hgvsp = "";
         try {
             String[] aaParts = canonicalTranscript.getAminoAcids().split("/");
             if (canonicalTranscript.getConsequenceTerms() != null && canonicalTranscript.getConsequenceTerms().get(0).equals("inframe_insertion")) {
-                hgvsp = aaParts[1].substring(0,1) + canonicalTranscript.getProteinStart() + "_" + aaParts[1].substring(1, 2) + "ins" + 
+                hgvsp = aaParts[1].substring(0,1) + canonicalTranscript.getProteinStart() + "_" + aaParts[1].substring(1, 2) + "ins" +
                         canonicalTranscript.getProteinEnd() + aaParts[1].substring(2);
             }
             else if (canonicalTranscript.getConsequenceTerms() != null && canonicalTranscript.getConsequenceTerms().get(0).equals("inframe_deletion")) {
@@ -456,7 +455,7 @@ public class GenomeNexusImpl implements Annotator {
         catch (NullPointerException e) {
             log.debug("Failed to salvage HGVSp_Short from protein start, amino acids, and consequence terms");
         }
-        
+
         return hgvsp;
     }
 
@@ -766,10 +765,22 @@ public class GenomeNexusImpl implements Annotator {
             return tumorSeqAllele = record.getTumor_Seq_Allele1();
         }
     }
-    
+
     @Override
     public boolean isHgvspNullClassifications(String variantClassification) {
         return hgvspNullClassifications.contains(variantClassification);
+    }
+
+    private static List<String> initNullClassifications() {
+        List<String> hgvspNullClassifications = new ArrayList<>();
+        hgvspNullClassifications.add("3'UTR");
+        hgvspNullClassifications.add("5'UTR");
+        hgvspNullClassifications.add("3'Flank");
+        hgvspNullClassifications.add("5'Flank");
+        hgvspNullClassifications.add("IGR");
+        hgvspNullClassifications.add("Intron");
+        hgvspNullClassifications.add("RNA");
+        return hgvspNullClassifications;
     }
 
     public static void main(String[] args) {}
