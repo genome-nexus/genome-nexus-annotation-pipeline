@@ -574,6 +574,9 @@ public class GenomeNexusImpl implements Annotator {
             int nEnd = Integer.valueOf(end);
 
             nStart += prefix.length();
+            if (ref.length() == 0) {
+                nStart -= 1;
+            }
 
             record.setStart_Position(Integer.toString(nStart));
             record.setEnd_Position(Integer.toString(nEnd));
