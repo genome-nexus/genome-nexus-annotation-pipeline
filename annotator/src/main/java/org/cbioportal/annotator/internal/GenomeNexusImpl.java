@@ -168,6 +168,7 @@ public class GenomeNexusImpl implements Annotator {
                 additionalProperties.get("Protein_Position") != null ? additionalProperties.get("Protein_Position") : "",
                 additionalProperties.get("Codons") != null ? additionalProperties.get("Codons") : "",
                 additionalProperties.get("Hotspot") != null ? additionalProperties.get("Hotspot") : "",
+                additionalProperties.get("Consequence") != null ? additionalProperties.get("Consequence") : "",
                 additionalProperties);
         }
 
@@ -234,6 +235,7 @@ public class GenomeNexusImpl implements Annotator {
                 resolveProteinPosEnd(),
                 resolveCodonChange(),
                 resolveHotspot(),
+                resolveConsequence(),
                 mRecord.getAdditionalProperties());
         return annotatedRecord;
     }
@@ -549,6 +551,17 @@ public class GenomeNexusImpl implements Annotator {
                 return "DEL";
             }
         }
+    }
+    
+    private String resolveConsequence() {
+        if (canonicalTranscript == null) {
+            return "";
+        }
+        List<String> consequenceTerms = canonicalTranscript.getConsequenceTerms();
+        if (consequenceTerms != null && consequenceTerms.size() > 0) {
+            return StringUtils.join(consequenceTerms, ",");
+        }
+        return "";
     }
 
     private String convertToHgvs(MutationRecord record)
