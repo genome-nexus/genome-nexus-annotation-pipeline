@@ -172,16 +172,11 @@ public class GenomeNexusImpl implements Annotator {
                 additionalProperties);
         }
 
-        // first, get the mutation in the right notation
-        String hgvsNotation = convertToHgvs(record);
-
         // make the rest call to genome nexus
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity();
 
-        log.debug("Annotating: " + hgvsNotation + " from sample " + record.getTumor_Sample_Barcode());
-
-        ResponseEntity<GenomeNexusAnnotationResponse[]> responseEntity = restTemplate.exchange(hgvsServiceUrl + hgvsNotation + "?" + isoformQueryParameter + "=" + isoformOverridesSource + "&" + hotspotParameter + "=summary", HttpMethod.GET, requestEntity, GenomeNexusAnnotationResponse[].class);
+        ResponseEntity<GenomeNexusAnnotationResponse[]> responseEntity = restTemplate.exchange(getUrlForRecord(record, isoformOverridesSource), HttpMethod.GET, requestEntity, GenomeNexusAnnotationResponse[].class);
         gnResponse = responseEntity.getBody()[0];
 
         // get the canonical trnascript
@@ -250,6 +245,17 @@ public class GenomeNexusImpl implements Annotator {
         }
         record.setAdditionalProperties(mafLine);
         return record;
+    }
+
+     @Override
+    public boolean isHgvspNullClassifications(String variantClassification) {
+        return hgvspNullClassifications.contains(variantClassification);
+    }
+
+    @Override
+    public String getUrlForRecord(MutationRecord record, String isoformOverridesSource) {
+        String hgvsNotation = convertToHgvs(record);
+        return hgvsServiceUrl + hgvsNotation + "?" + isoformQueryParameter + "=" + isoformOverridesSource + "&" +  hotspotParameter + "=summary";
     }
 
     private String resolveHugoSymbol(boolean replaceHugo) {
@@ -552,7 +558,7 @@ public class GenomeNexusImpl implements Annotator {
             }
         }
     }
-    
+
     private String resolveConsequence() {
         if (canonicalTranscript == null) {
             return "";
@@ -780,11 +786,6 @@ public class GenomeNexusImpl implements Annotator {
         else {
             return tumorSeqAllele = record.getTumor_Seq_Allele1();
         }
-    }
-
-    @Override
-    public boolean isHgvspNullClassifications(String variantClassification) {
-        return hgvspNullClassifications.contains(variantClassification);
     }
 
     private static List<String> initNullClassifications() {
