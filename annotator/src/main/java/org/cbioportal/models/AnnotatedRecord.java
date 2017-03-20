@@ -49,21 +49,11 @@ public class AnnotatedRecord extends MutationRecord{
     protected String codonChange;
     protected String hotspot;
     protected String consequence;
-    
-    static {                       
-        HEADER.add("HGVSc");
-        HEADER.add("HGVSp");
-        HEADER.add("HGVSp_Short");
-        HEADER.add("Transcript_ID");
-        HEADER.add("RefSeq");
-        HEADER.add("Protein_position");
-        HEADER.add("Codons");        
-        HEADER.add("Hotspot");
-        HEADER.add(HEADER.indexOf("Variant_Classification"), "Consequence");
+
+    public AnnotatedRecord() {
+        addAnnotatedFieldsToHeader();
     }
 
-    public AnnotatedRecord() {}
-    
     public AnnotatedRecord(String hugoSymbol,
         String entrezGeneId,
         String center,
@@ -113,7 +103,7 @@ public class AnnotatedRecord extends MutationRecord{
         String hotspot,
         String consequence,
         Map<String, String> additionalProperties
-    ) {        
+    ) {
         super(hugoSymbol,
             entrezGeneId,
             center,
@@ -163,77 +153,90 @@ public class AnnotatedRecord extends MutationRecord{
         this.codonChange = codonChange;
         this.hotspot = hotspot;
         this.consequence = consequence;
-    }  
+        addAnnotatedFieldsToHeader();
+    }
 
     public String getHGVSc() {
         return this.hgvsc;
     }
-    
+
     public void setHGVSc(String hgvsc) {
         this.hgvsc = hgvsc;
-    }   
-    
+    }
+
     public String getHGVSp() {
         return this.hgvsp;
     }
-    
+
     public void setHGVSp(String hgvsp) {
         this.hgvsp = hgvsp;
-    } 
+    }
 
     public String getHGVSp_Short() {
         return this.hgvspShort;
     }
-    
+
     public void setHGVSp_Short(String hgvspShort) {
         this.hgvspShort = hgvspShort;
-    }    
-    
+    }
+
     public String getTranscript_ID() {
         return this.transcriptId;
     }
-    
+
     public void setTranscript_ID(String transcriptId) {
         this.transcriptId = transcriptId;
-    }     
-    
+    }
+
     public String getRefSeq() {
         return this.refSeq;
     }
-    
+
     public void setRefSeq(String refSeq) {
         this.refSeq = refSeq;
-    }    
-    
+    }
+
     public String getProtein_position() {
         return this.proteinPosStart;
     }
-    
+
     public void setProtein_position(String proteinPosStart) {
         this.proteinPosStart = proteinPosStart;
     }
-    
+
     public String getCodons() {
         return this.codonChange;
     }
-    
+
     public void setCodons(String codonChange) {
         this.codonChange = codonChange;
     }
-    
+
     public String getHotspot() {
         return this.hotspot;
     }
-    
+
     public void setHotspot(String hotspot) {
         this.hotspot = hotspot;
     }
-    
+
     public String getConsequence() {
         return this.consequence;
     }
-    
+
     public void setConsquence(String consequence) {
         this.consequence = consequence;
+    }
+
+    private void addAnnotatedFieldsToHeader() {
+        header.add("HGVSc");
+        header.add("HGVSp");
+        header.add("HGVSp_Short");
+        header.add("Transcript_ID");
+        header.add("RefSeq");
+        header.add("Protein_position");
+        header.add("Codons");
+        header.add("Hotspot");
+        header.add(header.indexOf("Variant_Classification"), "Consequence");
     }
 }

@@ -238,7 +238,7 @@ public class GenomeNexusImpl implements Annotator {
     @Override
     public MutationRecord createRecord(Map<String, String> mafLine) throws Exception {
         MutationRecord record = new MutationRecord();
-        for (String header : new MutationRecord().getHeader()) {
+        for (String header : record.getHeader()) {
             if(mafLine.keySet().contains(header)) {
                 record.getClass().getMethod("set" + header, String.class).invoke(record, mafLine.remove(header));
             }
