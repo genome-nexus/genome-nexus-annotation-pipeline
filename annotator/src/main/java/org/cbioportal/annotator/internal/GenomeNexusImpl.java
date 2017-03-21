@@ -578,13 +578,15 @@ public class GenomeNexusImpl implements Annotator {
         String ref = record.getReference_Allele();
         String var = getTumorSeqAllele(record);
 
-        if (ref.equals(var)){
-            log.info("Warning: Reference allele extracted from " + chr + ":" + start + "-" + end + " matches alt allele. Sample: " + record.getTumor_Sample_Barcode());
-            return null;
+        String prefix = "";
+        if(ref.equals(var)) {
+            log.warn("Warning: Reference allele extracted from " + chr + ":" + start + "-" + end + " matches alt allele. Sample: " + record.getTumor_Sample_Barcode());
+        }
+        else {
+            prefix = longestCommonPrefix(ref, var);
         }
 
         // Remove common prefix and ajust variant position accordingly
-        String prefix = longestCommonPrefix(ref, var);
         if (prefix.length() > 0){
             ref = ref.substring(prefix.length());
             var = var.substring(prefix.length());
