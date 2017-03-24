@@ -124,7 +124,7 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
                 LOG.info(message);
             }            
             annotatedRecords.add(annotatedRecord);
-            header.addAll(record.getHeaderWithAdditionalFields());
+            header.addAll(annotatedRecord.getHeaderWithAdditionalFields());
         }
         // log number of records that failed annotations
         LOG.info("Total records that failed annotation: " + failedAnnotations);
