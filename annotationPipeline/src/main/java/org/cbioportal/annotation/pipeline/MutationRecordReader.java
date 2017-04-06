@@ -44,6 +44,7 @@ import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.web.client.HttpServerErrorException;
 
 /**
  *
@@ -106,23 +107,34 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
         reader.close();
         
         for(MutationRecord record : mutationRecords) {
-            AnnotatedRecord annotatedRecord = annotator.annotateRecord(record, replace, isoformOverride, true);
+            // save variant details for logging
+            String variantDetails = "(chr,start,end,ref,alt)= (" + record.getChromosome() + "," + record.getStart_Position() + ","
+                    + record.getEnd_Position() + "," + record.getReference_Allele() + "," + record.getTumor_Seq_Allele2() + ")";
+            
+            // init annotated record w/o genome nexus in case server error occurs
+            // if no error then annotated record will get overwritten anyway with genome nexus response
+            AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
+            try {
+                annotatedRecord = annotator.annotateRecord(record, replace, isoformOverride, true);
+            }
+            catch (HttpServerErrorException ex) {
+                LOG.warn("Failed to annotate variant due to internal server error: " + variantDetails);
+            }
             if (annotatedRecord.getHGVSc().isEmpty() && annotatedRecord.getHGVSp().isEmpty()) {
-                String message = "Failed to annotate record for sample " + record.getTumor_Sample_Barcode() + 
-                            " and variant (chr,start,end,ref,alt): (" + record.getChromosome() + "," + 
-                            record.getStart_Position() + "," + record.getEnd_Position() + "," + 
-                            record.getReference_Allele() + "," + annotatedRecord.getTumor_Seq_Allele2() + ")";                
                 if (annotator.isHgvspNullClassifications(annotatedRecord.getVariant_Classification())) {
                     failedNullHgvspAnnotations++;
-                    message += " - Ignoring record with HGVSp null classification: " + annotatedRecord.getVariant_Classification();
+                    LOG.info("Ignoring record with HGVSp null classification: " + annotatedRecord.getVariant_Classification() + 
+                            ": " + variantDetails);
                 }
                 else if (annotatedRecord.getChromosome().equals("M")) {
                     failedMitochondrialAnnotations++;
-                    message += " - Cannot annotate mitochondrial variants at this time.";
+                    LOG.info("Mitochondrial variants are not supported at this time for annotation - skipping variant: " + variantDetails);
+                }
+                else {
+                    LOG.info("Failed to annotate variant: " + variantDetails);
                 }
                 failedAnnotations++;
-                LOG.info(message);
-            }            
+            }
             annotatedRecords.add(annotatedRecord);
             header.addAll(annotatedRecord.getHeaderWithAdditionalFields());
         }
