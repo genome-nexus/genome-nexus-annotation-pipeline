@@ -120,57 +120,8 @@ public class GenomeNexusImpl implements Annotator {
         this.mRecord = record;
 
         //check if record already is annotated
-        Map<String, String> additionalProperties = mRecord.getAdditionalProperties();
         if(!reannotate && !annotationNeeded(record)) {
-            return new AnnotatedRecord(mRecord.getHugo_Symbol(),
-                mRecord.getEntrez_Gene_Id(),
-                mRecord.getCenter(),
-                mRecord.getNCBI_Build(),
-                mRecord.getChromosome(),
-                mRecord.getStart_Position(),
-                mRecord.getEnd_Position(),
-                mRecord.getStrand(),
-                mRecord.getVariant_Classification(),
-                mRecord.getVariant_Type(),
-                mRecord.getReference_Allele(),
-                mRecord.getTumor_Seq_Allele1(),
-                mRecord.getTumor_Seq_Allele2(),
-                mRecord.getdbSNP_RS(),
-                mRecord.getdbSNP_Val_Status(),
-                mRecord.getTumor_Sample_Barcode(),
-                mRecord.getMatched_Norm_Sample_Barcode(),
-                mRecord.getMatch_Norm_Seq_Allele1(),
-                mRecord.getMatch_Norm_Seq_Allele2(),
-                mRecord.getTumor_Validation_Allele1(),
-                mRecord.getTumor_Validation_Allele2(),
-                mRecord.getMatch_Norm_Validation_Allele1(),
-                mRecord.getMatch_Norm_Validation_Allele2(),
-                mRecord.getVerification_Status(),
-                mRecord.getValidation_Status(),
-                mRecord.getMutation_Status(),
-                mRecord.getSequencing_Phase(),
-                mRecord.getSequence_Source(),
-                mRecord.getValidation_Method(),
-                mRecord.getScore(),
-                mRecord.getBAM_File(),
-                mRecord.getSequencer(),
-                mRecord.getTumor_Sample_UUID(),
-                mRecord.getMatched_Norm_Sample_UUID(),
-                mRecord.gett_ref_count(),
-                mRecord.gett_alt_count(),
-                mRecord.getn_ref_count(),
-                mRecord.getn_alt_count(),
-                additionalProperties.get("HGVSc") != null ? additionalProperties.get("HGVSc") : "",
-                additionalProperties.get("HGVSp") != null ? additionalProperties.get("HGVSp") : "",
-                additionalProperties.get("HGVSp_Short"),
-                additionalProperties.get("Transcript_ID") != null ? additionalProperties.get("Transcript_ID") : "",
-                additionalProperties.get("RefSeq") != null ? additionalProperties.get("RefSeq") : "",
-                additionalProperties.get("Protein_Position") != null ? additionalProperties.get("Protein_Position") : "",
-                additionalProperties.get("Protein_Position") != null ? additionalProperties.get("Protein_Position") : "",
-                additionalProperties.get("Codons") != null ? additionalProperties.get("Codons") : "",
-                additionalProperties.get("Hotspot") != null ? additionalProperties.get("Hotspot") : "",
-                additionalProperties.get("Consequence") != null ? additionalProperties.get("Consequence") : "",
-                additionalProperties);
+            return new AnnotatedRecord(mRecord);
         }
 
         // make the rest call to genome nexus
