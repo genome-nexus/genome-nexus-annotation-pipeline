@@ -669,7 +669,7 @@ public class GenomeNexusImpl implements Annotator {
                 return "In_Frame_Ins";
             }
         }
-        return variantMap.getOrDefault(variant.toLowerCase(), "Targeted_Region");
+        return variantMap.getOrDefault(variant, "Targeted_Region");
     }
 
     public String getHgvsServiceUrl() {
@@ -694,7 +694,7 @@ public class GenomeNexusImpl implements Annotator {
         String highestPriorityConsequence = "";
         Integer highestPriority = Integer.MAX_VALUE;
         for (String consequence : consequences) {
-            if (effectPriority.getOrDefault(consequence, Integer.MAX_VALUE) < highestPriority) {
+            if (effectPriority.getOrDefault(consequence.toLowerCase(), Integer.MAX_VALUE) < highestPriority) {
                 highestPriorityConsequence = consequence;
                 highestPriority = effectPriority.get(consequence);
             }
