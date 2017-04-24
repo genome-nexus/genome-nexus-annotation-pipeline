@@ -696,7 +696,7 @@ public class GenomeNexusImpl implements Annotator {
         for (String consequence : consequences) {
             if (effectPriority.getOrDefault(consequence.toLowerCase(), Integer.MAX_VALUE) < highestPriority) {
                 highestPriorityConsequence = consequence;
-                highestPriority = effectPriority.get(consequence);
+                highestPriority = effectPriority.getOrDefault(consequence.toLowerCase(), Integer.MAX_VALUE);
             }
         }
         return highestPriorityConsequence;
