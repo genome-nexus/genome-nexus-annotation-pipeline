@@ -34,6 +34,7 @@ package org.cbioportal.annotation.pipeline;
 
 import java.io.*;
 import java.util.*;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cbioportal.models.*;
@@ -53,31 +54,38 @@ import org.springframework.web.client.HttpServerErrorException;
 public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
     @Value("#{jobParameters[filename]}")
     private String filename;
-    
+
     @Value("#{jobParameters[replace]}")
     private boolean replace;
-    
+
     @Value("#{jobParameters[isoformOverride]}")
-    private String isoformOverride;    
-    
+    private String isoformOverride;
+
+    @Value("#{jobParameters[errorReportLocation]}")
+    private String errorReportLocation;
+
     private int failedAnnotations;
     private int failedNullHgvspAnnotations;
     private int failedMitochondrialAnnotations;
-    
+
     private List<MutationRecord> mutationRecords = new ArrayList<>();
     private List<AnnotatedRecord> annotatedRecords = new ArrayList<>();
+    private List<String> errorMessages = new ArrayList<>();
     private Set<String> header = new LinkedHashSet<>();
-    
+    private List<String> errorHeader = Arrays.asList(new String[]{"SAMPLE_ID", "CHR", "START",
+                                            "END", "REF", "ALT", "VARIANT_CLASSIFICATION", 
+                                            "FAILURE_REASON", "URL"});
+
     @Autowired
     Annotator annotator;
-    
+
     private static final Log LOG = LogFactory.getLog(MutationRecordReader.class);
-    
+
     @Override
     public void open(ExecutionContext ec) throws ItemStreamException {
-        
+
         processComments(ec);
-        
+
         FlatFileItemReader<MutationRecord> reader = new FlatFileItemReader<>();
         reader.setResource(new FileSystemResource(filename));
         DefaultLineMapper<MutationRecord> mapper = new DefaultLineMapper<>();
@@ -92,10 +100,10 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
                 public void handleLine(String line) {
                     tokenizer.setNames(line.split("\t"));
                 }
-        });        
+        });
         reader.open(ec);
-        
-        MutationRecord mutationRecord;        
+
+        MutationRecord mutationRecord;
         try {
             while((mutationRecord = reader.read()) != null) {
                 mutationRecords.add(mutationRecord);
@@ -105,12 +113,12 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
             throw new ItemStreamException(e);
         }
         reader.close();
-        
+
         for(MutationRecord record : mutationRecords) {
             // save variant details for logging
-            String variantDetails = "(chr,start,end,ref,alt)= (" + record.getChromosome() + "," + record.getStart_Position() + ","
-                    + record.getEnd_Position() + "," + record.getReference_Allele() + "," + record.getTumor_Seq_Allele2() + ")";
-            
+            String variantDetails = "(sampleId,chr,start,end,ref,alt,url)= (" + record.getTumor_Sample_Barcode() +  record.getChromosome() + "," + record.getStart_Position() + ","
+                    + record.getEnd_Position() + "," + record.getReference_Allele() + "," + record.getTumor_Seq_Allele2() + "," + annotator.getUrlForRecord(record, isoformOverride) + ")";
+
             // init annotated record w/o genome nexus in case server error occurs
             // if no error then annotated record will get overwritten anyway with genome nexus response
             AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
@@ -118,22 +126,26 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
                 annotatedRecord = annotator.annotateRecord(record, replace, isoformOverride, true);
             }
             catch (HttpServerErrorException ex) {
-                LOG.warn("Failed to annotate variant due to internal server error: " + variantDetails);
+                String reasonFailed = "Failed to annotate variant due to internal server error";
+                LOG.warn(reasonFailed + ": " + variantDetails);
+                updateErrorMessages(record, record.getVariant_Classification(), annotator.getUrlForRecord(record, isoformOverride), reasonFailed);
             }
             if (annotatedRecord.getHGVSc().isEmpty() && annotatedRecord.getHGVSp().isEmpty()) {
+                String reasonFailed = "";
                 if (annotator.isHgvspNullClassifications(annotatedRecord.getVariant_Classification())) {
                     failedNullHgvspAnnotations++;
-                    LOG.info("Ignoring record with HGVSp null classification: " + annotatedRecord.getVariant_Classification() + 
-                            ": " + variantDetails);
+                    reasonFailed = "Ignoring record with HGVSp null classification '" + annotatedRecord.getVariant_Classification() + "'";
                 }
                 else if (annotatedRecord.getChromosome().equals("M")) {
                     failedMitochondrialAnnotations++;
-                    LOG.info("Mitochondrial variants are not supported at this time for annotation - skipping variant: " + variantDetails);
+                    reasonFailed = "Mitochondrial variants are not supported at this time for annotation - skipping variant";
                 }
                 else {
-                    LOG.info("Failed to annotate variant: " + variantDetails);
+                    reasonFailed = "Failed to annotate variant";                    
                 }
                 failedAnnotations++;
+                LOG.info(reasonFailed + ": " + variantDetails);                
+                updateErrorMessages(record, annotatedRecord.getVariant_Classification(), annotator.getUrlForRecord(record, isoformOverride), reasonFailed);
             }
             annotatedRecords.add(annotatedRecord);
             header.addAll(annotatedRecord.getHeaderWithAdditionalFields());
@@ -142,7 +154,11 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
         LOG.info("Total records that failed annotation: " + failedAnnotations);
         LOG.info("# records with HGVSp null variant classification: " + failedNullHgvspAnnotations);
         LOG.info("# records with Mitochondrial variants: " + failedMitochondrialAnnotations);
-        
+        errorMessages.add("Total records that failed annotation: " + failedAnnotations);
+        errorMessages.add("# records with HGVSp null variant classification: " + failedNullHgvspAnnotations);
+        errorMessages.add("# records with Mitochondrial variants: " + failedMitochondrialAnnotations);
+        saveErrorMessagesToFile(errorMessages);
+
         List<String> full_header = new ArrayList(header);
         ec.put("mutation_header", full_header);
     }
@@ -155,20 +171,45 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
 
     @Override
     public AnnotatedRecord read() throws Exception {
-        if (!annotatedRecords.isEmpty()) {            
-            return annotatedRecords.remove(0);         
+        if (!annotatedRecords.isEmpty()) {
+            return annotatedRecords.remove(0);
         }
         return null;
     }
     
+    private void updateErrorMessages(MutationRecord record, String variantClassification, String url, String reasonFailed) {
+        List<String> msg = Arrays.asList(new String[]{record.getTumor_Sample_Barcode(), record.getChromosome(),
+                                record.getStart_Position(), record.getEnd_Position(), record.getReference_Allele(),
+                                record.getTumor_Seq_Allele2(), record.getVariant_Classification(), reasonFailed, url});
+        errorMessages.add(StringUtils.join(msg, "\t"));
+    }
+
+    private void saveErrorMessagesToFile(List<String> errorMessages) {
+        if (errorReportLocation == null) return;
+        if (errorMessages.isEmpty()) {
+            LOG.info("No errors to write - error report will not be generated.");
+            return;
+        }
+        try {
+            FileWriter writer = new FileWriter(errorReportLocation);
+            writer.write(StringUtils.join(errorHeader, "\t") + "\n");
+            writer.write(StringUtils.join(errorMessages, "\n"));
+            writer.close();
+        }
+        catch (IOException e) {
+            LOG.error("Unable to save error messages to file!");
+            e.printStackTrace();
+        }
+    }
+
     private void processComments(ExecutionContext ec) {
         List<String> comments = new ArrayList<>();
         String sequencedSamples = "";
         BufferedReader reader = null;
-        try {            
+        try {
             reader = new BufferedReader(new FileReader(filename));
             String line;
-            while((line = reader.readLine()) != null) {     
+            while((line = reader.readLine()) != null) {
                 if (line.startsWith("#")) {
                     comments.add(line);
                 }
@@ -176,15 +217,15 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
                     // no more comments, go on processing
                     break;
                 }
-            }            
+            }
             reader.close();
-        }        
+        }
         catch (Exception e) {
             throw new ItemStreamException(e);
         }
-        
+
         // Add comments to the config for the writer to access later
         ec.put("commentLines", comments);
     }
-    
+
 }
