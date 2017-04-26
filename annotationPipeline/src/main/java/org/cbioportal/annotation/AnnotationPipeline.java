@@ -47,14 +47,15 @@ import org.springframework.batch.core.launch.JobLauncher;
 @SpringBootApplication
 public class AnnotationPipeline
 {
-    
+
     private static Options getOptions(String[] args)
     {
         Options gnuOptions = new Options();
         gnuOptions.addOption("h", "help", false, "shows this help document and quits.")
             .addOption("f", "filename", true, "Mutation filename")
-            .addOption("o", "outputFilename", true, "Output filename (including path)")
-            .addOption("i", "isoformOverride", true, "Isoform Overrides (mskcc or uniprot)")
+            .addOption("o", "output-filename", true, "Output filename (including path)")
+            .addOption("i", "isoform-override", true, "Isoform Overrides (mskcc or uniprot)")
+            .addOption("e", "error-report-location", true, "Error report filename (including path)")
             .addOption("r", "replace-symbol", false, "Replace gene symbols with what is provided by annotator" );
 
         return gnuOptions;
@@ -67,32 +68,33 @@ public class AnnotationPipeline
         System.exit(exitStatus);
     }
 
-    private static void launchJob(String[] args, String filename, String outputFilename, String isoformOverride, boolean replace) throws Exception
+    private static void launchJob(String[] args, String filename, String outputFilename, String isoformOverride, String errorReportLocation, boolean replace) throws Exception
     {
-        SpringApplication app = new SpringApplication(AnnotationPipeline.class);      
+        SpringApplication app = new SpringApplication(AnnotationPipeline.class);
         ConfigurableApplicationContext ctx = app.run(args);
         JobLauncher jobLauncher = ctx.getBean(JobLauncher.class);
 
-        Job annotationJob = ctx.getBean(BatchConfiguration.ANNOTATION_JOB, Job.class);       
+        Job annotationJob = ctx.getBean(BatchConfiguration.ANNOTATION_JOB, Job.class);
         JobParameters jobParameters = new JobParametersBuilder()
             .addString("filename", filename)
             .addString("outputFilename", outputFilename)
             .addString("replace", String.valueOf(replace))
             .addString("isoformOverride", isoformOverride)
-    		.toJobParameters();  
+            .addString("errorReportLocation", errorReportLocation)
+            .toJobParameters();
         JobExecution jobExecution = jobLauncher.run(annotationJob, jobParameters);
     }
-    
+
     public static void main(String[] args) throws Exception
-    {        
+    {
         Options gnuOptions = AnnotationPipeline.getOptions(args);
         CommandLineParser parser = new GnuParser();
         CommandLine commandLine = parser.parse(gnuOptions, args);
         if (commandLine.hasOption("h") ||
             !commandLine.hasOption("filename") ||
-            !commandLine.hasOption("outputFilename")) {
+            !commandLine.hasOption("output-filename")) {
             help(gnuOptions, 0);
         }
-        launchJob(args, commandLine.getOptionValue("filename"), commandLine.getOptionValue("outputFilename"), commandLine.getOptionValue("isoformOverride"), commandLine.hasOption("replace-symbol"));            
+        launchJob(args, commandLine.getOptionValue("filename"), commandLine.getOptionValue("output-filename"), commandLine.getOptionValue("isoform-override"), commandLine.hasOption("error-report-location") ? commandLine.getOptionValue("error-report-location") : null, commandLine.hasOption("replace-symbol"));
     }
 }
