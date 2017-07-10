@@ -418,7 +418,7 @@ public class GenomeNexusImpl implements Annotator {
         String refSeq = "";
         if(canonicalTranscript != null) {
             if (canonicalTranscript.getRefseqTranscriptIds() != null) {
-                List<String> refseqTranscriptIds = canonicalTranscript.getRefseqTranscriptIds();
+                List<String> refseqTranscriptIds = Arrays.asList(canonicalTranscript.getRefseqTranscriptIds().split(","));
                 if(refseqTranscriptIds.size() > 0) {
                     refSeq = refseqTranscriptIds.get(0);
                 }
