@@ -230,7 +230,7 @@ public class GenomeNexusImpl implements Annotator {
     private String resolveStart() {
         try {
             if (gnResponse.getStart() != null) {
-                return String.valueOf(Math.min(Integer.parseInt(gnResponse.getStart()), Integer.parseInt(gnResponse.getEnd())));
+                return String.valueOf(Math.min(gnResponse.getStart(), gnResponse.getEnd()));
             }
             else {
                 throw new NumberFormatException();
@@ -244,7 +244,7 @@ public class GenomeNexusImpl implements Annotator {
     private String resolveEnd() {
         try {
             if(gnResponse.getEnd() != null) {
-                return String.valueOf(Math.max(Integer.parseInt(gnResponse.getStart()), Integer.parseInt(gnResponse.getEnd())));
+                return String.valueOf(Math.max(gnResponse.getStart(), gnResponse.getEnd()));
             }
             else {
                 throw new NumberFormatException();
@@ -256,7 +256,7 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     private String resolveStrandSign() {
-        String strand = gnResponse.getStrand();
+        String strand = String.valueOf(gnResponse.getStrand());
 
         if (strand != null && !strand.equals("+") && !strand.equals("-")) {
             try {
@@ -418,7 +418,7 @@ public class GenomeNexusImpl implements Annotator {
         String refSeq = "";
         if(canonicalTranscript != null) {
             if (canonicalTranscript.getRefseqTranscriptIds() != null) {
-                List<String> refseqTranscriptIds = Arrays.asList(canonicalTranscript.getRefseqTranscriptIds().split(","));
+                List<String> refseqTranscriptIds = canonicalTranscript.getRefseqTranscriptIds();
                 if(refseqTranscriptIds.size() > 0) {
                     refSeq = refseqTranscriptIds.get(0);
                 }

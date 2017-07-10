@@ -57,7 +57,7 @@ public class GenomeNexusAnnotationResponse {
     @JsonProperty("assembly_name")
     private String assemblyName;
     @JsonProperty("end")
-    private String end;
+    private Integer end;
     @JsonProperty("id")
     private String id;
     @JsonProperty("most_severe_consequence")
@@ -65,9 +65,9 @@ public class GenomeNexusAnnotationResponse {
     @JsonProperty("seq_region_name")
     private String seqRegionName;
     @JsonProperty("start")
-    private String start;
+    private Integer start;
     @JsonProperty("strand")
-    private String strand;
+    private Integer strand;
     @JsonProperty("transcript_consequences")
     private List<TranscriptConsequence> transcriptConsequences = new ArrayList<TranscriptConsequence>();
     @JsonProperty("variant")
@@ -94,7 +94,7 @@ public class GenomeNexusAnnotationResponse {
     * @param assemblyName
     * @param alleleString
     */
-    public GenomeNexusAnnotationResponse(String alleleString, String assemblyName, String end, String id, String mostSevereConsequence, String seqRegionName, String start, String strand, List<TranscriptConsequence> transcriptConsequences, String variant) {
+    public GenomeNexusAnnotationResponse(String alleleString, String assemblyName, int end, String id, String mostSevereConsequence, String seqRegionName, int start, int strand, List<TranscriptConsequence> transcriptConsequences, String variant) {
         this.alleleString = alleleString;
         this.assemblyName = assemblyName;
         this.end = end;
@@ -153,7 +153,7 @@ public class GenomeNexusAnnotationResponse {
     * The end
     */
     @JsonProperty("end")
-    public String getEnd() {
+    public Integer getEnd() {
         return end;
     }
 
@@ -163,7 +163,7 @@ public class GenomeNexusAnnotationResponse {
     * The end
     */
     @JsonProperty("end")
-    public void setEnd(String end) {
+    public void setEnd(int end) {
         this.end = end;
     }
 
@@ -233,7 +233,7 @@ public class GenomeNexusAnnotationResponse {
     * The start
     */
     @JsonProperty("start")
-    public String getStart() {
+    public Integer getStart() {
         return start;
     }
 
@@ -243,7 +243,7 @@ public class GenomeNexusAnnotationResponse {
     * The start
     */
     @JsonProperty("start")
-    public void setStart(String start) {
+    public void setStart(int start) {
         this.start = start;
     }
 
@@ -253,7 +253,7 @@ public class GenomeNexusAnnotationResponse {
     * The strand
     */
     @JsonProperty("strand")
-    public String getStrand() {
+    public Integer getStrand() {
         return strand;
     }
 
@@ -263,7 +263,7 @@ public class GenomeNexusAnnotationResponse {
     * The strand
     */
     @JsonProperty("strand")
-    public void setStrand(String strand) {
+    public void setStrand(int strand) {
         this.strand = strand;
     }
 
