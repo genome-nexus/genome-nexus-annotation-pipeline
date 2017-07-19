@@ -1,5 +1,6 @@
 spring.batch.job.enabled=false
 genomenexus.hgvs=<HOST>/variant_annotation/hgvs/
+genomenexus.xrefs=<HOST>/xrefs/
 genomenexus.isoform_query_parameter=isoformOverrideSource
 genomenexus.hotspot_parameter=summary
 chunk=10

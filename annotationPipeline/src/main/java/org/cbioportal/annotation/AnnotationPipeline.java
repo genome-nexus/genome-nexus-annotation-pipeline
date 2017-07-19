@@ -56,7 +56,7 @@ public class AnnotationPipeline
             .addOption("o", "output-filename", true, "Output filename (including path)")
             .addOption("i", "isoform-override", true, "Isoform Overrides (mskcc or uniprot)")
             .addOption("e", "error-report-location", true, "Error report filename (including path)")
-            .addOption("r", "replace-symbol", false, "Replace gene symbols with what is provided by annotator" );
+            .addOption("r", "replace-symbol-entrez", false, "Replace gene symbols and entrez id with what is provided by annotator" );
 
         return gnuOptions;
     }
@@ -95,6 +95,6 @@ public class AnnotationPipeline
             !commandLine.hasOption("output-filename")) {
             help(gnuOptions, 0);
         }
-        launchJob(args, commandLine.getOptionValue("filename"), commandLine.getOptionValue("output-filename"), commandLine.getOptionValue("isoform-override"), commandLine.hasOption("error-report-location") ? commandLine.getOptionValue("error-report-location") : null, commandLine.hasOption("replace-symbol"));
+        launchJob(args, commandLine.getOptionValue("filename"), commandLine.getOptionValue("output-filename"), commandLine.getOptionValue("isoform-override"), commandLine.hasOption("error-report-location") ? commandLine.getOptionValue("error-report-location") : null, commandLine.hasOption("replace-symbol-entrez"));
     }
 }
