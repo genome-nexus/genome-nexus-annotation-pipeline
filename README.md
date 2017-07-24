@@ -9,7 +9,7 @@ The `annotationPipeline` module is a command line tool to annotate a maf using g
 To use it, build the project using maven and run it like so:
     
     mvn clean install
-    $JAVA_HOME/bin/java -jar annotationPipeline/target/annotationPipeline-0.1.0.jar --filename <INPUT_MAF> --outputFilename <OUTPUT DESTINATION> --isoformOverride <mskcc or uniprot>
+    $JAVA_HOME/bin/java -jar annotationPipeline/target/annotationPipeline-0.1.0.jar --filename <INPUT_MAF> --output-filename <OUTPUT DESTINATION> --isoform-override <mskcc or uniprot>
     
 You can choose to replace the gene symbols in the new maf by the gene symbols found by Genome Nexus by supplying the `-r` optional parameter. To output error reporting to a file, supply the `-e` option a location for the file to be saved. By running the jar without any arguments or by providing the optional parameter `-h` you can view the full usage statement. If you have your own installation of Genome Nexus, you can point to it by modifying the `application.properties` file located in `annotationPipeline/src/main/resources`.
 
