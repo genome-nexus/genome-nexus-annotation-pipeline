@@ -36,6 +36,7 @@ import org.cbioportal.models.AnnotatedRecord;
 import org.cbioportal.models.GenomeNexusAnnotationResponse;
 import org.cbioportal.models.MutationRecord;
 import org.cbioportal.models.GenomeNexusIsoformOverridesResponse;
+import org.cbioportal.models.GeneXref;
 import org.cbioportal.annotator.Annotator;
 
 import java.util.*;
@@ -71,6 +72,8 @@ public class GenomeNexusImpl implements Annotator {
     private String isoformQueryParameter;
     @Value("${genomenexus.hotspot_parameter}")
     private String hotspotParameter;
+    @Value("${genomenexus.xrefs}")
+    private String geneXrefsServiceUrl;
 
     private MutationRecord mRecord;
     private GenomeNexusAnnotationResponse gnResponse;
@@ -116,7 +119,7 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     @Override
-    public AnnotatedRecord annotateRecord(MutationRecord record, boolean replaceHugo, String isoformOverridesSource, boolean reannotate) {
+    public AnnotatedRecord annotateRecord(MutationRecord record, boolean replace, String isoformOverridesSource, boolean reannotate) {
         this.mRecord = record;
 
         //check if record already is annotated
@@ -134,8 +137,8 @@ public class GenomeNexusImpl implements Annotator {
         canonicalTranscript = getCanonicalTranscript(gnResponse);
 
         // annotate the record
-        AnnotatedRecord annotatedRecord= new AnnotatedRecord(resolveHugoSymbol(replaceHugo),
-                mRecord.getEntrez_Gene_Id(),
+        AnnotatedRecord annotatedRecord= new AnnotatedRecord(resolveHugoSymbol(replace),
+                resolveEntrezGeneId(replace),
                 mRecord.getCenter(),
                 resolveAssemblyName(),
                 resolveChromosome(),
@@ -209,8 +212,8 @@ public class GenomeNexusImpl implements Annotator {
         return hgvsServiceUrl + hgvsNotation + "?" + isoformQueryParameter + "=" + isoformOverridesSource + "&" +  hotspotParameter + "=summary";
     }
 
-    private String resolveHugoSymbol(boolean replaceHugo) {
-        if (replaceHugo && canonicalTranscript != null && canonicalTranscript.getGeneSymbol() != null && canonicalTranscript.getGeneSymbol().trim().length() > 0) {
+    private String resolveHugoSymbol(boolean replace) {
+        if (replace && canonicalTranscript != null && canonicalTranscript.getGeneSymbol() != null && canonicalTranscript.getGeneSymbol().trim().length() > 0) {
             return canonicalTranscript.getGeneSymbol();
         }
 
@@ -506,6 +509,25 @@ public class GenomeNexusImpl implements Annotator {
             return StringUtils.join(consequenceTerms, ",");
         }
         return "";
+    }
+    
+    private String resolveEntrezGeneId(boolean replace) {
+        if (!replace) {
+            return mRecord.getEntrez_Gene_Id();
+        }
+        // make the rest call to ensembl server for gene external refs
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity();        
+        ResponseEntity<GeneXref[]> responseEntity = restTemplate.exchange(geneXrefsServiceUrl + canonicalTranscript.getGeneId(), HttpMethod.GET, requestEntity, GeneXref[].class);
+        
+        String entrezGeneId = null;
+        for (GeneXref xref : responseEntity.getBody()) {
+            if (xref.getDbname().equals("EntrezGene")) {
+                entrezGeneId = xref.getPrimaryId();
+                break;
+            }
+        }
+        return entrezGeneId != null ? entrezGeneId : mRecord.getEntrez_Gene_Id();
     }
 
     private String convertToHgvs(MutationRecord record)
