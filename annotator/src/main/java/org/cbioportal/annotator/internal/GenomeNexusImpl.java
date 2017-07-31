@@ -213,7 +213,7 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     private String resolveHugoSymbol(boolean replace) {
-        if (replace && canonicalTranscript != null && canonicalTranscript.getGeneSymbol() != null && canonicalTranscript.getGeneSymbol().trim().length() > 0) {
+        if (replace && canonicalTranscript != null && canonicalTranscript.getGeneSymbol() != null && !canonicalTranscript.getGeneSymbol().trim().isEmpty()) {
             return canonicalTranscript.getGeneSymbol();
         }
 
@@ -512,7 +512,7 @@ public class GenomeNexusImpl implements Annotator {
     }
     
     private String resolveEntrezGeneId(boolean replace) {
-        if (!replace) {
+        if (!replace || canonicalTranscript == null || canonicalTranscript.getGeneId() == null || canonicalTranscript.getGeneId().trim().isEmpty()) {
             return mRecord.getEntrez_Gene_Id();
         }
         // make the rest call to ensembl server for gene external refs
