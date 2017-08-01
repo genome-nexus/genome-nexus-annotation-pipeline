@@ -116,7 +116,7 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
 
         for(MutationRecord record : mutationRecords) {
             // save variant details for logging
-            String variantDetails = "(sampleId,chr,start,end,ref,alt,url)= (" + record.getTumor_Sample_Barcode() +  record.getChromosome() + "," + record.getStart_Position() + ","
+            String variantDetails = "(sampleId,chr,start,end,ref,alt,url)= (" + record.getTumor_Sample_Barcode() + "," +  record.getChromosome() + "," + record.getStart_Position() + ","
                     + record.getEnd_Position() + "," + record.getReference_Allele() + "," + record.getTumor_Seq_Allele2() + "," + annotator.getUrlForRecord(record, isoformOverride) + ")";
 
             // init annotated record w/o genome nexus in case server error occurs
