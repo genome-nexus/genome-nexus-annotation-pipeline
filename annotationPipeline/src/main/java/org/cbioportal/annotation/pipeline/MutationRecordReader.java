@@ -116,8 +116,8 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
 
         for(MutationRecord record : mutationRecords) {
             // save variant details for logging
-            String variantDetails = "(sampleId,chr,start,end,ref,alt,url)= (" + record.getTumor_Sample_Barcode() + "," +  record.getChromosome() + "," + record.getStart_Position() + ","
-                    + record.getEnd_Position() + "," + record.getReference_Allele() + "," + record.getTumor_Seq_Allele2() + "," + annotator.getUrlForRecord(record, isoformOverride) + ")";
+            String variantDetails = "(sampleId,chr,start,end,ref,alt,url)= (" + record.getTUMOR_SAMPLE_BARCODE() + "," +  record.getCHROMOSOME() + "," + record.getSTART_POSITION() + ","
+                    + record.getEND_POSITION() + "," + record.getREFERENCE_ALLELE() + "," + record.getTUMOR_SEQ_ALLELE2() + "," + annotator.getUrlForRecord(record, isoformOverride) + ")";
 
             // init annotated record w/o genome nexus in case server error occurs
             // if no error then annotated record will get overwritten anyway with genome nexus response
@@ -128,15 +128,15 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
             catch (HttpServerErrorException ex) {
                 String reasonFailed = "Failed to annotate variant due to internal server error";
                 LOG.warn(reasonFailed + ": " + variantDetails);
-                updateErrorMessages(record, record.getVariant_Classification(), annotator.getUrlForRecord(record, isoformOverride), reasonFailed);
+                updateErrorMessages(record, record.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), reasonFailed);
             }
-            if (annotatedRecord.getHGVSc().isEmpty() && annotatedRecord.getHGVSp().isEmpty()) {
+            if (annotatedRecord.getHGVSC().isEmpty() && annotatedRecord.getHGVSP().isEmpty()) {
                 String reasonFailed = "";
-                if (annotator.isHgvspNullClassifications(annotatedRecord.getVariant_Classification())) {
+                if (annotator.isHgvspNullClassifications(annotatedRecord.getVARIANT_CLASSIFICATION())) {
                     failedNullHgvspAnnotations++;
-                    reasonFailed = "Ignoring record with HGVSp null classification '" + annotatedRecord.getVariant_Classification() + "'";
+                    reasonFailed = "Ignoring record with HGVSp null classification '" + annotatedRecord.getVARIANT_CLASSIFICATION() + "'";
                 }
-                else if (annotatedRecord.getChromosome().equals("M")) {
+                else if (annotatedRecord.getCHROMOSOME().equals("M")) {
                     failedMitochondrialAnnotations++;
                     reasonFailed = "Mitochondrial variants are not supported at this time for annotation - skipping variant";
                 }
@@ -145,7 +145,7 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
                 }
                 failedAnnotations++;
                 LOG.info(reasonFailed + ": " + variantDetails);                
-                updateErrorMessages(record, annotatedRecord.getVariant_Classification(), annotator.getUrlForRecord(record, isoformOverride), reasonFailed);
+                updateErrorMessages(record, annotatedRecord.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), reasonFailed);
             }
             annotatedRecords.add(annotatedRecord);
             header.addAll(annotatedRecord.getHeaderWithAdditionalFields());
@@ -178,9 +178,9 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
     }
     
     private void updateErrorMessages(MutationRecord record, String variantClassification, String url, String reasonFailed) {
-        List<String> msg = Arrays.asList(new String[]{record.getTumor_Sample_Barcode(), record.getChromosome(),
-                                record.getStart_Position(), record.getEnd_Position(), record.getReference_Allele(),
-                                record.getTumor_Seq_Allele2(), record.getVariant_Classification(), reasonFailed, url});
+        List<String> msg = Arrays.asList(new String[]{record.getTUMOR_SAMPLE_BARCODE(), record.getCHROMOSOME(),
+                                record.getSTART_POSITION(), record.getEND_POSITION(), record.getREFERENCE_ALLELE(),
+                                record.getTUMOR_SEQ_ALLELE2(), record.getVARIANT_CLASSIFICATION(), reasonFailed, url});
         errorMessages.add(StringUtils.join(msg, "\t"));
     }
 

@@ -80,8 +80,8 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
             chromosome = i.getCHR();
         }
         mafLine.put("Chromosome", chromosome);
-        mafLine.put("Start_Position", String.valueOf(i.getSTART_POSITION()));
-        mafLine.put("End_Position", String.valueOf(i.getEND_POSITION()));
+        mafLine.put("START_POSITION", String.valueOf(i.getSTART_POSITION()));
+        mafLine.put("END_POSITION", String.valueOf(i.getEND_POSITION()));
         mafLine.put("Reference_Allele", i.getREFERENCE_ALLELE());
         mafLine.put("Tumor_Seq_Allele2", i.getTUMOR_SEQ_ALLELE());
         MutationRecord record = annotator.createRecord(mafLine);
@@ -95,39 +95,39 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
         }
 
         // If the mutation is a 5' or 3' flank mutation, or any other UTR, it shouldn't be in the database as these are supposed to be filtered.. Remove it.
-        if (annotatedRecord.getVariant_Classification().equals("5'Flank") && annotatedRecord.getHugo_Symbol().equals("TERT")) {
+        if (annotatedRecord.getVARIANT_CLASSIFICATION().equals("5'Flank") && annotatedRecord.getHUGO_SYMBOL().equals("TERT")) {
             i.setPROTEIN_CHANGE("Promoter");
         }
-        else if (annotatedRecord.getVariant_Classification().equals("5'Flank") ||
-            annotatedRecord.getVariant_Classification().equals("3'Flank") ||
-            annotatedRecord.getVariant_Classification().equals("IGR") ||
-            annotatedRecord.getVariant_Classification().equals("Intron") ||
-            annotatedRecord.getVariant_Classification().equals("RNA") ||
-            annotatedRecord.getVariant_Classification().equals("5'UTR") ||
-            annotatedRecord.getVariant_Classification().equals("3'UTR")) {
+        else if (annotatedRecord.getVARIANT_CLASSIFICATION().equals("5'Flank") ||
+            annotatedRecord.getVARIANT_CLASSIFICATION().equals("3'Flank") ||
+            annotatedRecord.getVARIANT_CLASSIFICATION().equals("IGR") ||
+            annotatedRecord.getVARIANT_CLASSIFICATION().equals("Intron") ||
+            annotatedRecord.getVARIANT_CLASSIFICATION().equals("RNA") ||
+            annotatedRecord.getVARIANT_CLASSIFICATION().equals("5'UTR") ||
+            annotatedRecord.getVARIANT_CLASSIFICATION().equals("3'UTR")) {
             log.info("Mutation event " + String.valueOf(i.getMUTATION_EVENT_ID()) + " classification is in non translated region of genome. Removing from the database.");
             deleteMutation(i);
             return null;
         }
 
         // lets do some sanity checking to make sure good values came back from genome nexus
-        String chr = !(annotatedRecord.getChromosome() == null || annotatedRecord.getChromosome().isEmpty()) ? annotatedRecord.getChromosome() : i.getCHR();
+        String chr = !(annotatedRecord.getCHROMOSOME() == null || annotatedRecord.getCHROMOSOME().isEmpty()) ? annotatedRecord.getCHROMOSOME() : i.getCHR();
         Integer start = i.getSTART_POSITION();
         Integer end = i.getEND_POSITION();
         try {
-            start = Integer.parseInt(annotatedRecord.getStart_Position());
-            end = Integer.parseInt(annotatedRecord.getEnd_Position());
+            start = Integer.parseInt(annotatedRecord.getSTART_POSITION());
+            end = Integer.parseInt(annotatedRecord.getEND_POSITION());
         }
         catch (NumberFormatException e) {
             log.warn("Record with non parseable start or end positions encountered.\n\tMUTATION_EVENT_ID: " + i.getMUTATION_EVENT_ID());
         }
-        String ref = !(annotatedRecord.getReference_Allele() == null || annotatedRecord.getReference_Allele().isEmpty()) ? annotatedRecord.getReference_Allele() : i.getREFERENCE_ALLELE();
-        String alt = !(annotatedRecord.getTumor_Seq_Allele2() == null || annotatedRecord.getTumor_Seq_Allele2().isEmpty()) ? annotatedRecord.getTumor_Seq_Allele2() : i.getTUMOR_SEQ_ALLELE();
-        String type = !(annotatedRecord.getVariant_Classification() == null || annotatedRecord.getVariant_Classification().isEmpty()) ? annotatedRecord.getVariant_Classification() : i.getMUTATION_TYPE();
-        String codon = !(annotatedRecord.getCodons() == null || annotatedRecord.getCodons().isEmpty()) ? annotatedRecord.getCodons() : i.getONCOTATOR_CODON_CHANGE();
-        Integer proteinStart = !(annotatedRecord.getProtein_position() == null || annotatedRecord.getProtein_position().isEmpty()) ? getProteinPosStart(annotatedRecord.getProtein_position(), annotatedRecord.getHGVSp_Short()) : i.getONCOTATOR_PROTEIN_POS_START();
-        Integer proteinEnd = !(annotatedRecord.getProtein_position() == null || annotatedRecord.getProtein_position().isEmpty()) ? getProteinPosEnd(annotatedRecord.getProtein_position(), annotatedRecord.getHGVSp_Short()) : i.getONCOTATOR_PROTEIN_POS_END();
-        String change = !(annotatedRecord.getHGVSp_Short() == null || annotatedRecord.getHGVSp_Short().isEmpty()) ? annotatedRecord.getHGVSp_Short() : i.getPROTEIN_CHANGE();
+        String ref = !(annotatedRecord.getREFERENCE_ALLELE() == null || annotatedRecord.getREFERENCE_ALLELE().isEmpty()) ? annotatedRecord.getREFERENCE_ALLELE() : i.getREFERENCE_ALLELE();
+        String alt = !(annotatedRecord.getTUMOR_SEQ_ALLELE2() == null || annotatedRecord.getTUMOR_SEQ_ALLELE2().isEmpty()) ? annotatedRecord.getTUMOR_SEQ_ALLELE2() : i.getTUMOR_SEQ_ALLELE();
+        String type = !(annotatedRecord.getVARIANT_CLASSIFICATION() == null || annotatedRecord.getVARIANT_CLASSIFICATION().isEmpty()) ? annotatedRecord.getVARIANT_CLASSIFICATION() : i.getMUTATION_TYPE();
+        String codon = !(annotatedRecord.getCODONS() == null || annotatedRecord.getCODONS().isEmpty()) ? annotatedRecord.getCODONS() : i.getONCOTATOR_CODON_CHANGE();
+        Integer proteinStart = !(annotatedRecord.getPROTEIN_POSITION() == null || annotatedRecord.getPROTEIN_POSITION().isEmpty()) ? getProteinPosStart(annotatedRecord.getPROTEIN_POSITION(), annotatedRecord.getHGVSP_SHORT()) : i.getONCOTATOR_PROTEIN_POS_START();
+        Integer proteinEnd = !(annotatedRecord.getPROTEIN_POSITION() == null || annotatedRecord.getPROTEIN_POSITION().isEmpty()) ? getProteinPosEnd(annotatedRecord.getPROTEIN_POSITION(), annotatedRecord.getHGVSP_SHORT()) : i.getONCOTATOR_PROTEIN_POS_END();
+        String change = !(annotatedRecord.getHGVSP_SHORT() == null || annotatedRecord.getHGVSP_SHORT().isEmpty()) ? annotatedRecord.getHGVSP_SHORT() : i.getPROTEIN_CHANGE();
         String pDot = "p.";
         if (change.startsWith(pDot)) {
             change = change.substring(pDot.length());

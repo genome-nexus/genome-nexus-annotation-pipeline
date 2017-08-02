@@ -158,44 +158,44 @@ public class AnnotatedRecord extends MutationRecord{
     
     public AnnotatedRecord(MutationRecord mRecord) {
         Map<String, String> additionalProperties = mRecord.getAdditionalProperties();
-        this.hugoSymbol = mRecord.getHugo_Symbol();
-        this.entrezGeneId = mRecord.getEntrez_Gene_Id();
-        this.center = mRecord.getCenter();
-        this.ncbiBuild = mRecord.getNCBI_Build();
-        this.chromosome = mRecord.getChromosome();
-        this.startPosition = mRecord.getStart_Position();
-        this.endPosition = mRecord.getEnd_Position();
-        this.strand = mRecord.getStrand();
-        this.variantClassification = mRecord.getVariant_Classification();
-        this.variantType = mRecord.getVariant_Type();
-        this.referenceAllele = mRecord.getReference_Allele();
-        this.tumorSeqAllele1 = mRecord.getTumor_Seq_Allele1();
-        this.tumorSeqAllele2 = mRecord.getTumor_Seq_Allele2();
-        this.dbSnpRs = mRecord.getdbSNP_RS();
-        this.dbSnpValStatus = mRecord.getdbSNP_Val_Status();
-        this.tumorSampleBarcode = mRecord.getTumor_Sample_Barcode();
-        this.matchedNormSampleBarcode = mRecord.getMatched_Norm_Sample_Barcode();
-        this.matchedNormSeqAllele1 = mRecord.getMatch_Norm_Seq_Allele1();
-        this.matchedNormSeqAllele2 = mRecord.getMatch_Norm_Seq_Allele2();
-        this.tumorValidationAllele1 = mRecord.getTumor_Validation_Allele1();
-        this.tumorValidationAllele2 = mRecord.getTumor_Validation_Allele2();
-        this.matchNormValidationAllele1 = mRecord.getMatch_Norm_Validation_Allele1();
-        this.matchNormValidationAllele2 = mRecord.getMatch_Norm_Validation_Allele2();
-        this.verificationStatus = mRecord.getVerification_Status();
-        this.validationStatus = mRecord.getValidation_Status();
-        this.mutationStatus = mRecord.getMutation_Status();
-        this.sequencingPhase = mRecord.getSequencing_Phase();
-        this.sequencingSource = mRecord.getSequence_Source();
-        this.validationMethod = mRecord.getValidation_Method();
-        this.score = mRecord.getScore();
-        this.bamFile = mRecord.getBAM_File();
-        this.sequencer = mRecord.getSequencer();
-        this.tumorSampleUUID = mRecord.getTumor_Sample_UUID();
-        this.matchedNormSampleUUID = mRecord.getMatched_Norm_Sample_UUID();
-        this.tRefCount = mRecord.gett_ref_count();
-        this.tAltCount = mRecord.gett_alt_count();
-        this.nRefCount = mRecord.getn_ref_count();
-        this.nAltCount = mRecord.getn_alt_count();
+        this.hugoSymbol = mRecord.getHUGO_SYMBOL();
+        this.entrezGeneId = mRecord.getENTREZ_GENE_ID();
+        this.center = mRecord.getCENTER();
+        this.ncbiBuild = mRecord.getNCBI_BUILD();
+        this.chromosome = mRecord.getCHROMOSOME();
+        this.startPosition = mRecord.getSTART_POSITION();
+        this.endPosition = mRecord.getEND_POSITION();
+        this.strand = mRecord.getSTRAND();
+        this.variantClassification = mRecord.getVARIANT_CLASSIFICATION();
+        this.variantType = mRecord.getVARIANT_TYPE();
+        this.referenceAllele = mRecord.getREFERENCE_ALLELE();
+        this.tumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1();
+        this.tumorSeqAllele2 = mRecord.getTUMOR_SEQ_ALLELE2();
+        this.dbSnpRs = mRecord.getDBSNP_RS();
+        this.dbSnpValStatus = mRecord.getDBSNP_VAL_STATUS();
+        this.tumorSampleBarcode = mRecord.getTUMOR_SAMPLE_BARCODE();
+        this.matchedNormSampleBarcode = mRecord.getMATCHED_NORM_SAMPLE_BARCODE();
+        this.matchedNormSeqAllele1 = mRecord.getMATCH_NORM_SEQ_ALLELE1();
+        this.matchedNormSeqAllele2 = mRecord.getMATCH_NORM_SEQ_ALLELE2();
+        this.tumorValidationAllele1 = mRecord.getTUMOR_VALIDATION_ALLELE1();
+        this.tumorValidationAllele2 = mRecord.getTUMOR_VALIDATION_ALLELE2();
+        this.matchNormValidationAllele1 = mRecord.getMATCH_NORM_VALIDATION_ALLELE1();
+        this.matchNormValidationAllele2 = mRecord.getMATCH_NORM_VALIDATION_ALLELE2();
+        this.verificationStatus = mRecord.getVERIFICATION_STATUS();
+        this.validationStatus = mRecord.getVALIDATION_STATUS();
+        this.mutationStatus = mRecord.getMUTATION_STATUS();
+        this.sequencingPhase = mRecord.getSEQUENCING_PHASE();
+        this.sequencingSource = mRecord.getSEQUENCE_SOURCE();
+        this.validationMethod = mRecord.getVALIDATION_METHOD();
+        this.score = mRecord.getSCORE();
+        this.bamFile = mRecord.getBAM_FILE();
+        this.sequencer = mRecord.getSEQUENCER();
+        this.tumorSampleUUID = mRecord.getTUMOR_SAMPLE_UUID();
+        this.matchedNormSampleUUID = mRecord.getMATCHED_NORM_SAMPLE_UUID();
+        this.tRefCount = mRecord.getT_REF_COUNT();
+        this.tAltCount = mRecord.getT_ALT_COUNT();
+        this.nRefCount = mRecord.getN_REF_COUNT();
+        this.nAltCount = mRecord.getN_ALT_COUNT();
         this.hgvsc = additionalProperties.get("HGVSc") != null ? additionalProperties.get("HGVSc") : "";
         this.hgvsp = additionalProperties.get("HGVSp") != null ? additionalProperties.get("HGVSp") : "";
         this.hgvspShort = additionalProperties.get("HGVSp_Short");
@@ -209,75 +209,75 @@ public class AnnotatedRecord extends MutationRecord{
         this.additionalProperties = additionalProperties;
     }
 
-    public String getHGVSc() {
+    public String getHGVSC() {
         return this.hgvsc;
     }
 
-    public void setHGVSc(String hgvsc) {
+    public void setHGVSC(String hgvsc) {
         this.hgvsc = hgvsc;
     }
 
-    public String getHGVSp() {
+    public String getHGVSP() {
         return this.hgvsp;
     }
 
-    public void setHGVSp(String hgvsp) {
+    public void setHGVSP(String hgvsp) {
         this.hgvsp = hgvsp;
     }
 
-    public String getHGVSp_Short() {
+    public String getHGVSP_SHORT() {
         return this.hgvspShort;
     }
 
-    public void setHGVSp_Short(String hgvspShort) {
+    public void setHGVSP_SHORT(String hgvspShort) {
         this.hgvspShort = hgvspShort;
     }
 
-    public String getTranscript_ID() {
+    public String getTRANSCRIPT_ID() {
         return this.transcriptId;
     }
 
-    public void setTranscript_ID(String transcriptId) {
+    public void setTRANSCRIPT_ID(String transcriptId) {
         this.transcriptId = transcriptId;
     }
 
-    public String getRefSeq() {
+    public String getREFSEQ() {
         return this.refSeq;
     }
 
-    public void setRefSeq(String refSeq) {
+    public void setREFSEQ(String refSeq) {
         this.refSeq = refSeq;
     }
 
-    public String getProtein_position() {
+    public String getPROTEIN_POSITION() {
         return this.proteinPosStart;
     }
 
-    public void setProtein_position(String proteinPosStart) {
+    public void setPROTEIN_POSITION(String proteinPosStart) {
         this.proteinPosStart = proteinPosStart;
     }
 
-    public String getCodons() {
+    public String getCODONS() {
         return this.codonChange;
     }
 
-    public void setCodons(String codonChange) {
+    public void setCODONS(String codonChange) {
         this.codonChange = codonChange;
     }
 
-    public String getHotspot() {
+    public String getHOTSPOT() {
         return this.hotspot;
     }
 
-    public void setHotspot(String hotspot) {
+    public void setHOTSPOT(String hotspot) {
         this.hotspot = hotspot;
     }
 
-    public String getConsequence() {
+    public String getCONSEQUENCE() {
         return this.consequence;
     }
 
-    public void setConsquence(String consequence) {
+    public void setCONSEQUENCE(String consequence) {
         this.consequence = consequence;
     }
 

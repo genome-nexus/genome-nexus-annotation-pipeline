@@ -32,36 +32,67 @@
 
 package org.cbioportal.annotation.pipeline;
 
-import java.util.*;
 import org.cbioportal.models.MutationRecord;
+import java.util.*;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.validation.BindException;
+import org.springframework.cglib.beans.BeanMap;
+import com.google.common.collect.Sets;
+import com.google.common.base.Strings;
+import java.util.stream.Collectors;
 
 /**
  *
  * @author heinsz
  */
 public class MutationFieldSetMapper implements  FieldSetMapper<MutationRecord> {
-
     @Override
     public MutationRecord mapFieldSet(FieldSet fs) throws BindException {
-        MutationRecord record = new MutationRecord();
-        Set<String> names = new HashSet(Arrays.asList(fs.getNames()));
-        names.addAll(record.getHeader());
+        MutationRecord mr = new MutationRecord();
+        BeanMap recordBeanMap = BeanMap.create(new MutationRecord());
+        Set<String> fieldSetNames = new HashSet(Arrays.asList(fs.getNames()));
+        Set<String> mutationRecordFields = new HashSet(mr.getHeader());
         
-        for (String field : names)
-        {            
-            try {
-                record.getClass().getMethod("set" + field, String.class).invoke(record, fs.readRawString(field));                
-            }
-            catch(Exception e) {
-                if (e.getClass().equals(NoSuchMethodException.class) || e.getClass().equals(IndexOutOfBoundsException.class)) {
-                    record.addAdditionalProperty(field, fs.readRawString(field));
-                }                
-            }
-         }       
+        // We need to intersect these two sets ignoring case, and then use this
+        // intersection to filter the original set for data accession
+        Set<String> intersection = Sets.intersection(
+            mutationRecordFields.stream()
+                .map(field -> field.toUpperCase())
+                .collect(Collectors.toSet()),
+            fieldSetNames.stream()
+                .map(field -> field.toUpperCase())
+                .collect(Collectors.toSet()));
         
+        // Here we make sure that the field is in our intersection
+        Set<String> fields = fieldSetNames.stream()
+                .filter(line -> intersection.contains(line.toUpperCase()))
+                .collect(Collectors.toSet());
+        
+        // In this we actually set the value in our bean map
+        fields.stream().forEach(column -> 
+            {
+                recordBeanMap.put(column.toUpperCase(),Strings.isNullOrEmpty(fs.readRawString(column)) ? "" : fs.readRawString(column));
+            });
+        
+        // Now access the bean from the map and set the additional propertes 
+        // (the difference of the field set and mutation record header)
+        MutationRecord record = (MutationRecord) recordBeanMap.getBean();
+        Set<String> additionalColumns = Sets.difference(
+            fieldSetNames.stream()
+                .map(field -> field.toUpperCase())
+                .collect(Collectors.toSet()),
+            mutationRecordFields.stream()
+                .map(field -> field.toUpperCase())
+                .collect(Collectors.toSet()));
+        Set<String> additionalColumnsWithCase = fieldSetNames.stream()
+                .filter(field -> additionalColumns.contains(field.toUpperCase()))
+                .collect(Collectors.toSet());
+        
+        // Actually set the values
+        additionalColumnsWithCase.stream().forEach((additionalField) -> {
+            record.addAdditionalProperty(additionalField, fs.readRawString(additionalField));
+        });
         return record;
     }
 }
