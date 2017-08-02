@@ -45,6 +45,8 @@ import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
 /**
@@ -129,6 +131,16 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
                 String reasonFailed = "Failed to annotate variant due to internal server error";
                 LOG.warn(reasonFailed + ": " + variantDetails);
                 updateErrorMessages(record, record.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), reasonFailed);
+            }
+            catch (HttpClientErrorException ex) {
+                String reasonFailed = "Failed to annotate variant due to client error";
+                LOG.warn(reasonFailed + ": " + variantDetails);
+                updateErrorMessages(record, record.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), reasonFailed);                
+            }
+            catch (HttpMessageNotReadableException ex) {
+                String reasonFailed = "Failed to annotate variant due to message not readable error";
+                LOG.warn(reasonFailed + ": " + variantDetails);
+                updateErrorMessages(record, record.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), reasonFailed);                 
             }
             if (annotatedRecord.getHGVSC().isEmpty() && annotatedRecord.getHGVSP().isEmpty()) {
                 String reasonFailed = "";
