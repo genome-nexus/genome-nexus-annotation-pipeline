@@ -52,10 +52,10 @@ public class MutationRecordProcessor implements ItemProcessor<AnnotatedRecord, S
         List<String> record = new ArrayList();
         for (String field : header) {
             try {
-                record.add(i.getClass().getMethod("get" + field).invoke(i).toString());
+                record.add(i.getClass().getMethod("get" + field.toUpperCase()).invoke(i).toString().trim());
             }
             catch (Exception e) {
-                record.add(i.getAdditionalProperties().getOrDefault(field,""));
+                record.add(i.getAdditionalProperties().getOrDefault(field,"").trim());
             }
         }        
         return StringUtils.join(record, "\t");

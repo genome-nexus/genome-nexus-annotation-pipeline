@@ -137,307 +137,307 @@ public class MutationRecord {
         initHeader();
     }
 
-    public String getHugo_Symbol() {
+    public String getHUGO_SYMBOL() {
         return this.hugoSymbol == null ? "" : this.hugoSymbol;
     }
 
-    public void setHugo_Symbol(String hugoSymbol) {
+    public void setHUGO_SYMBOL(String hugoSymbol) {
         this.hugoSymbol = hugoSymbol;
     }
 
-    public String getEntrez_Gene_Id() {
+    public String getENTREZ_GENE_ID() {
         return this.entrezGeneId == null ? "" : this.entrezGeneId;
     }
 
-    public void setEntrez_Gene_Id(String entrezGeneId) {
+    public void setENTREZ_GENE_ID(String entrezGeneId) {
         this.entrezGeneId = entrezGeneId;
     }
 
-    public String getCenter() {
+    public String getCENTER() {
         return this.center == null ? "" : this.center;
     }
 
-    public void setCenter(String center) {
+    public void setCENTER(String center) {
         this.center = center;
     }
 
-    public String getNCBI_Build() {
+    public String getNCBI_BUILD() {
         return this.ncbiBuild == null ? "" : this.ncbiBuild;
     }
 
-    public void setNCBI_Build(String ncbiBuild) {
+    public void setNCBI_BUILD(String ncbiBuild) {
         this.ncbiBuild = ncbiBuild;
     }
 
-    public String getChromosome() {
+    public String getCHROMOSOME() {
         return this.chromosome == null ? "" : this.chromosome;
     }
 
-    public void setChromosome(String chromosome) {
+    public void setCHROMOSOME(String chromosome) {
         this.chromosome = chromosome;
     }
 
-    public String getStart_Position() {
+    public String getSTART_POSITION() {
         return this.startPosition == null ? "" : this.startPosition;
     }
 
-    public void setStart_Position(String startPosition) {
+    public void setSTART_POSITION(String startPosition) {
         this.startPosition = startPosition;
     }
 
-    public String getEnd_Position() {
+    public String getEND_POSITION() {
         return this.endPosition == null ? "" : this.endPosition;
     }
 
-    public void setEnd_Position(String endPosition) {
+    public void setEND_POSITION(String endPosition) {
         this.endPosition = endPosition;
     }
 
-    public String getStrand() {
+    public String getSTRAND() {
         return this.strand == null ? "" : this.strand;
     }
 
-    public void setStrand(String strand) {
+    public void setSTRAND(String strand) {
         this.strand = strand;
     }
 
-    public String getVariant_Classification() {
+    public String getVARIANT_CLASSIFICATION() {
         return this.variantClassification == null ? "" : this.variantClassification;
     }
 
-    public void setVariant_Classification(String variantClassification) {
+    public void setVARIANT_CLASSIFICATION(String variantClassification) {
         this.variantClassification = variantClassification;
     }
 
-    public String getVariant_Type() {
+    public String getVARIANT_TYPE() {
         return this.variantType == null ? "" : this.variantType;
     }
 
-    public void setVariant_Type(String variantType) {
+    public void setVARIANT_TYPE(String variantType) {
         this.variantType = variantType;
     }
 
-    public String getReference_Allele() {
+    public String getREFERENCE_ALLELE() {
         return this.referenceAllele == null ? "" : this.referenceAllele;
     }
 
-    public void setReference_Allele(String referenceAllele) {
+    public void setREFERENCE_ALLELE(String referenceAllele) {
         this.referenceAllele = referenceAllele;
     }
 
-    public String getTumor_Seq_Allele1() {
+    public String getTUMOR_SEQ_ALLELE1() {
         return this.tumorSeqAllele1 == null ? "" : this.tumorSeqAllele1;
     }
 
-    public void setTumor_Seq_Allele1(String tumorSeqAllele1) {
+    public void setTUMOR_SEQ_ALLELE1(String tumorSeqAllele1) {
         this.tumorSeqAllele1 = tumorSeqAllele1;
     }
 
-    public String getTumor_Seq_Allele2() {
+    public String getTUMOR_SEQ_ALLELE2() {
         return this.tumorSeqAllele2 == null ? "" : this.tumorSeqAllele2;
     }
 
-    public void setTumor_Seq_Allele2(String tumorSeqAllele2) {
+    public void setTUMOR_SEQ_ALLELE2(String tumorSeqAllele2) {
         this.tumorSeqAllele2 = tumorSeqAllele2;
     }
 
-    public String getdbSNP_RS() {
+    public String getDBSNP_RS() {
         return this.dbSnpRs == null ? "" : this.dbSnpRs;
     }
 
-    public void setdbSNP_RS(String dbSnpRs) {
+    public void setDBSNP_RS(String dbSnpRs) {
         this.dbSnpRs = dbSnpRs;
     }
 
-    public String getdbSNP_Val_Status() {
+    public String getDBSNP_VAL_STATUS() {
         return this.dbSnpValStatus == null ? "" : this.dbSnpValStatus;
     }
 
-    public void setdbSNP_Val_Status(String dbSnpValStatus) {
+    public void setDBSNP_VAL_STATUS(String dbSnpValStatus) {
         this.dbSnpValStatus = dbSnpValStatus;
     }
 
-    public String getTumor_Sample_Barcode() {
+    public String getTUMOR_SAMPLE_BARCODE() {
         return this.tumorSampleBarcode == null ? "" : this.tumorSampleBarcode;
     }
 
-    public void setTumor_Sample_Barcode(String tumorSampleBarcode) {
+    public void setTUMOR_SAMPLE_BARCODE(String tumorSampleBarcode) {
         this.tumorSampleBarcode = tumorSampleBarcode;
     }
 
-    public String getMatched_Norm_Sample_Barcode() {
+    public String getMATCHED_NORM_SAMPLE_BARCODE() {
         return this.matchedNormSampleBarcode == null ? "" : this.matchedNormSampleBarcode;
     }
 
-    public void setMatched_Norm_Sample_Barcode(String matchedNormSampleBarcode) {
+    public void setMATCHED_NORM_SAMPLE_BARCODE(String matchedNormSampleBarcode) {
         this.matchedNormSampleBarcode = matchedNormSampleBarcode;
     }
 
-    public String getMatch_Norm_Seq_Allele1() {
+    public String getMATCH_NORM_SEQ_ALLELE1() {
         return this.matchNormValidationAllele1 == null ? "" : this.matchedNormSeqAllele1;
     }
 
-    public void setMatch_Norm_Seq_Allele1(String matchedNormSeqAllele1) {
+    public void setMATCH_NORM_SEQ_ALLELE1(String matchedNormSeqAllele1) {
         this.matchedNormSeqAllele1 = matchedNormSeqAllele1;
     }
 
-    public String getMatch_Norm_Seq_Allele2() {
+    public String getMATCH_NORM_SEQ_ALLELE2() {
         return this.matchNormValidationAllele2 == null ? "" : this.matchedNormSeqAllele2;
     }
 
-    public void setMatch_Norm_Seq_Allele2(String matchedNormSeqAllele2) {
+    public void setMATCH_NORM_SEQ_ALLELE2(String matchedNormSeqAllele2) {
         this.matchedNormSeqAllele2 = matchedNormSeqAllele2;
     }
 
-    public String getTumor_Validation_Allele1() {
+    public String getTUMOR_VALIDATION_ALLELE1() {
         return this.tumorValidationAllele1 == null ? "" : this.tumorValidationAllele1;
     }
 
-    public void setTumor_Validation_Allele1(String tumorValidationAllele1) {
+    public void setTUMOR_VALIDATION_ALLELE1(String tumorValidationAllele1) {
         this.tumorValidationAllele1 = tumorValidationAllele1;
     }
 
-    public String getTumor_Validation_Allele2() {
+    public String getTUMOR_VALIDATION_ALLELE2() {
         return this.tumorValidationAllele2 == null ? "" : this.tumorValidationAllele2;
     }
 
-     public void setTumor_Validation_Allele2(String tumorValidationAllele2) {
+     public void setTUMOR_VALIDATION_ALLELE2(String tumorValidationAllele2) {
         this.tumorValidationAllele2 = tumorValidationAllele2;
     }
 
-    public String getMatch_Norm_Validation_Allele1() {
+    public String getMATCH_NORM_VALIDATION_ALLELE1() {
         return this.matchNormValidationAllele1 == null ? "" : this.matchNormValidationAllele1;
     }
 
-    public void setMatch_Norm_Validation_Allele1(String matchNormValidationAllele1) {
+    public void setMATCH_NORM_VALIDATION_ALLELE1(String matchNormValidationAllele1) {
         this.matchNormValidationAllele1 = matchNormValidationAllele1;
     }
 
-    public String getMatch_Norm_Validation_Allele2() {
+    public String getMATCH_NORM_VALIDATION_ALLELE2() {
         return this.matchNormValidationAllele2 == null ? "" : this.matchNormValidationAllele2;
     }
 
-    public void setMatch_Norm_Validation_Allele2(String matchNormValidationAllele2) {
+    public void setMATCH_NORM_VALIDATION_ALLELE2(String matchNormValidationAllele2) {
         this.matchNormValidationAllele2 = matchNormValidationAllele2;
     }
 
-    public String getVerification_Status() {
+    public String getVERIFICATION_STATUS() {
         return this.verificationStatus == null ? "" : this.verificationStatus;
     }
 
-    public void setVerification_Status(String verificationStatus) {
+    public void setVERIFICATION_STATUS(String verificationStatus) {
         this.verificationStatus = verificationStatus;
     }
 
-    public String getValidation_Status() {
+    public String getVALIDATION_STATUS() {
         return this.validationStatus == null ? "" : this.validationStatus;
     }
 
-    public void setValidation_Status(String validationStatus) {
+    public void setVALIDATION_STATUS(String validationStatus) {
         this.validationStatus = validationStatus;
     }
 
-    public String getMutation_Status() {
+    public String getMUTATION_STATUS() {
         return this.mutationStatus == null ? "" : this.mutationStatus;
     }
 
-    public void setMutation_Status(String mutationStatus) {
+    public void setMUTATION_STATUS(String mutationStatus) {
         this.mutationStatus = mutationStatus;
     }
 
-    public String getSequencing_Phase() {
+    public String getSEQUENCING_PHASE() {
         return this.sequencingPhase == null ? "" : this.sequencingPhase;
     }
 
-    public void setSequencing_Phase(String sequencingPhase) {
+    public void setSEQUENCING_PHASE(String sequencingPhase) {
         this.sequencingPhase = sequencingPhase;
     }
 
-    public String getSequence_Source() {
+    public String getSEQUENCE_SOURCE() {
         return this.sequencingSource == null ? "" : this.sequencingSource;
     }
 
-    public void setSequence_Source(String sequencingSource) {
+    public void setSEQUENCE_SOURCE(String sequencingSource) {
         this.sequencingSource = sequencingSource;
     }
 
-    public String getValidation_Method() {
+    public String getVALIDATION_METHOD() {
         return this.validationMethod == null ? "" : validationMethod;
     }
 
-    public void setValidation_Method(String validationMethod) {
+    public void setVALIDATION_METHOD(String validationMethod) {
         this.validationMethod = validationMethod;
     }
 
-    public String getScore() {
+    public String getSCORE() {
         return this.score == null ? "" : this.score;
     }
 
-    public void setScore(String score) {
+    public void setSCORE(String score) {
         this.score = score;
     }
 
-    public String getBAM_File() {
+    public String getBAM_FILE() {
         return this.bamFile == null ? "" : this.bamFile;
     }
 
-    public void setBAM_File(String bamFile) {
+    public void setBAM_FILE(String bamFile) {
         this.bamFile = bamFile;
     }
 
-    public String getSequencer() {
+    public String getSEQUENCER() {
         return this.sequencer == null ? "" : this.sequencer;
     }
 
-    public void setSequencer(String sequencer) {
+    public void setSEQUENCER(String sequencer) {
         this.sequencer = sequencer;
     }
 
-    public String getTumor_Sample_UUID() {
+    public String getTUMOR_SAMPLE_UUID() {
         return this.tumorSampleUUID == null ? "" : this.tumorSampleUUID;
     }
 
-    public void setTumor_Sample_UUID(String tumorSampleUUID) {
+    public void setTUMOR_SAMPLE_UUID(String tumorSampleUUID) {
         this.tumorSampleUUID = tumorSampleUUID;
     }
 
-    public String getMatched_Norm_Sample_UUID() {
+    public String getMATCHED_NORM_SAMPLE_UUID() {
         return this.matchedNormSampleUUID == null ? "" : this.matchedNormSampleUUID;
     }
 
-    public void setMatched_Norm_Sample_UUID(String matchedNormSampleUUID) {
+    public void setMATCHED_NORM_SAMPLE_UUID(String matchedNormSampleUUID) {
         this.matchedNormSampleUUID = matchedNormSampleUUID;
     }
 
-    public String gett_ref_count() {
+    public String getT_REF_COUNT() {
         return this.tRefCount == null ? "" : this.tRefCount;
     }
 
-    public void sett_ref_count(String tRefCount) {
+    public void setT_REF_COUNT(String tRefCount) {
         this.tRefCount = tRefCount;
     }
 
-    public String gett_alt_count() {
+    public String getT_ALT_COUNT() {
         return this.tAltCount == null ? "" : this.tAltCount;
     }
 
-    public void sett_alt_count(String tAltCount) {
+    public void setT_ALT_COUNT(String tAltCount) {
         this.tAltCount = tAltCount;
     }
 
-    public String getn_ref_count() {
+    public String getN_REF_COUNT() {
         return this.nRefCount == null ? "" : this.nRefCount;
     }
 
-    public void setn_ref_count(String nRefCount) {
+    public void setN_REF_COUNT(String nRefCount) {
         this.nRefCount = nRefCount;
     }
 
-    public String getn_alt_count() {
+    public String getN_ALT_COUNT() {
         return this.nAltCount == null ? "" : this.nAltCount;
     }
 
-    public void setn_alt_count(String nAltCount) {
+    public void setN_ALT_COUNT(String nAltCount) {
         this.nAltCount = nAltCount;
     }
 

@@ -115,7 +115,7 @@ public class GenomeNexusImpl implements Annotator {
         if (!additionalProperties.containsKey("HGVSp_Short")) {
             return true;
         }
-        return additionalProperties.get("HGVSp_Short").isEmpty() && !hgvspNullClassifications.contains(record.getVariant_Classification());
+        return additionalProperties.get("HGVSp_Short").isEmpty() && !hgvspNullClassifications.contains(record.getVARIANT_CLASSIFICATION());
     }
 
     @Override
@@ -139,7 +139,7 @@ public class GenomeNexusImpl implements Annotator {
         // annotate the record
         AnnotatedRecord annotatedRecord= new AnnotatedRecord(resolveHugoSymbol(replace),
                 resolveEntrezGeneId(replace),
-                mRecord.getCenter(),
+                mRecord.getCENTER(),
                 resolveAssemblyName(),
                 resolveChromosome(),
                 resolveStart(),
@@ -150,31 +150,31 @@ public class GenomeNexusImpl implements Annotator {
                 resolveReferenceAllele(),
                 resolveReferenceAllele(),
                 resolveTumorSeqAllele(),
-                mRecord.getdbSNP_RS(),
-                mRecord.getdbSNP_Val_Status(),
-                mRecord.getTumor_Sample_Barcode(),
-                mRecord.getMatched_Norm_Sample_Barcode(),
-                mRecord.getMatch_Norm_Seq_Allele1(),
-                mRecord.getMatch_Norm_Seq_Allele2(),
-                mRecord.getTumor_Validation_Allele1(),
-                mRecord.getTumor_Validation_Allele2(),
-                mRecord.getMatch_Norm_Validation_Allele1(),
-                mRecord.getMatch_Norm_Validation_Allele2(),
-                mRecord.getVerification_Status(),
-                mRecord.getValidation_Status(),
-                mRecord.getMutation_Status(),
-                mRecord.getSequencing_Phase(),
-                mRecord.getSequence_Source(),
-                mRecord.getValidation_Method(),
-                mRecord.getScore(),
-                mRecord.getBAM_File(),
-                mRecord.getSequencer(),
-                mRecord.getTumor_Sample_UUID(),
-                mRecord.getMatched_Norm_Sample_UUID(),
-                mRecord.gett_ref_count(),
-                mRecord.gett_alt_count(),
-                mRecord.getn_ref_count(),
-                mRecord.getn_alt_count(),
+                mRecord.getDBSNP_RS(),
+                mRecord.getDBSNP_VAL_STATUS(),
+                mRecord.getTUMOR_SAMPLE_BARCODE(),
+                mRecord.getMATCHED_NORM_SAMPLE_BARCODE(),
+                mRecord.getMATCH_NORM_SEQ_ALLELE1(),
+                mRecord.getMATCH_NORM_SEQ_ALLELE2(),
+                mRecord.getTUMOR_VALIDATION_ALLELE1(),
+                mRecord.getTUMOR_VALIDATION_ALLELE2(),
+                mRecord.getMATCH_NORM_VALIDATION_ALLELE1(),
+                mRecord.getMATCH_NORM_VALIDATION_ALLELE2(),
+                mRecord.getVERIFICATION_STATUS(),
+                mRecord.getVALIDATION_STATUS(),
+                mRecord.getMUTATION_STATUS(),
+                mRecord.getSEQUENCING_PHASE(),
+                mRecord.getSEQUENCE_SOURCE(),
+                mRecord.getVALIDATION_METHOD(),
+                mRecord.getSCORE(),
+                mRecord.getBAM_FILE(),
+                mRecord.getSEQUENCER(),
+                mRecord.getTUMOR_SAMPLE_UUID(),
+                mRecord.getMATCHED_NORM_SAMPLE_UUID(),
+                mRecord.getT_REF_COUNT(),
+                mRecord.getT_ALT_COUNT(),
+                mRecord.getN_REF_COUNT(),
+                mRecord.getN_ALT_COUNT(),
                 resolveHgvsc(),
                 resolveHgvsp(),
                 resolveHgvspShort(),
@@ -217,17 +217,17 @@ public class GenomeNexusImpl implements Annotator {
             return canonicalTranscript.getGeneSymbol();
         }
 
-        return mRecord.getHugo_Symbol();
+        return mRecord.getHUGO_SYMBOL();
     }
     private String resolveChromosome() {
         if (gnResponse.getSeqRegionName() != null) {
             return gnResponse.getSeqRegionName();
         }
-        return mRecord.getChromosome();
+        return mRecord.getCHROMOSOME();
     }
 
     private String resolveAssemblyName() {
-        return (gnResponse.getAssemblyName() == null) ? mRecord.getNCBI_Build() : gnResponse.getAssemblyName();
+        return (gnResponse.getAssemblyName() == null) ? mRecord.getNCBI_BUILD() : gnResponse.getAssemblyName();
     }
 
     private String resolveStart() {
@@ -240,7 +240,7 @@ public class GenomeNexusImpl implements Annotator {
             }
         }
         catch (NumberFormatException e) {
-            return mRecord.getStart_Position();
+            return mRecord.getSTART_POSITION();
         }
     }
 
@@ -254,7 +254,7 @@ public class GenomeNexusImpl implements Annotator {
             }
         }
         catch (NumberFormatException e) {
-            return mRecord.getEnd_Position();
+            return mRecord.getEND_POSITION();
         }
     }
 
@@ -274,7 +274,7 @@ public class GenomeNexusImpl implements Annotator {
             catch (Exception e) {}
         }
         else {
-            strand = mRecord.getStrand();
+            strand = mRecord.getSTRAND();
         }
 
         return strand;
@@ -297,7 +297,7 @@ public class GenomeNexusImpl implements Annotator {
                 variantClassification = getVariantClassificationFromMap(gnResponse.getMostSevereConsequence());
             }
         }
-        return variantClassification != null ? variantClassification : mRecord.getVariant_Classification();
+        return variantClassification != null ? variantClassification : mRecord.getVARIANT_CLASSIFICATION();
     }
 
     private String resolveVariantType() {
@@ -322,7 +322,7 @@ public class GenomeNexusImpl implements Annotator {
         {
             return gnResponse.getAlleleString().split("/", -1)[0];
         }
-        return mRecord.getReference_Allele();
+        return mRecord.getREFERENCE_ALLELE();
     }
 
     private String resolveTumorSeqAllele() {
@@ -486,7 +486,7 @@ public class GenomeNexusImpl implements Annotator {
 
         if (refLength == varLength) {
             if (refLength - 1 < 0) {
-                    log.info("Check " + mRecord.getTumor_Sample_Barcode() + " " + mRecord.getHugo_Symbol());
+                    log.info("Check " + mRecord.getTUMOR_SAMPLE_BARCODE() + " " + mRecord.getHUGO_SYMBOL());
                     return "";
             }
             String npType[] = {"SNP", "DNP", "TNP"};
@@ -513,7 +513,7 @@ public class GenomeNexusImpl implements Annotator {
     
     private String resolveEntrezGeneId(boolean replace) {
         if (!replace || canonicalTranscript == null || canonicalTranscript.getGeneId() == null || canonicalTranscript.getGeneId().trim().isEmpty()) {
-            return mRecord.getEntrez_Gene_Id();
+            return mRecord.getENTREZ_GENE_ID();
         }
         // make the rest call to ensembl server for gene external refs
         RestTemplate restTemplate = new RestTemplate();
@@ -527,20 +527,20 @@ public class GenomeNexusImpl implements Annotator {
                 break;
             }
         }
-        return entrezGeneId != null ? entrezGeneId : mRecord.getEntrez_Gene_Id();
+        return entrezGeneId != null ? entrezGeneId : mRecord.getENTREZ_GENE_ID();
     }
 
     private String convertToHgvs(MutationRecord record)
     {
-        String chr = record.getChromosome();
-        String start = record.getStart_Position();
-        String end = record.getEnd_Position();
-        String ref = record.getReference_Allele();
+        String chr = record.getCHROMOSOME();
+        String start = record.getSTART_POSITION();
+        String end = record.getEND_POSITION();
+        String ref = record.getREFERENCE_ALLELE();
         String var = getTumorSeqAllele(record);
 
         String prefix = "";
         if(ref.equals(var)) {
-            log.warn("Warning: Reference allele extracted from " + chr + ":" + start + "-" + end + " matches alt allele. Sample: " + record.getTumor_Sample_Barcode());
+            log.warn("Warning: Reference allele extracted from " + chr + ":" + start + "-" + end + " matches alt allele. Sample: " + record.getTUMOR_SAMPLE_BARCODE());
         }
         else {
             prefix = longestCommonPrefix(ref, var);
@@ -559,13 +559,13 @@ public class GenomeNexusImpl implements Annotator {
                 nStart -= 1;
             }
 
-            record.setStart_Position(Integer.toString(nStart));
-            record.setEnd_Position(Integer.toString(nEnd));
+            record.setSTART_POSITION(Integer.toString(nStart));
+            record.setEND_POSITION(Integer.toString(nEnd));
             start = Integer.toString(nStart);
 
-            record.setReference_Allele(ref);
-            record.setTumor_Seq_Allele1(ref);
-            record.setTumor_Seq_Allele2(var);
+            record.setREFERENCE_ALLELE(ref);
+            record.setTUMOR_SEQ_ALLELE1(ref);
+            record.setTUMOR_SEQ_ALLELE2(var);
         }
 
         String hgvs;
@@ -672,7 +672,7 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     private String getVariantClassificationFromMap(String variant) {
-        boolean inframe = Math.abs(mRecord.getReference_Allele().length() - getTumorSeqAllele(mRecord).length()) % 3 == 0;
+        boolean inframe = Math.abs(mRecord.getREFERENCE_ALLELE().length() - getTumorSeqAllele(mRecord).length()) % 3 == 0;
         variant = variant.toLowerCase();
         String resolvedVariantType = resolveVariantType();
         if ((variant.equals("frameshift_variant") || (variant.equals("protein_altering_variant") || variant.equals("coding_sequence_variant")) && !inframe)) {
@@ -704,11 +704,11 @@ public class GenomeNexusImpl implements Annotator {
 
     private String getTumorSeqAllele(MutationRecord record) {
         String tumorSeqAllele;
-        if (record.getTumor_Seq_Allele1().equals(record.getReference_Allele()) || record.getTumor_Seq_Allele1().equals("") || record.getTumor_Seq_Allele1().equals("NA")) {
-            return tumorSeqAllele = record.getTumor_Seq_Allele2();
+        if (record.getTUMOR_SEQ_ALLELE1().equals(record.getREFERENCE_ALLELE()) || record.getTUMOR_SEQ_ALLELE1().equals("") || record.getTUMOR_SEQ_ALLELE1().equals("NA")) {
+            return tumorSeqAllele = record.getTUMOR_SEQ_ALLELE2();
         }
         else {
-            return tumorSeqAllele = record.getTumor_Seq_Allele1();
+            return tumorSeqAllele = record.getTUMOR_SEQ_ALLELE1();
         }
     }
 
