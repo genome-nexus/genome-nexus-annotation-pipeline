@@ -194,7 +194,7 @@ public class GenomeNexusImpl implements Annotator {
         MutationRecord record = new MutationRecord();
         for (String header : record.getHeader()) {
             if(mafLine.keySet().contains(header)) {
-                record.getClass().getMethod("set" + header, String.class).invoke(record, mafLine.remove(header));
+                record.getClass().getMethod("set" + header.toUpperCase(), String.class).invoke(record, mafLine.remove(header));
             }
         }
         record.setAdditionalProperties(mafLine);
