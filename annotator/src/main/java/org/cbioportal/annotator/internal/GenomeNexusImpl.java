@@ -654,16 +654,27 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     private TranscriptConsequence transcriptWithMostSevereConsequence(List<TranscriptConsequence> transcripts, String mostSevereConsequence) {
+        Integer highestPriority = Integer.MAX_VALUE;
+        TranscriptConsequence highestPriorityTranscript = null;
         for (TranscriptConsequence transcript : transcripts) {
             List<String> consequenceTerms = transcript.getConsequenceTerms();
             for (String consequenceTerm : consequenceTerms) {
+                if (effectPriority.getOrDefault(consequenceTerm.toLowerCase(), Integer.MAX_VALUE) < highestPriority) {
+                    highestPriorityTranscript = transcript;
+                    highestPriority = effectPriority.getOrDefault(consequenceTerm.toLowerCase(), Integer.MAX_VALUE);
+                }
                 if (consequenceTerm.trim().equals(mostSevereConsequence)) {
                     return transcript;
                 }
             }
         }
 
-        // no match, return the first one
+        // no match, pick one with the highest priority
+        if (highestPriorityTranscript != null) {
+            return highestPriorityTranscript;
+        }
+        
+        // if for whatever reason that is null, just return the first one.
         if (transcripts.size() > 0) {
             return transcripts.get(0);
         }
