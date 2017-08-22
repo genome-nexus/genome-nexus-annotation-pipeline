@@ -79,6 +79,8 @@ public class MutationRecord {
     protected String nAltCount;
     protected Map<String, String> additionalProperties = new LinkedHashMap<>();
     protected List<String> header = new ArrayList<>();
+    public static List<String> missingValueList = initMissingValueList();
+
 
     public MutationRecord() {
         initHeader();
@@ -506,5 +508,62 @@ public class MutationRecord {
         header.add("t_alt_count");
         header.add("n_ref_count");
         header.add("n_alt_count");
+    }
+
+    private static List<String> initMissingValueList() {
+        List<String> missingValueList = new ArrayList<>();
+        missingValueList.add("NA");
+        missingValueList.add("N/A");
+        missingValueList.add("N/a");
+        missingValueList.add("n/A");
+        missingValueList.add("Unknown");
+        missingValueList.add("not available");
+        return missingValueList;
+    }
+
+    public static boolean hasMissingKeys(String check) {
+        for (String ignore : missingValueList) {
+            if (check.equalsIgnoreCase(ignore)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MutationRecord record = (MutationRecord) o;
+
+        if (!getCHROMOSOME().equals(record.getCHROMOSOME())) return false;
+        if (!startPosition.equals(record.startPosition)) return false;
+        if (!endPosition.equals(record.endPosition)) return false;
+        if (!getSTRAND().equals(record.getSTRAND())) return false;
+        if (!referenceAllele.equals(record.referenceAllele)) return false;
+        if (!tumorSampleBarcode.equals(record.tumorSampleBarcode)) return false;
+        return sameTumourSequence(record);
+    }
+
+    private boolean sameTumourSequence(MutationRecord record) {
+        if (!(getTUMOR_SEQ_ALLELE1().equals(getREFERENCE_ALLELE()) || getTUMOR_SEQ_ALLELE1().isEmpty() || hasMissingKeys(getTUMOR_SEQ_ALLELE1()))) {
+            return getTUMOR_SEQ_ALLELE1().equals(getTUMOR_SEQ_ALLELE1());
+        }
+        return getTUMOR_SEQ_ALLELE2().equals(record.getTUMOR_SEQ_ALLELE2());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getCHROMOSOME().hashCode();
+        result = 31 * result + startPosition.hashCode();
+        result = 31 * result + endPosition.hashCode();
+        result = 31 * result + getSTRAND().hashCode();
+        result = 31 * result + referenceAllele.hashCode();
+        result = 31 * result + (tumorSeqAllele1 != null ? tumorSeqAllele1.hashCode() : 0);
+        result = 31 * result + tumorSeqAllele2.hashCode();
+        result = 31 * result + tumorSampleBarcode.hashCode();
+        return result;
     }
 }
