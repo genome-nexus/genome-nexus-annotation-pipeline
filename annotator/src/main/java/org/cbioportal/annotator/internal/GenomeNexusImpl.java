@@ -70,8 +70,8 @@ public class GenomeNexusImpl implements Annotator {
     private String hgvsServiceUrl;
     @Value("${genomenexus.isoform_query_parameter}")
     private String isoformQueryParameter;
-    @Value("${genomenexus.hotspot_parameter}")
-    private String hotspotParameter;
+    @Value("${genomenexus.enrichment_fields}")
+    private String enrichmentFields;
     @Value("${genomenexus.xrefs}")
     private String geneXrefsServiceUrl;
 
@@ -209,7 +209,7 @@ public class GenomeNexusImpl implements Annotator {
     @Override
     public String getUrlForRecord(MutationRecord record, String isoformOverridesSource) {
         String hgvsNotation = convertToHgvs(record);
-        return hgvsServiceUrl + hgvsNotation + "?" + isoformQueryParameter + "=" + isoformOverridesSource + "&" +  hotspotParameter + "=summary";
+        return hgvsServiceUrl + hgvsNotation + "?" + isoformQueryParameter + "=" + isoformOverridesSource + "&" + enrichmentFields;
     }
 
     private String resolveHugoSymbol(boolean replace) {
