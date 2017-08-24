@@ -209,7 +209,7 @@ public class GenomeNexusImpl implements Annotator {
     @Override
     public String getUrlForRecord(MutationRecord record, String isoformOverridesSource) {
         String hgvsNotation = convertToHgvs(record);
-        return hgvsServiceUrl + hgvsNotation + "?" + isoformQueryParameter + "=" + isoformOverridesSource + "&" + enrichmentFields;
+        return hgvsServiceUrl + hgvsNotation + "?" + isoformQueryParameter + "=" + isoformOverridesSource + "&fields=" + enrichmentFields;
     }
 
     private String resolveHugoSymbol(boolean replace) {
