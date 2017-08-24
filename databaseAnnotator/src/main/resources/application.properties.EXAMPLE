@@ -5,6 +5,7 @@ databaseannotator.pass=
 databaseannotator.driver=com.mysql.jdbc.Driver
 databaseannotator.connection_string=jdbc:mysql://<HOST>/<DATABASE>
 
-genomenexus.hgvs=http://<HOST>:<PORT>/variant_annotation/hgvs/
+genomenexus.hgvs=<HOST>/variant_annotation/hgvs/
+genomenexus.xrefs=<HOST>/xrefs/
 genomenexus.isoform_query_parameter=isoformOverrideSource
-genomenexus.hotspot_parameter=cancerHotspots
+genomenexus.enrichment_fields=hotspots,mutation_assessor

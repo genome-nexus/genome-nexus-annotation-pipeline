@@ -80,8 +80,8 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
             chromosome = i.getCHR();
         }
         mafLine.put("Chromosome", chromosome);
-        mafLine.put("START_POSITION", String.valueOf(i.getSTART_POSITION()));
-        mafLine.put("END_POSITION", String.valueOf(i.getEND_POSITION()));
+        mafLine.put("Start_Position", String.valueOf(i.getSTART_POSITION()));
+        mafLine.put("End_Position", String.valueOf(i.getEND_POSITION()));
         mafLine.put("Reference_Allele", i.getREFERENCE_ALLELE());
         mafLine.put("Tumor_Seq_Allele2", i.getTUMOR_SEQ_ALLELE());
         MutationRecord record = annotator.createRecord(mafLine);
