@@ -80,6 +80,7 @@ public class GenomeNexusImpl implements Annotator {
     private TranscriptConsequence canonicalTranscript;
 
     private List<GenomeNexusIsoformOverridesResponse> overrides = new ArrayList<>();
+    private static Map<String,String> validChrValues = null;
 
     private final Logger log = Logger.getLogger(GenomeNexusImpl.class);
 
@@ -126,6 +127,9 @@ public class GenomeNexusImpl implements Annotator {
         if(!reannotate && !annotationNeeded(record)) {
             return new AnnotatedRecord(mRecord);
         }
+
+        //normalizeChromosome
+        record.setCHROMOSOME(normalizeChromosome(record.getCHROMOSOME()));
 
         // make the rest call to genome nexus
         RestTemplate restTemplate = new RestTemplate();
@@ -210,6 +214,26 @@ public class GenomeNexusImpl implements Annotator {
     public String getUrlForRecord(MutationRecord record, String isoformOverridesSource) {
         String hgvsNotation = convertToHgvs(record);
         return hgvsServiceUrl + hgvsNotation + "?" + isoformQueryParameter + "=" + isoformOverridesSource + "&" +  hotspotParameter + "=summary";
+    }
+
+    private String normalizeChromosome(String chromosome){
+        if (chromosome == null){
+            return null;
+        }
+        if (validChrValues==null) {
+            validChrValues = new HashMap<>();
+            for (int lc = 1; lc<=24; lc++) {
+                validChrValues.put(Integer.toString(lc),Integer.toString(lc));
+                validChrValues.put("CHR" + Integer.toString(lc),Integer.toString(lc));
+            }
+            validChrValues.put("23","X");
+            validChrValues.put("24","Y");
+            validChrValues.put("CHRX","X");
+            validChrValues.put("CHRY","Y");
+            validChrValues.put("NA","NA");
+            validChrValues.put("MT","MT"); // mitochondria
+        }
+        return validChrValues.get(chromosome);
     }
 
     private String resolveHugoSymbol(boolean replace) {
