@@ -80,6 +80,7 @@ public class GenomeNexusImpl implements Annotator {
     private TranscriptConsequence canonicalTranscript;
 
     private List<GenomeNexusIsoformOverridesResponse> overrides = new ArrayList<>();
+    private Map<String, String> ensemblAccessionEntrezIdMap = new HashMap<>();
 
     private final Logger log = Logger.getLogger(GenomeNexusImpl.class);
 
@@ -385,8 +386,17 @@ public class GenomeNexusImpl implements Annotator {
         try {
             String[] aaParts = canonicalTranscript.getAminoAcids().split("/");
             if (canonicalTranscript.getConsequenceTerms() != null && canonicalTranscript.getConsequenceTerms().get(0).equals("inframe_insertion")) {
-                hgvsp = aaParts[1].substring(0,1) + canonicalTranscript.getProteinStart() + "_" + aaParts[1].substring(1, 2) + "ins" +
-                        canonicalTranscript.getProteinEnd() + aaParts[1].substring(2);
+                // to prevent IndexOutOfBoundsException's we check for 'dup' in the HGVSc field (ex: ENST00000357654.3:c.5266dupC)
+                // since the 'amino_acids' may not always be provided in such a way where the reference allele is available
+                // ex: with the reference aa 'N/KN' and without the reference aa '-/K'. 
+                // the second format will throw an IndexOutOfBoundsException when trying to access substring index 1 
+                if (canonicalTranscript.getHgvsc() != null && canonicalTranscript.getHgvsc().contains("dup")) {
+                    hgvsp = aaParts[1].substring(0,1) + String.valueOf(Integer.valueOf(canonicalTranscript.getProteinStart()) - 1 ) + "dup";
+                }
+                else {
+                    hgvsp = aaParts[1].substring(0,1) + canonicalTranscript.getProteinStart() + "_" + aaParts[1].substring(1, 2) + "ins" +
+                            canonicalTranscript.getProteinEnd() + aaParts[1].substring(2);
+                }
             }
             else if (canonicalTranscript.getConsequenceTerms() != null && canonicalTranscript.getConsequenceTerms().get(0).equals("inframe_deletion")) {
                 hgvsp = aaParts[0] + "del";
@@ -515,19 +525,40 @@ public class GenomeNexusImpl implements Annotator {
         if (!replace || canonicalTranscript == null || canonicalTranscript.getGeneId() == null || canonicalTranscript.getGeneId().trim().isEmpty()) {
             return mRecord.getENTREZ_GENE_ID();
         }
+        // check hashmap first before hitting api for gene cross-ref data
+        if (ensemblAccessionEntrezIdMap.containsKey(canonicalTranscript.getGeneId())) {
+            return ensemblAccessionEntrezIdMap.get(canonicalTranscript.getGeneId());
+        }
+        
         // make the rest call to ensembl server for gene external refs
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity();        
         ResponseEntity<GeneXref[]> responseEntity = restTemplate.exchange(geneXrefsServiceUrl + canonicalTranscript.getGeneId(), HttpMethod.GET, requestEntity, GeneXref[].class);
         
         String entrezGeneId = null;
+        List<GeneXref> geneXrefs = new ArrayList();
         for (GeneXref xref : responseEntity.getBody()) {
-            if (xref.getDbname().equals("EntrezGene")) {
-                entrezGeneId = xref.getPrimaryId();
-                break;
+            if (xref.getDbname().equals("EntrezGene") && xref.getDisplayId().equals(canonicalTranscript.getGeneSymbol())) {
+                geneXrefs.add(xref);
             }
         }
-        return entrezGeneId != null ? entrezGeneId : mRecord.getENTREZ_GENE_ID();
+        if (geneXrefs.size() > 1 ) {
+            for (GeneXref xref : geneXrefs) {
+                if (!xref.getDescription().toLowerCase().contains("pseudogene") && !xref.getDescription().toLowerCase().contains("uncharacterized")) {
+                    entrezGeneId = xref.getPrimaryId();
+                    break;
+                }
+            }
+        }
+        else if (geneXrefs.size() == 1 ) {
+            entrezGeneId = geneXrefs.get(0).getPrimaryId();
+        }
+        // add entrez gene id to map since we haven't seen this one yet
+        if (entrezGeneId != null) {
+            ensemblAccessionEntrezIdMap.put(canonicalTranscript.getGeneId(), entrezGeneId);
+            return entrezGeneId;
+        }
+        return mRecord.getENTREZ_GENE_ID();
     }
 
     private String convertToHgvs(MutationRecord record)
