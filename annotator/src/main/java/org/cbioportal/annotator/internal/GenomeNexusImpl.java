@@ -369,7 +369,7 @@ public class GenomeNexusImpl implements Annotator {
                 if (m.matches()) {
                     cPos = Integer.parseInt(m.group(1));
                     cPos = cPos < 1 ? 1 : cPos;
-                    pPos = (cPos + cPos % 3) / 3;
+                    pPos = (int)Math.ceil(((cPos + cPos % 3) / 3.0));
                     hgvsp = "p.X" + String.valueOf(pPos) + "_splice";
                 }
             }
