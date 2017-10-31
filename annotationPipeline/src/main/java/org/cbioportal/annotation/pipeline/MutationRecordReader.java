@@ -116,7 +116,14 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
         }
         reader.close();
 
-        for(MutationRecord record : mutationRecords) {
+        int variantsToAnnotateCount = mutationRecords.size();
+        int annotatedVariantsCount = 0;
+        LOG.info(String.valueOf(variantsToAnnotateCount) + " records to annotate");
+        for (MutationRecord record : mutationRecords) {
+            annotatedVariantsCount++;
+            if (annotatedVariantsCount % 2000 == 0) {
+                LOG.info("\tOn record " + String.valueOf(annotatedVariantsCount) + " out of " + String.valueOf(variantsToAnnotateCount) + ", annotation " + String.valueOf((int)(((annotatedVariantsCount * 1.0)/variantsToAnnotateCount) * 100)) + "% complete");
+            }
             // save variant details for logging
             String variantDetails = "(sampleId,chr,start,end,ref,alt,url)= (" + record.getTUMOR_SAMPLE_BARCODE() + "," +  record.getCHROMOSOME() + "," + record.getSTART_POSITION() + ","
                     + record.getEND_POSITION() + "," + record.getREFERENCE_ALLELE() + "," + record.getTUMOR_SEQ_ALLELE2() + "," + annotator.getUrlForRecord(record, isoformOverride) + ")";
