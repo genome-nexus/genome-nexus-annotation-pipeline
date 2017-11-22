@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2017 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,21 +32,8 @@
 
 package org.cbioportal.annotator;
 
-import java.util.Map;
-import org.cbioportal.annotator.GenomeNexusAnnotationFailureException;
-import org.cbioportal.models.AnnotatedRecord;
-import org.cbioportal.models.MutationRecord;
-
-/**
- *
- * @author heinsz
- */
-
-public interface Annotator {
-
-    AnnotatedRecord annotateRecord(MutationRecord record, boolean replaceHugo, String isoformOverride, boolean reannotate) throws GenomeNexusAnnotationFailureException;
-    MutationRecord createRecord(Map<String, String> mafLine) throws Exception;
-    boolean isHgvspNullClassifications(String variantClassification);
-    String getUrlForRecord(MutationRecord record, String isoformOverridesSource);
-
+public class GenomeNexusAnnotationFailureException extends Exception {
+    public GenomeNexusAnnotationFailureException(String msg) {
+        super(msg);
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 - 2017 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -37,8 +37,9 @@ import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cbioportal.models.*;
 import org.cbioportal.annotator.Annotator;
+import org.cbioportal.annotator.GenomeNexusAnnotationFailureException;
+import org.cbioportal.models.*;
 import org.springframework.batch.item.*;
 import org.springframework.batch.item.file.*;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
@@ -146,6 +147,11 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
             }
             catch (HttpMessageNotReadableException ex) {
                 String reasonFailed = "Failed to annotate variant due to message not readable error";
+                LOG.warn(reasonFailed + ": " + variantDetails);
+                updateErrorMessages(record, record.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), reasonFailed);                 
+            }
+            catch (GenomeNexusAnnotationFailureException ex) {
+                String reasonFailed = "Failed to annotate variant due to Genome Nexus : " + ex.getMessage();
                 LOG.warn(reasonFailed + ": " + variantDetails);
                 updateErrorMessages(record, record.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), reasonFailed);                 
             }
