@@ -29,20 +29,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package org.cbioportal.annotator.internal;
 
-import org.cbioportal.models.TranscriptConsequence;
-import org.cbioportal.models.AnnotatedRecord;
-import org.cbioportal.models.GenomeNexusAnnotationResponse;
-import org.cbioportal.models.MutationRecord;
-import org.cbioportal.models.GenomeNexusIsoformOverridesResponse;
-import org.cbioportal.models.GeneXref;
-import org.cbioportal.annotator.Annotator;
+package org.cbioportal.annotator.internal;
 
 import java.util.*;
 import java.util.regex.*;
-import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.cbioportal.annotator.Annotator;
+import org.cbioportal.annotator.GenomeNexusAnnotationFailureException;
+import org.cbioportal.models.AnnotatedRecord;
+import org.cbioportal.models.GeneXref;
+import org.cbioportal.models.GenomeNexusAnnotationResponse;
+import org.cbioportal.models.GenomeNexusIsoformOverridesResponse;
+import org.cbioportal.models.MutationRecord;
+import org.cbioportal.models.TranscriptConsequence;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,7 +54,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.apache.log4j.Logger;
 
 /**
  *
@@ -120,7 +120,7 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     @Override
-    public AnnotatedRecord annotateRecord(MutationRecord record, boolean replace, String isoformOverridesSource, boolean reannotate) {
+    public AnnotatedRecord annotateRecord(MutationRecord record, boolean replace, String isoformOverridesSource, boolean reannotate) throws GenomeNexusAnnotationFailureException {
         this.mRecord = record;
 
         //check if record already is annotated
@@ -130,8 +130,13 @@ public class GenomeNexusImpl implements Annotator {
 
         // make the rest call to genome nexus
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity();        
-        ResponseEntity<GenomeNexusAnnotationResponse[]> responseEntity = restTemplate.exchange(getUrlForRecord(record, isoformOverridesSource), HttpMethod.GET, requestEntity, GenomeNexusAnnotationResponse[].class);
+        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity();
+        String urlForRecord = getUrlForRecord(record, isoformOverridesSource);
+        ResponseEntity<GenomeNexusAnnotationResponse[]> responseEntity = restTemplate.exchange(urlForRecord, HttpMethod.GET, requestEntity, GenomeNexusAnnotationResponse[].class);
+        GenomeNexusAnnotationResponse[] gnResponseBody = responseEntity.getBody();
+        if (gnResponseBody.length == 0) {
+            throw new GenomeNexusAnnotationFailureException("Empty Response From Genome Nexus. url:" + urlForRecord);
+        }
         gnResponse = responseEntity.getBody()[0];
 
         // get the canonical trnascript
@@ -388,8 +393,8 @@ public class GenomeNexusImpl implements Annotator {
             if (canonicalTranscript.getConsequenceTerms() != null && canonicalTranscript.getConsequenceTerms().get(0).equals("inframe_insertion")) {
                 // to prevent IndexOutOfBoundsException's we check for 'dup' in the HGVSc field (ex: ENST00000357654.3:c.5266dupC)
                 // since the 'amino_acids' may not always be provided in such a way where the reference allele is available
-                // ex: with the reference aa 'N/KN' and without the reference aa '-/K'. 
-                // the second format will throw an IndexOutOfBoundsException when trying to access substring index 1 
+                // ex: with the reference aa 'N/KN' and without the reference aa '-/K'.
+                // the second format will throw an IndexOutOfBoundsException when trying to access substring index 1
                 if (canonicalTranscript.getHgvsc() != null && canonicalTranscript.getHgvsc().contains("dup")) {
                     hgvsp = aaParts[1].substring(0,1) + String.valueOf(Integer.valueOf(canonicalTranscript.getProteinStart()) - 1 ) + "dup";
                 }
@@ -520,7 +525,7 @@ public class GenomeNexusImpl implements Annotator {
         }
         return "";
     }
-    
+
     private String resolveEntrezGeneId(boolean replace) {
         if (!replace || canonicalTranscript == null || canonicalTranscript.getGeneId() == null || canonicalTranscript.getGeneId().trim().isEmpty()) {
             return mRecord.getENTREZ_GENE_ID();
@@ -529,12 +534,12 @@ public class GenomeNexusImpl implements Annotator {
         if (ensemblAccessionEntrezIdMap.containsKey(canonicalTranscript.getGeneId())) {
             return ensemblAccessionEntrezIdMap.get(canonicalTranscript.getGeneId());
         }
-        
+
         // make the rest call to ensembl server for gene external refs
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity();        
+        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity();
         ResponseEntity<GeneXref[]> responseEntity = restTemplate.exchange(geneXrefsServiceUrl + canonicalTranscript.getGeneId(), HttpMethod.GET, requestEntity, GeneXref[].class);
-        
+
         String entrezGeneId = null;
         List<GeneXref> geneXrefs = new ArrayList();
         for (GeneXref xref : responseEntity.getBody()) {
@@ -704,7 +709,7 @@ public class GenomeNexusImpl implements Annotator {
         if (highestPriorityTranscript != null) {
             return highestPriorityTranscript;
         }
-        
+
         // if for whatever reason that is null, just return the first one.
         if (transcripts.size() > 0) {
             return transcripts.get(0);
@@ -765,7 +770,7 @@ public class GenomeNexusImpl implements Annotator {
         }
         return highestPriorityConsequence;
     }
-    
+
     private static Map<String, String> initVariantMap() {
         Map<String, String> variantMap = new HashMap<>();
         variantMap.put("splice_acceptor_variant",       "Splice_Site");
