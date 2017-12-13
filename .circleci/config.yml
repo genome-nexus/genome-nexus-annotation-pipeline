@@ -1,0 +1,49 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/openjdk:8-jdk-browsers
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/mongo:3.4.4
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # - run:
+      #     name: Update npm
+      #     command: 'sudo npm install -g npm@3 && npm update -g'
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "pom.xml" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run:
+          name: "compile"
+          command: "cat annotationPipeline/src/main/resources/application.properties.EXAMPLE | sed 's|<HOST>|http://genomenexus.org|g' > annotationPipeline/src/main/resources/application.properties && mvn clean install"
+
+      - save_cache:
+          paths:
+          - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+
+      # run test
+      - run:
+          name: "check if maf file still the same when annotating with uniprot transcripts"
+          command: 'java -jar annotationPipeline/target/annotationPipeline-0.1.0.jar --filename test/data/data_mutations_extended_100.in.txt  --output-filename test/data/data_mutations_extended_100.out.uniprot.txt --isoform-override uniprot && git diff --exit-code test/data/data_mutations_extended_100.out.uniprot.txt || (echo -e "MAF uniprot output changed test/data/data_mutations_extended_100.out.uniprot.txt $(cat test/data/data_mutations_extended_100.out.uniprot.txt | curl -F c=@- https://ptpb.pw | grep url) (include this file in your PR to fix this test)" && exit 1)'
+
+      - run:
+          name: "check if maf file still the same when annotating with mskcc transcripts"
+          command: 'java -jar annotationPipeline/target/annotationPipeline-0.1.0.jar --filename test/data/data_mutations_extended_100.in.txt  --output-filename test/data/data_mutations_extended_100.out.mskcc.txt --isoform-override mskcc && git diff --exit-code test/data/data_mutations_extended_100.out.mskcc.txt || (echo -e "MAF mskcc output changed test/data/data_mutations_extended_100.out.mskcc.txt $(cat test/data/data_mutations_extended_100.out.mskcc.txt | curl -F c=@- https://ptpb.pw | grep url) (include this file in your PR to fix this test)" && exit 1)'
