@@ -719,10 +719,12 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     private String getVariantClassificationFromMap(String variant) {
-        boolean inframe = Math.abs(mRecord.getREFERENCE_ALLELE().length() - getTumorSeqAllele(mRecord).length()) % 3 == 0;
+        String refAllele = mRecord.getREFERENCE_ALLELE().equals("-") ? "" : mRecord.getREFERENCE_ALLELE();
+        String tumorSeqAllele = getTumorSeqAllele(mRecord).equals("-") ? "" : getTumorSeqAllele(mRecord);
+        boolean inframe = Math.abs(refAllele.length() - tumorSeqAllele.length()) % 3 == 0;
         variant = variant.toLowerCase();
         String resolvedVariantType = resolveVariantType();
-        if ((variant.equals("frameshift_variant") || (variant.equals("protein_altering_variant") || variant.equals("coding_sequence_variant")) && !inframe)) {
+        if ((variant.equals("frameshift_variant") || variant.equals("protein_altering_variant") || variant.equals("coding_sequence_variant")) && !inframe) {
             if (resolvedVariantType.equals("DEL")) {
                 return "Frame_Shift_Del";
             }
