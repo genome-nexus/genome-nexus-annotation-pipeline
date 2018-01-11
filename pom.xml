@@ -31,16 +31,14 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-batch</artifactId>
     </dependency>
-
-	<dependency>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-test</artifactId>
-	</dependency>
-
-	<dependency>
-		<groupId>org.springframework.batch</groupId>
-		<artifactId>spring-batch-test</artifactId>
-	</dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.batch</groupId>
+        <artifactId>spring-batch-test</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -49,7 +47,7 @@
         <!-- required to build an executable jar -->
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-      </plugin>               
+      </plugin>
     </plugins>
   </build>
 
