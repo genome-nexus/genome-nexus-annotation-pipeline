@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016-18 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -111,6 +111,14 @@ public class GenomeNexusImpl implements Annotator {
         return this;
     }
 
+    public void setGnResponse(GenomeNexusAnnotationResponse gnResponse) {
+        this.gnResponse = gnResponse;
+    }
+
+    public void setMutationRecord(MutationRecord record) {
+        this.mRecord = record;
+    }
+
     private boolean annotationNeeded(MutationRecord record) {
         Map<String, String> additionalProperties = record.getAdditionalProperties();
         if (!additionalProperties.containsKey("HGVSp_Short")) {
@@ -139,7 +147,11 @@ public class GenomeNexusImpl implements Annotator {
         }
         gnResponse = responseEntity.getBody()[0];
 
-        // get the canonical trnascript
+        return convertResponseToAnnotatedRecord(replace);
+    }
+
+    public AnnotatedRecord convertResponseToAnnotatedRecord(boolean replace) {
+        // get the canonical transcript
         canonicalTranscript = getCanonicalTranscript(gnResponse);
 
         // annotate the record
@@ -566,7 +578,7 @@ public class GenomeNexusImpl implements Annotator {
         return mRecord.getENTREZ_GENE_ID();
     }
 
-    private String convertToHgvs(MutationRecord record)
+    public String convertToHgvs(MutationRecord record)
     {
         String chr = record.getCHROMOSOME();
         String start = record.getSTART_POSITION();
