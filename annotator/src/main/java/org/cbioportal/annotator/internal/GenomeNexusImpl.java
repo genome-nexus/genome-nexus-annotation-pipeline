@@ -379,7 +379,7 @@ public class GenomeNexusImpl implements Annotator {
                     }
                 }
             }
-            else if (canonicalTranscript.getHgvsc() != null && spliceSiteVariants.contains(canonicalTranscript.getConsequenceTerms().get(0))) {
+            else if (canonicalTranscript.getHgvsc() != null) {
                 Integer cPos = 0;
                 Integer pPos = 0;
                 Matcher m = cDnaExtractor.matcher(canonicalTranscript.getHgvsc());
@@ -387,11 +387,23 @@ public class GenomeNexusImpl implements Annotator {
                     cPos = Integer.parseInt(m.group(1));
                     cPos = cPos < 1 ? 1 : cPos;
                     pPos = (cPos + 2) / 3;
-                    hgvsp = "p.X" + String.valueOf(pPos) + "_splice";
+                    if (spliceSiteVariants.contains(canonicalTranscript.getConsequenceTerms().get(0))) {
+                        hgvsp = "p.X" + String.valueOf(pPos) + "_splice";
+                    }
+                    else if (canonicalTranscript.getAminoAcids() == null) {
+                        String variantClassification = resolveVariantClassification();
+                        hgvsp = "*" + String.valueOf(pPos);
+                        if (variantClassification.startsWith("Frame_Shift")) {
+                            hgvsp += "fs*";
+                        }
+                        else {
+                            hgvsp += "*";
+                        }
+                    }
                 }
             }
-            else {
-                // try to salvage using protein_start, amino_acids, and consequence_terms
+            // if hgvsp is still empty then try to salvage using protein_start, amino_acids, and consequence_terms
+            if (hgvsp.isEmpty() && canonicalTranscript.getAminoAcids() != null) {
                 hgvsp = resolveHgvspShortFromAAs();
             }
         }
