@@ -47,3 +47,7 @@ jobs:
       - run:
           name: "check if maf file still the same when annotating with mskcc transcripts"
           command: 'java -jar annotationPipeline/target/annotationPipeline-0.1.0.jar --filename test/data/data_mutations_extended_100.in.txt  --output-filename test/data/data_mutations_extended_100.out.mskcc.txt --isoform-override mskcc && git diff --exit-code test/data/data_mutations_extended_100.out.mskcc.txt || (echo -e "MAF mskcc output changed test/data/data_mutations_extended_100.out.mskcc.txt $(cat test/data/data_mutations_extended_100.out.mskcc.txt | curl -F c=@- https://ptpb.pw | grep url) (include this file in your PR to fix this test)" && exit 1)'
+
+      - run:
+          name: "Run vcf2maf test cases"
+          command: 'sudo apt-get install make && ./test/scripts/vcf2maf_tests.sh'
