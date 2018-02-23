@@ -37,18 +37,15 @@ import java.util.*;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.validation.BindException;
-import org.springframework.cglib.beans.BeanMap;
-import com.google.common.collect.Sets;
-import com.google.common.base.Strings;
-import java.util.stream.Collectors;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
  * @author heinsz
  */
 public class MutationFieldSetMapper implements  FieldSetMapper<MutationRecord> {
-    Logger log = Logger.getLogger(MutationFieldSetMapper.class);
+    private final Log LOG = LogFactory.getLog(MutationFieldSetMapper.class);
     @Override
     public MutationRecord mapFieldSet(FieldSet fs) throws BindException {
         MutationRecord record = new MutationRecord();
@@ -63,7 +60,7 @@ public class MutationFieldSetMapper implements  FieldSetMapper<MutationRecord> {
                     record.addAdditionalProperty(field, fs.readRawString(field));
                 }
                 else {
-                    log.error("Something went wrong reading field " + field);
+                    LOG.error("Something went wrong reading field " + field);
                 }
             }
         }

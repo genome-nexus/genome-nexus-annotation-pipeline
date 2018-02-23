@@ -4,12 +4,12 @@
   <name>cBioPortal Database Annotator</name>
   <description>Annotates mutations in database with missing information using Genome Nexus</description>
   <artifactId>databaseAnnotator</artifactId>
-  <version>0.1.0</version>
+  <version>1.0.0</version>
 
   <parent>
-	<groupId>org.cbioportal.annotation.pipeline</groupId>
+    <groupId>org.cbioportal.annotation.pipeline</groupId>
     <artifactId>master</artifactId>
-    <version>0.1.0</version>
+    <version>1.0.0</version>
   </parent>
 
     <dependencies>
@@ -34,7 +34,6 @@
         <dependency>
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>
-            <version>1.4</version>
             <type>jar</type>
         </dependency>
 
@@ -102,7 +101,7 @@
         <dependency>            
             <groupId>org.cbioportal.annotator</groupId>
             <artifactId>annotator</artifactId>
-            <version>0.1.0</version>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
     <repositories>

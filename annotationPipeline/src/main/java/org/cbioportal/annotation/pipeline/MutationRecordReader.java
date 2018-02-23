@@ -40,6 +40,8 @@ import org.apache.commons.logging.LogFactory;
 import org.cbioportal.annotator.Annotator;
 import org.cbioportal.annotator.GenomeNexusAnnotationFailureException;
 import org.cbioportal.models.*;
+import org.mskcc.cbio.maf.MafUtil;
+import static org.mskcc.cbio.maf.MafUtil.variantContainsAmbiguousTumorSeqAllele;
 import org.springframework.batch.item.*;
 import org.springframework.batch.item.file.*;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
@@ -66,10 +68,14 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
 
     @Value("#{jobParameters[errorReportLocation]}")
     private String errorReportLocation;
+    
+    @Value("#{jobParameters[verbose]}")
+    private boolean verbose;
 
     private int failedAnnotations;
     private int failedNullHgvspAnnotations;
     private int failedMitochondrialAnnotations;
+    private int snpAndIndelVariants;
 
     private List<MutationRecord> mutationRecords = new ArrayList<>();
     private List<AnnotatedRecord> annotatedRecords = new ArrayList<>();
@@ -106,6 +112,7 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
         });
         reader.open(ec);
 
+        LOG.info("Loading records from: " + filename);
         MutationRecord mutationRecord;
         try {
             while((mutationRecord = reader.read()) != null) {
@@ -131,61 +138,63 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
 
             // init annotated record w/o genome nexus in case server error occurs
             // if no error then annotated record will get overwritten anyway with genome nexus response
+            String serverErrorMessage = "";
             AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
             try {
                 annotatedRecord = annotator.annotateRecord(record, replace, isoformOverride, true);
             }
             catch (HttpServerErrorException ex) {
-                String reasonFailed = "Failed to annotate variant due to internal server error";
-                LOG.warn(reasonFailed + ": " + variantDetails);
-                updateErrorMessages(record, record.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), reasonFailed);
+                serverErrorMessage = "Failed to annotate variant due to internal server error";
             }
             catch (HttpClientErrorException ex) {
-                String reasonFailed = "Failed to annotate variant due to client error";
-                LOG.warn(reasonFailed + ": " + variantDetails);
-                updateErrorMessages(record, record.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), reasonFailed);                
+                serverErrorMessage = "Failed to annotate variant due to client error";
             }
             catch (HttpMessageNotReadableException ex) {
-                String reasonFailed = "Failed to annotate variant due to message not readable error";
-                LOG.warn(reasonFailed + ": " + variantDetails);
-                updateErrorMessages(record, record.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), reasonFailed);                 
+                serverErrorMessage = "Failed to annotate variant due to message not readable error";
             }
             catch (GenomeNexusAnnotationFailureException ex) {
-                String reasonFailed = "Failed to annotate variant due to Genome Nexus : " + ex.getMessage();
-                LOG.warn(reasonFailed + ": " + variantDetails);
-                updateErrorMessages(record, record.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), reasonFailed);                 
-            }
-            if (annotatedRecord.getHGVSC().isEmpty() && annotatedRecord.getHGVSP().isEmpty()) {
-                String reasonFailed = "";
-                if (annotator.isHgvspNullClassifications(annotatedRecord.getVARIANT_CLASSIFICATION())) {
-                    failedNullHgvspAnnotations++;
-                    reasonFailed = "Ignoring record with HGVSp null classification '" + annotatedRecord.getVARIANT_CLASSIFICATION() + "'";
-                }
-                else if (annotatedRecord.getCHROMOSOME().equals("M")) {
-                    failedMitochondrialAnnotations++;
-                    reasonFailed = "Mitochondrial variants are not supported at this time for annotation - skipping variant";
-                }
-                else {
-                    reasonFailed = "Failed to annotate variant";                    
-                }
-                failedAnnotations++;
-                LOG.info(reasonFailed + ": " + variantDetails);                
-                updateErrorMessages(record, annotatedRecord.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), reasonFailed);
+                serverErrorMessage = "Failed to annotate variant due to Genome Nexus : " + ex.getMessage();
             }
             annotatedRecords.add(annotatedRecord);
             header.addAll(annotatedRecord.getHeaderWithAdditionalFields());
+            
+            // log server failure message if applicable
+            if (!serverErrorMessage.isEmpty()) {
+                LOG.warn(serverErrorMessage);
+                if (errorReportLocation != null) updateErrorMessages(record, record.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), serverErrorMessage);
+                continue;
+            }
+            String annotationErrorMessage = "";
+            if (MafUtil.variantContainsAmbiguousTumorSeqAllele(record.getREFERENCE_ALLELE(), record.getTUMOR_SEQ_ALLELE1(), record.getTUMOR_SEQ_ALLELE2())) {
+                snpAndIndelVariants++;
+                annotationErrorMessage = "Record contains ambiguous SNP and INDEL allele change - SNP allele will be used";
+            }
+            if (annotatedRecord.getHGVSC().isEmpty() && annotatedRecord.getHGVSP().isEmpty()) {
+                
+                if (annotator.isHgvspNullClassifications(annotatedRecord.getVARIANT_CLASSIFICATION())) {
+                    failedNullHgvspAnnotations++;
+                    annotationErrorMessage = "Ignoring record with HGVSp null classification '" + annotatedRecord.getVARIANT_CLASSIFICATION() + "'";
+                }
+                else if (annotatedRecord.getCHROMOSOME().equals("M")) {
+                    failedMitochondrialAnnotations++;
+                    annotationErrorMessage = "Mitochondrial variants are not supported at this time for annotation - skipping variant";
+                }
+                else {
+                    annotationErrorMessage = "Failed to annotate variant";                    
+                }
+                failedAnnotations++;
+            }
+            if (!annotationErrorMessage.isEmpty()) {
+                if (verbose) LOG.info(annotationErrorMessage + ": " + variantDetails);
+                if (errorReportLocation != null) updateErrorMessages(record, annotatedRecord.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), annotationErrorMessage);                
+            }
         }
-        // log number of records that failed annotations
-        LOG.info("Total records that failed annotation: " + failedAnnotations);
-        LOG.info("# records with HGVSp null variant classification: " + failedNullHgvspAnnotations);
-        LOG.info("# records with Mitochondrial variants: " + failedMitochondrialAnnotations);
-        errorMessages.add("Total records that failed annotation: " + failedAnnotations);
-        errorMessages.add("# records with HGVSp null variant classification: " + failedNullHgvspAnnotations);
-        errorMessages.add("# records with Mitochondrial variants: " + failedMitochondrialAnnotations);
-        saveErrorMessagesToFile(errorMessages);
-
-        List<String> full_header = new ArrayList(header);
-        ec.put("mutation_header", full_header);
+        // print summary statistics and save error messages to file if applicable
+        printSummaryStatistics(failedAnnotations, failedNullHgvspAnnotations, failedMitochondrialAnnotations, snpAndIndelVariants);
+        if (errorReportLocation != null) {
+            saveErrorMessagesToFile(errorMessages);
+        }
+        ec.put("mutation_header", new ArrayList(header));
     }
 
     @Override
@@ -202,15 +211,31 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
         return null;
     }
     
-    private void updateErrorMessages(MutationRecord record, String variantClassification, String url, String reasonFailed) {
+    private void printSummaryStatistics(Integer failedAnnotations, Integer failedNullHgvspAnnotations, Integer failedMitochondrialAnnotations, Integer snpAndIndelVariants) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("\nAnnotation Summary:")
+                .append("\n\tRecords with ambiguous SNP and INDEL allele changes:  ").append(snpAndIndelVariants);
+        if (failedAnnotations > 0) {
+                builder.append("\n\n\tFailed annotations summary:  ").append(failedAnnotations).append(" total failed annotations")
+                .append("\n\t\tRecords with HGVSp null variant classification:  ").append(failedNullHgvspAnnotations)
+                .append("\n\t\tRecords with Mitochondrial variants:  ").append(failedMitochondrialAnnotations);                
+        }
+        else {
+            builder.append("\n\tAll variants annotated successfully without failures!");
+        }
+        builder.append("\n\n");
+        System.out.print(builder.toString());
+    }
+    
+    private void updateErrorMessages(MutationRecord record, String variantClassification, String url, String errorMessage) {
         List<String> msg = Arrays.asList(new String[]{record.getTUMOR_SAMPLE_BARCODE(), record.getCHROMOSOME(),
                                 record.getSTART_POSITION(), record.getEND_POSITION(), record.getREFERENCE_ALLELE(),
-                                record.getTUMOR_SEQ_ALLELE2(), record.getVARIANT_CLASSIFICATION(), reasonFailed, url});
+                                record.getTUMOR_SEQ_ALLELE1(), record.getTUMOR_SEQ_ALLELE2(), variantClassification, 
+                                errorMessage, url});
         errorMessages.add(StringUtils.join(msg, "\t"));
     }
 
     private void saveErrorMessagesToFile(List<String> errorMessages) {
-        if (errorReportLocation == null) return;
         if (errorMessages.isEmpty()) {
             LOG.info("No errors to write - error report will not be generated.");
             return;

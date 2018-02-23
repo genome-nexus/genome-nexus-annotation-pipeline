@@ -5,7 +5,7 @@
   <artifactId>master</artifactId>
   <packaging>pom</packaging>
   <name>cBioPortal Annotation Pipeline Master</name>
-  <version>0.1.0</version>
+  <version>1.0.0</version>
   <description>master maven module</description>
   <url>https://github.com/cBioPortal/genome-nexus-annotation-pipeline/</url>
 
@@ -24,22 +24,57 @@
 
   <properties>
     <java.version>1.8</java.version>
+    <slf4j.version>1.6.6</slf4j.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-batch</artifactId>
+        <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+          </exclusion>
+        </exclusions>
     </dependency>
     <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-test</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.springframework.batch</groupId>
-        <artifactId>spring-batch-test</artifactId>
+      <groupId>org.springframework.batch</groupId>
+      <artifactId>spring-batch-test</artifactId>
+    </dependency>
+    <!-- slf4j -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <!-- cbioportal -->
+    <dependency>
+      <groupId>com.github.cbioportal</groupId>
+      <artifactId>cbioportal</artifactId>
+      <version>b6b7b3f8332b94f01adc9e9263af8f2fe2b4e09a</version>
     </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
 
   <build>
     <plugins>

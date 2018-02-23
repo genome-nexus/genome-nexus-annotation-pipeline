@@ -10,7 +10,7 @@ cd $DIR
 
 for isoform in mskcc uniprot
 do
-    java -jar $DIR/../../annotationPipeline/target/annotationPipeline-0.1.0.jar --filename $DIR/../data/vcf2maf/tests.maf  --output-filename $DIR/../data/vcf2maf/tests.maf.gn_output.${isoform}.maf --isoform-override ${isoform} && \
+    java -jar $DIR/../../annotationPipeline/target/annotationPipeline-*.jar --filename $DIR/../data/vcf2maf/tests.maf  --output-filename $DIR/../data/vcf2maf/tests.maf.gn_output.${isoform}.maf --isoform-override ${isoform} && \
         cd $DIR/../data/vcf2maf/ && \
         make tests.maf.gn_output.${isoform}.cut_columns.txt && \
         diff tests.maf.gn_output.${isoform}.cut_columns.txt test_output.${isoform}.cut_columns.txt || exit_code=1;

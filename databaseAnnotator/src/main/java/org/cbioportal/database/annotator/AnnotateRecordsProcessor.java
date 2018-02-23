@@ -37,7 +37,8 @@ import com.querydsl.sql.SQLQueryFactory;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.cbioportal.models.*;
 import org.cbioportal.annotator.Annotator;
 import org.cbioportal.database.annotator.model.*;
@@ -63,7 +64,7 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
 
     public final static int NA_INT = -1;
 
-    private final Logger log = Logger.getLogger(AnnotateRecordsProcessor.class);
+    private final Log LOG = LogFactory.getLog(AnnotateRecordsProcessor.class);
 
     @Override
     public MutationEvent process(MutationEvent i) throws Exception {
@@ -90,7 +91,7 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
             annotatedRecord = annotator.annotateRecord(record, true, isoform, true);
         }
         catch (HttpServerErrorException | ResourceAccessException e) {
-           log.error("Failed to annotate record - errors accessing Genome Nexus");
+           LOG.error("Failed to annotate record - errors accessing Genome Nexus");
            return i;
         }
 
@@ -105,7 +106,7 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
             annotatedRecord.getVARIANT_CLASSIFICATION().equals("RNA") ||
             annotatedRecord.getVARIANT_CLASSIFICATION().equals("5'UTR") ||
             annotatedRecord.getVARIANT_CLASSIFICATION().equals("3'UTR")) {
-            log.info("Mutation event " + String.valueOf(i.getMUTATION_EVENT_ID()) + " classification is in non translated region of genome. Removing from the database.");
+            LOG.info("Mutation event " + String.valueOf(i.getMUTATION_EVENT_ID()) + " classification is in non translated region of genome. Removing from the database.");
             deleteMutation(i);
             return null;
         }
@@ -119,7 +120,7 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
             end = Integer.parseInt(annotatedRecord.getEND_POSITION());
         }
         catch (NumberFormatException e) {
-            log.warn("Record with non parseable start or end positions encountered.\n\tMUTATION_EVENT_ID: " + i.getMUTATION_EVENT_ID());
+            LOG.warn("Record with non parseable start or end positions encountered.\n\tMUTATION_EVENT_ID: " + i.getMUTATION_EVENT_ID());
         }
         String ref = !(annotatedRecord.getREFERENCE_ALLELE() == null || annotatedRecord.getREFERENCE_ALLELE().isEmpty()) ? annotatedRecord.getREFERENCE_ALLELE() : i.getREFERENCE_ALLELE();
         String alt = !(annotatedRecord.getTUMOR_SEQ_ALLELE2() == null || annotatedRecord.getTUMOR_SEQ_ALLELE2().isEmpty()) ? annotatedRecord.getTUMOR_SEQ_ALLELE2() : i.getTUMOR_SEQ_ALLELE();
@@ -178,13 +179,13 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
 
     private void deleteMutation(MutationEvent event) throws Exception {
         // Need to delete the mutation event and all mutations associated with it.
-        log.info("Deleting mutations associated with mutation event " + event.getMUTATION_EVENT_ID());
+        LOG.info("Deleting mutations associated with mutation event " + event.getMUTATION_EVENT_ID());
         Connection con = databaseAnnotatorQueryFactory.getConnection();
         PreparedStatement pstmt_delete_mutations = con.prepareStatement("delete from mutation where mutation_event_id = ?");
         pstmt_delete_mutations.setInt(1, event.getMUTATION_EVENT_ID());
         pstmt_delete_mutations.execute();
 
-        log.info("Deleting mutation event " + event.getMUTATION_EVENT_ID());
+        LOG.info("Deleting mutation event " + event.getMUTATION_EVENT_ID());
         PreparedStatement pstmt_delete_mutation_event = con.prepareStatement("delete from mutation_event where mutation_event_id = ?");
         pstmt_delete_mutation_event.setInt(1, event.getMUTATION_EVENT_ID());
         pstmt_delete_mutation_event.execute();
