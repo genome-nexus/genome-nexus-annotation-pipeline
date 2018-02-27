@@ -4,13 +4,13 @@
   <name>cBioPortal Annotator</name>
   <description>Annotator</description>
   <artifactId>annotator</artifactId>
-  <version>0.1.0</version>
+  <version>1.0.0</version>
   <groupId>org.cbioportal.annotator</groupId>
 
   <parent>
      <groupId>org.cbioportal.annotation.pipeline</groupId>
     <artifactId>master</artifactId>
-    <version>0.1.0</version>
+    <version>1.0.0</version>
   </parent>
 
   <dependencies>

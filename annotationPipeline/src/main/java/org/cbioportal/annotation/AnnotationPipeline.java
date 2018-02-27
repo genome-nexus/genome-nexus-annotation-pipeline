@@ -56,7 +56,8 @@ public class AnnotationPipeline
             .addOption("o", "output-filename", true, "Output filename (including path)")
             .addOption("i", "isoform-override", true, "Isoform Overrides (mskcc or uniprot)")
             .addOption("e", "error-report-location", true, "Error report filename (including path)")
-            .addOption("r", "replace-symbol-entrez", false, "Replace gene symbols and entrez id with what is provided by annotator" );
+            .addOption("r", "replace-symbol-entrez", false, "Replace gene symbols and entrez id with what is provided by annotator" )
+            .addOption("v", "verbose", false, "Verbose mode will log all annotation failures");
 
         return gnuOptions;
     }
@@ -68,7 +69,7 @@ public class AnnotationPipeline
         System.exit(exitStatus);
     }
 
-    private static void launchJob(String[] args, String filename, String outputFilename, String isoformOverride, String errorReportLocation, boolean replace) throws Exception
+    private static void launchJob(String[] args, String filename, String outputFilename, String isoformOverride, String errorReportLocation, boolean replace, boolean verbose) throws Exception
     {
         SpringApplication app = new SpringApplication(AnnotationPipeline.class);
         ConfigurableApplicationContext ctx = app.run(args);
@@ -81,6 +82,7 @@ public class AnnotationPipeline
             .addString("replace", String.valueOf(replace))
             .addString("isoformOverride", isoformOverride)
             .addString("errorReportLocation", errorReportLocation)
+            .addString("verbose", String.valueOf(verbose))
             .toJobParameters();
         JobExecution jobExecution = jobLauncher.run(annotationJob, jobParameters);
     }
@@ -95,6 +97,6 @@ public class AnnotationPipeline
             !commandLine.hasOption("output-filename")) {
             help(gnuOptions, 0);
         }
-        launchJob(args, commandLine.getOptionValue("filename"), commandLine.getOptionValue("output-filename"), commandLine.getOptionValue("isoform-override"), commandLine.hasOption("error-report-location") ? commandLine.getOptionValue("error-report-location") : null, commandLine.hasOption("replace-symbol-entrez"));
+        launchJob(args, commandLine.getOptionValue("filename"), commandLine.getOptionValue("output-filename"), commandLine.getOptionValue("isoform-override"), commandLine.hasOption("error-report-location") ? commandLine.getOptionValue("error-report-location") : null, commandLine.hasOption("replace-symbol-entrez"), commandLine.hasOption("verbose"));
     }
 }
