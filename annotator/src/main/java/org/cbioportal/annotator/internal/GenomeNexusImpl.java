@@ -529,7 +529,7 @@ public class GenomeNexusImpl implements Annotator {
                     return "";
             }
             String npType[] = {"SNP", "DNP", "TNP"};
-            return (refLength < 3 ? npType[refLength - 1] : "ONP");
+            return (refLength <= 3 ? npType[refLength - 1] : "ONP");
         } else {
             if (refLength < varLength) {
                 return "INS";
