@@ -85,6 +85,9 @@ public class AnnotationPipeline
             .addString("verbose", String.valueOf(verbose))
             .toJobParameters();
         JobExecution jobExecution = jobLauncher.run(annotationJob, jobParameters);
+        if (!jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
+            System.exit(2);
+        }
     }
 
     public static void main(String[] args) throws Exception
