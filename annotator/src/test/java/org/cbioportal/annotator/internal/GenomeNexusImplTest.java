@@ -107,12 +107,40 @@ public class GenomeNexusImplTest {
         int failCount = 0;
 
         Map<String, String> expectedProteinChanges = makeMockExpectedProteinChange();
-        for (AnnotatedRecord record : makeMockAnnotatedRecords()) {
+        for (AnnotatedRecord record : mockAnnotatedRecords) {
             if (!record.getHGVSP_SHORT().equals(expectedProteinChanges.get(record.getTUMOR_SAMPLE_BARCODE()))) {
                 errorMessage.append("testResolveProteinChange(), annotated record protein change '")
                         .append(record.getHGVSP_SHORT())
                         .append("' does not match expected protein change '")
                         .append(expectedProteinChanges.get(record.getTUMOR_SAMPLE_BARCODE()))
+                        .append(" for record '")
+                        .append(record.getTUMOR_SAMPLE_BARCODE())
+                        .append("'\n");
+                failCount += 1;
+            }
+        }
+
+        if (failCount > 0) {
+            Assert.fail(errorMessage.toString());
+        }
+    }
+
+    /**
+     * Test record-to-hgvs conversion by Genome Nexus.
+     */
+    @Test
+    public void testConvertToHgvs() {
+        StringBuilder errorMessage = new StringBuilder("\nFailures:\n");
+        int failCount = 0;
+
+        Map<String, String> expectedHgvsStrings = makeMockExpectedHgvs();
+        for (AnnotatedRecord record : mockAnnotatedRecords) {
+            String hgvs = annotator.convertToHgvs(record);
+            if (!hgvs.equals(expectedHgvsStrings.get(record.getTUMOR_SAMPLE_BARCODE()))) {
+                errorMessage.append("testConvertToHgvs(), record hgvs '")
+                        .append(hgvs)
+                        .append("' does not match expected hgvs '")
+                        .append(expectedHgvsStrings.get(record.getTUMOR_SAMPLE_BARCODE()))
                         .append(" for record '")
                         .append(record.getTUMOR_SAMPLE_BARCODE())
                         .append("'\n");
@@ -219,7 +247,6 @@ public class GenomeNexusImplTest {
         record.setTUMOR_SEQ_ALLELE2("AA");
         mockMutationRecords.add(record);
 
-
         record = new MutationRecord();
         record.setTUMOR_SAMPLE_BARCODE("SAMPLE-VARIANT-10");
         record.setCHROMOSOME("1");
@@ -274,6 +301,24 @@ public class GenomeNexusImplTest {
         record.setTUMOR_SEQ_ALLELE2("-");
         mockMutationRecords.add(record);
 
+        record = new MutationRecord();
+        record.setTUMOR_SAMPLE_BARCODE("SAMPLE-VARIANT-16");
+        record.setCHROMOSOME("9");
+        record.setSTART_POSITION("135797242");
+        record.setEND_POSITION("135797242");
+        record.setREFERENCE_ALLELE("C");
+        record.setTUMOR_SEQ_ALLELE2("AT");
+        mockMutationRecords.add(record);
+
+        record = new MutationRecord();
+        record.setTUMOR_SAMPLE_BARCODE("SAMPLE-VARIANT-17");
+        record.setCHROMOSOME("6");
+        record.setSTART_POSITION("137519505");
+        record.setEND_POSITION("137519506");
+        record.setREFERENCE_ALLELE("CT");
+        record.setTUMOR_SEQ_ALLELE2("A");
+        mockMutationRecords.add(record);
+
         return mockMutationRecords;
     }
 
@@ -294,6 +339,8 @@ public class GenomeNexusImplTest {
         map.put("SAMPLE-VARIANT-13", "Frame_Shift_Del");
         map.put("SAMPLE-VARIANT-14", "Frame_Shift_Del");
         map.put("SAMPLE-VARIANT-15", "Frame_Shift_Del");
+        map.put("SAMPLE-VARIANT-16", "Frame_Shift_Ins");
+        map.put("SAMPLE-VARIANT-17", "Frame_Shift_Del");
         return map;
     }
 
@@ -314,6 +361,30 @@ public class GenomeNexusImplTest {
         map.put("SAMPLE-VARIANT-13", "p.R646Gfs*22");
         map.put("SAMPLE-VARIANT-14", "p.S378Ffs*6");
         map.put("SAMPLE-VARIANT-15", "p.P692Lfs*43");
+        map.put("SAMPLE-VARIANT-16", "p.M209Ifs*2");
+        map.put("SAMPLE-VARIANT-17", "p.S378Ffs*5");
+        return map;
+    }
+
+    private Map<String, String> makeMockExpectedHgvs() {
+        Map<String, String> map = new HashMap<>();
+        map.put("SAMPLE-VARIANT-1", "4:g.9784947_9784948insAGA");
+        map.put("SAMPLE-VARIANT-2", "3:g.14940279_14940280insCAT");
+        map.put("SAMPLE-VARIANT-3", "16:g.9057113_9057114insCTG");
+        map.put("SAMPLE-VARIANT-4", "13:g.28608258_28608275delCATATTCATATTCTCTGAinsGGGGTGGGGGGG");
+        map.put("SAMPLE-VARIANT-5", "22:g.36689419_36689421delCCT");
+        map.put("SAMPLE-VARIANT-6", "3:g.14106026_14106037delCCAGCAGTAGCT");
+        map.put("SAMPLE-VARIANT-7", "22:g.29091840_29091841delTGinsCA");
+        map.put("SAMPLE-VARIANT-8", "19:g.46141892_46141893delTCinsAA");
+        map.put("SAMPLE-VARIANT-9", "11:g.62393546_62393547delGGinsAA");
+        map.put("SAMPLE-VARIANT-10", "1:g.65325832_65325833insG");
+        map.put("SAMPLE-VARIANT-11", "4:g.77675978_77675979insC");
+        map.put("SAMPLE-VARIANT-12", "8:g.37696499_37696500insG");
+        map.put("SAMPLE-VARIANT-13", "10:g.101953779_101953779delT");
+        map.put("SAMPLE-VARIANT-14", "6:g.137519505_137519506delCT");
+        map.put("SAMPLE-VARIANT-15", "3:g.114058003_114058003delG");
+        map.put("SAMPLE-VARIANT-16", "9:g.135797242_135797242delCinsAT");
+        map.put("SAMPLE-VARIANT-17", "6:g.137519505_137519506delCTinsA");
         return map;
     }
 }
