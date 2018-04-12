@@ -41,8 +41,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GenomeNexusTestConfiguration {
 
-    public final static String HGVS_SERVICE_URL = "http://annotation.genomenexus.org/hgvs/";
-    public final static String GENE_XREFS_SERVICE_URL = "http://annotation.genomenexus.org/xrefs/";
+    public final static String GENOME_NEXUS_BASE_URL = "http://annotation.genomenexus.org/";
     public final static String ISOFORM_QUERY_PARAMETER = "isoformOverrideSource";
     public final static String ENRICHMENT_FIELDS = "fields=hotspots";
 

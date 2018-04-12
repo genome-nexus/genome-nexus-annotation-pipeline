@@ -27,6 +27,7 @@
     <slf4j.version>1.6.6</slf4j.version>
     <spring.version>4.3.14.RELEASE</spring.version>
     <jackson.version>2.9.5</jackson.version>
+    <start-class>org.cbioportal.annotation.AnnotationPipeline</start-class>
   </properties>
 
   <dependencies>
@@ -68,6 +69,17 @@
       <groupId>com.github.cbioportal</groupId>
       <artifactId>cbioportal</artifactId>
       <version>b6b7b3f8332b94f01adc9e9263af8f2fe2b4e09a</version>
+    </dependency>
+    <!-- api client -->
+    <dependency>
+      <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
+      <artifactId>genomeNexusPublicApiClient</artifactId>
+      <version>v1.1.0-beta</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
+      <artifactId>genomeNexusInternalApiClient</artifactId>
+      <version>v1.1.0-beta</version>
     </dependency>
   </dependencies>
 
