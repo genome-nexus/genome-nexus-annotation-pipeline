@@ -25,6 +25,8 @@
   <properties>
     <java.version>1.8</java.version>
     <slf4j.version>1.6.6</slf4j.version>
+    <spring.version>4.3.14.RELEASE</spring.version>
+    <jackson.version>2.9.5</jackson.version>
   </properties>
 
   <dependencies>
