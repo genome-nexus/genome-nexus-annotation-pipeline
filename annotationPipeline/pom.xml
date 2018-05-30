@@ -12,6 +12,10 @@
     <version>1.0.0</version>
   </parent>
 
+  <properties>
+    <start-class>org.cbioportal.annotation.AnnotationPipeline</start-class>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.cbioportal.annotator</groupId>

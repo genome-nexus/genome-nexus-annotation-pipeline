@@ -59,8 +59,7 @@ public class GenomeNexusImplTest {
 
     @Autowired
     public void initAnnotator() {
-        ReflectionTestUtils.setField(annotator, "hgvsServiceUrl", GenomeNexusTestConfiguration.HGVS_SERVICE_URL);
-        ReflectionTestUtils.setField(annotator, "geneXrefsServiceUrl", GenomeNexusTestConfiguration.GENE_XREFS_SERVICE_URL);
+        ReflectionTestUtils.setField(annotator, "genomeNexusBaseUrl", GenomeNexusTestConfiguration.GENOME_NEXUS_BASE_URL);
         ReflectionTestUtils.setField(annotator, "isoformQueryParameter", GenomeNexusTestConfiguration.ISOFORM_QUERY_PARAMETER);
         ReflectionTestUtils.setField(annotator, "enrichmentFields", GenomeNexusTestConfiguration.ENRICHMENT_FIELDS);
     }
@@ -125,22 +124,19 @@ public class GenomeNexusImplTest {
         }
     }
 
-    /**
-     * Test record-to-hgvs conversion by Genome Nexus.
-     */
     @Test
-    public void testConvertToHgvs() {
+    public void testExtractGenomicLocation() {
         StringBuilder errorMessage = new StringBuilder("\nFailures:\n");
         int failCount = 0;
 
-        Map<String, String> expectedHgvsStrings = makeMockExpectedHgvs();
+        Map<String, String> expectedGenomicLocations = makeMockExpectedGenomicLocations();
         for (AnnotatedRecord record : mockAnnotatedRecords) {
-            String hgvs = annotator.convertToHgvs(record);
-            if (!hgvs.equals(expectedHgvsStrings.get(record.getTUMOR_SAMPLE_BARCODE()))) {
-                errorMessage.append("testConvertToHgvs(), record hgvs '")
-                        .append(hgvs)
-                        .append("' does not match expected hgvs '")
-                        .append(expectedHgvsStrings.get(record.getTUMOR_SAMPLE_BARCODE()))
+            String genomicLocation = annotator.extractGenomicLocation(record);
+            if (!genomicLocation.equals(expectedGenomicLocations.get(record.getTUMOR_SAMPLE_BARCODE()))) {
+                errorMessage.append("testConvertToHgvs(), record genomicLocation '")
+                        .append(genomicLocation)
+                        .append("' does not match expected genomicLocation '")
+                        .append(expectedGenomicLocations.get(record.getTUMOR_SAMPLE_BARCODE()))
                         .append(" for record '")
                         .append(record.getTUMOR_SAMPLE_BARCODE())
                         .append("'\n");
@@ -366,25 +362,25 @@ public class GenomeNexusImplTest {
         return map;
     }
 
-    private Map<String, String> makeMockExpectedHgvs() {
+    private Map<String, String> makeMockExpectedGenomicLocations() {
         Map<String, String> map = new HashMap<>();
-        map.put("SAMPLE-VARIANT-1", "4:g.9784947_9784948insAGA");
-        map.put("SAMPLE-VARIANT-2", "3:g.14940279_14940280insCAT");
-        map.put("SAMPLE-VARIANT-3", "16:g.9057113_9057114insCTG");
-        map.put("SAMPLE-VARIANT-4", "13:g.28608258_28608275delCATATTCATATTCTCTGAinsGGGGTGGGGGGG");
-        map.put("SAMPLE-VARIANT-5", "22:g.36689419_36689421delCCT");
-        map.put("SAMPLE-VARIANT-6", "3:g.14106026_14106037delCCAGCAGTAGCT");
-        map.put("SAMPLE-VARIANT-7", "22:g.29091840_29091841delTGinsCA");
-        map.put("SAMPLE-VARIANT-8", "19:g.46141892_46141893delTCinsAA");
-        map.put("SAMPLE-VARIANT-9", "11:g.62393546_62393547delGGinsAA");
-        map.put("SAMPLE-VARIANT-10", "1:g.65325832_65325833insG");
-        map.put("SAMPLE-VARIANT-11", "4:g.77675978_77675979insC");
-        map.put("SAMPLE-VARIANT-12", "8:g.37696499_37696500insG");
-        map.put("SAMPLE-VARIANT-13", "10:g.101953779_101953779delT");
-        map.put("SAMPLE-VARIANT-14", "6:g.137519505_137519506delCT");
-        map.put("SAMPLE-VARIANT-15", "3:g.114058003_114058003delG");
-        map.put("SAMPLE-VARIANT-16", "9:g.135797242_135797242delCinsAT");
-        map.put("SAMPLE-VARIANT-17", "6:g.137519505_137519506delCTinsA");
+        map.put("SAMPLE-VARIANT-1", "4,9784947,9784948,-,AGA");
+        map.put("SAMPLE-VARIANT-2", "3,14940279,14940280,-,CAT");
+        map.put("SAMPLE-VARIANT-3", "16,9057113,9057114,-,CTG");
+        map.put("SAMPLE-VARIANT-4", "13,28608258,28608275,CATATTCATATTCTCTGA,GGGGTGGGGGGG");
+        map.put("SAMPLE-VARIANT-5", "22,36689419,36689421,CCT,-");
+        map.put("SAMPLE-VARIANT-6", "3,14106026,14106037,CCAGCAGTAGCT,-");
+        map.put("SAMPLE-VARIANT-7", "22,29091840,29091841,TG,CA");
+        map.put("SAMPLE-VARIANT-8", "19,46141892,46141893,TC,AA");
+        map.put("SAMPLE-VARIANT-9", "11,62393546,62393547,GG,AA");
+        map.put("SAMPLE-VARIANT-10", "1,65325832,65325833,-,G");
+        map.put("SAMPLE-VARIANT-11", "4,77675978,77675979,-,C");
+        map.put("SAMPLE-VARIANT-12", "8,37696499,37696500,-,G");
+        map.put("SAMPLE-VARIANT-13", "10,101953779,101953779,T,-");
+        map.put("SAMPLE-VARIANT-14", "6,137519505,137519506,CT,-");
+        map.put("SAMPLE-VARIANT-15", "3,114058003,114058003,G,-");
+        map.put("SAMPLE-VARIANT-16", "9,135797242,135797242,C,AT");
+        map.put("SAMPLE-VARIANT-17", "6,137519505,137519506,CT,A");
         return map;
     }
 }
