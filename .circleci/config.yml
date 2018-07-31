@@ -32,7 +32,7 @@ jobs:
 
       - run:
           name: "compile"
-          command: "cat annotationPipeline/src/main/resources/application.properties.EXAMPLE | sed 's|<HOST>|http://genomenexus.org|g' > annotationPipeline/src/main/resources/application.properties && mvn clean install"
+          command: "mvn clean install"
 
       - save_cache:
           paths:
@@ -47,6 +47,11 @@ jobs:
       - run:
           name: "check if maf file still the same when annotating with mskcc transcripts"
           command: 'java -jar annotationPipeline/target/annotationPipeline-*.jar --filename test/data/data_mutations_extended_100.in.txt  --output-filename test/data/data_mutations_extended_100.out.mskcc.txt --isoform-override mskcc && git diff --exit-code test/data/data_mutations_extended_100.out.mskcc.txt || (echo -e "MAF mskcc output changed test/data/data_mutations_extended_100.out.mskcc.txt $(cat test/data/data_mutations_extended_100.out.mskcc.txt | curl -F c=@- https://ptpb.pw | grep url) (include this file in your PR to fix this test)" && exit 1)'
+
+      # run test
+      - run:
+          name: "check if minimal example maf file still the same when annotating with uniprot transcripts"
+          command: 'java -jar annotationPipeline/target/annotationPipeline-*.jar -r --filename test/data/minimal_example.in.txt  --output-filename test/data/minimal_example.out.uniprot.txt --isoform-override uniprot && git diff --exit-code test/data/minimal_example.out.uniprot.txt || (echo -e "simple MAF uniprot output changed test/data/minimal_example.out.uniprot.txt $(cat test/data/minimal_example.out.uniprot.txt | curl -F c=@- https://ptpb.pw | grep url) (include this file in your PR to fix this test)" && exit 1)'
 
       - run:
           name: "Run vcf2maf test cases"

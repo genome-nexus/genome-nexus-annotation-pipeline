@@ -58,7 +58,7 @@ public class BatchConfiguration
     @Autowired
     public StepBuilderFactory stepBuilderFactory;      
     
-    @Value("${chunk}")
+    @Value("${chunk:10}")
     private String chunk;    
 
     @Bean
