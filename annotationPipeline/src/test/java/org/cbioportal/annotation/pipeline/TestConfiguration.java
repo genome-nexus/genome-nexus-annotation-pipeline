@@ -67,7 +67,7 @@ public class TestConfiguration {
         return new JobLauncherTestUtils();
     }
     
-    @Value("${chunk}")
+    @Value("${chunk:10}")
     private String chunk;
     
     @Bean
