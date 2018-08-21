@@ -2,7 +2,7 @@
 These tools allow for annotation of genomic variants from a MAF for import into
 the cBioPortal using [Genome Nexus](http://genomenexus.org)
 
-## MAF Annotation
+## MAF Annotation 
 The `annotationPipeline` module is a command line tool to annotate a maf using genome nexus. 
 
 To use it, build the project using maven and run it like so:
