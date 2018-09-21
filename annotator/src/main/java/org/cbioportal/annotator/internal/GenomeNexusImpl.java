@@ -60,7 +60,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GenomeNexusImpl implements Annotator {
 
-    @Value("${genomenexus.base:https://www.genomenexus.org}")
+    @Value("${genomenexus.base:https://www.genomenexus.org/beta}")
     private String genomeNexusBaseUrl;
     @Value("${genomenexus.isoform_query_parameter:isofromOverrideSource}")
     private String isoformQueryParameter;
