@@ -1,5 +1,5 @@
 spring.batch.job.enabled=false
-genomenexus.base=https://www.genomenexus.org
+genomenexus.base=https://www.genomenexus.org/beta
 genomenexus.isoform_query_parameter=isoformOverrideSource
 genomenexus.enrichment_fields=annotation_summary
 chunk=10
