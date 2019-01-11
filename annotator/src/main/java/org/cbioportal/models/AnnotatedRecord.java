@@ -39,6 +39,7 @@ import java.util.*;
  */
 
 public class AnnotatedRecord extends MutationRecord{
+
     protected String hgvsc;
     protected String hgvsp;
     protected String hgvspShort;
@@ -49,6 +50,7 @@ public class AnnotatedRecord extends MutationRecord{
     protected String codonChange;
     protected String hotspot;
     protected String consequence;
+    protected String proteinPosition;
 
     public AnnotatedRecord() {
         addAnnotatedFieldsToHeader();
@@ -102,6 +104,7 @@ public class AnnotatedRecord extends MutationRecord{
         String codonChange,
         String hotspot,
         String consequence,
+        String proteinPosition,
         Map<String, String> additionalProperties
     ) {
         super(hugoSymbol,
@@ -153,6 +156,7 @@ public class AnnotatedRecord extends MutationRecord{
         this.codonChange = codonChange;
         this.hotspot = hotspot;
         this.consequence = consequence;
+        this.proteinPosition = proteinPosition;
         addAnnotatedFieldsToHeader();
     }
     
@@ -206,6 +210,7 @@ public class AnnotatedRecord extends MutationRecord{
         this.codonChange = additionalProperties.get("Codons") != null ? additionalProperties.get("Codons") : "";
         this.hotspot = additionalProperties.get("Hotspot") != null ? additionalProperties.get("Hotspot") : "";
         this.consequence = additionalProperties.get("Consequence") != null ? additionalProperties.get("Consequence") : "";
+        this.proteinPosition = additionalProperties.get("Protein_position") != null ? additionalProperties.get("Protein_position") : "";
         this.additionalProperties = additionalProperties;
     }
 
@@ -250,11 +255,11 @@ public class AnnotatedRecord extends MutationRecord{
     }
 
     public String getPROTEIN_POSITION() {
-        return this.proteinPosStart;
+        return this.proteinPosition;
     }
 
-    public void setPROTEIN_POSITION(String proteinPosStart) {
-        this.proteinPosStart = proteinPosStart;
+    public void setPROTEIN_POSITION(String proteinPosition) {
+        this.proteinPosition = proteinPosition;
     }
 
     public String getCODONS() {

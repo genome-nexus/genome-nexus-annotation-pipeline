@@ -32,7 +32,10 @@
 
 package org.cbioportal.annotator.internal;
 
+import com.google.common.base.Strings;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cbioportal.annotator.Annotator;
@@ -75,12 +78,27 @@ public class GenomeNexusImpl implements Annotator {
 
     private final Log LOG = LogFactory.getLog(GenomeNexusImpl.class);
 
+    private final Pattern PROTEIN_POSITTION_REGEX = Pattern.compile("p.[A-Za-z]([0-9]*).*$");
     private static List<String> hgvspNullClassifications = initNullClassifications();
+
+    @Bean
+    public GenomeNexusImpl annotator(String genomeNexusBaseUrl) {
+        this.genomeNexusBaseUrl = genomeNexusBaseUrl;
+        return annotator();
+    }
 
     @Bean
     public GenomeNexusImpl annotator() {
         this.apiClient = initApiClient();
         return this;
+    }
+
+    public String getGenomeNexusBaseUrl() {
+        return genomeNexusBaseUrl;
+    }
+
+    public void setGenomeNexusBaseUrl(String genomeNexusBaseUrl) {
+        this.genomeNexusBaseUrl = genomeNexusBaseUrl;
     }
 
     public void setGnResponse(VariantAnnotation gnResponse) {
@@ -193,6 +211,7 @@ public class GenomeNexusImpl implements Annotator {
                 resolveCodonChange(),
                 resolveHotspot(),
                 resolveConsequence(),
+                resolveProteinPosition(mRecord),
                 mRecord.getAdditionalProperties());
         return annotatedRecord;
     }
@@ -439,6 +458,24 @@ public class GenomeNexusImpl implements Annotator {
         else {
             return canonicalTranscript.getEntrezGeneId();
         }
+    }
+
+    private String resolveProteinPosition(MutationRecord record) {
+        String proteinPosition = null;
+        if (canonicalTranscript != null) {
+            String proteinPosStart = resolveProteinPosStart();
+            String hgvspShort = resolveHgvspShort();
+            if (!Strings.isNullOrEmpty(proteinPosStart)) {
+                proteinPosition = proteinPosStart;
+            } else if (!Strings.isNullOrEmpty(hgvspShort)) {
+                // try extracting from hgvspShort if proteinPosStart null/empty
+                Matcher matcher = PROTEIN_POSITTION_REGEX.matcher(hgvspShort);
+                if (matcher.find()) {
+                    proteinPosition = matcher.group(1);
+                }
+            }
+        }
+        return !Strings.isNullOrEmpty(proteinPosition) ? proteinPosition : record.getAdditionalProperties().getOrDefault("Protein_position", "");
     }
 
     public String extractGenomicLocation(MutationRecord record)
