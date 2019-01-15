@@ -457,7 +457,9 @@ public class MutationRecord {
         List<String> headerWithAdditionalFields = new ArrayList<>();
         headerWithAdditionalFields.addAll(header);
 
-        for (String field : additionalProperties.keySet()) {
+        String[] sortedAdditionalProperties = additionalProperties.keySet().toArray(new String[additionalProperties.keySet().size()]);
+        Arrays.sort(sortedAdditionalProperties);
+        for (String field : sortedAdditionalProperties) {
             if (!headerWithAdditionalFields.contains(field)) {
                 headerWithAdditionalFields.add(field);
             }

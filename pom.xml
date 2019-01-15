@@ -68,7 +68,7 @@
     <dependency>
       <groupId>com.github.cbioportal</groupId>
       <artifactId>cbioportal</artifactId>
-      <version>b6b7b3f8332b94f01adc9e9263af8f2fe2b4e09a</version>
+      <version>22de17599f7fe894b209930f89403ed46b081b1d</version>
     </dependency>
     <!-- api client -->
     <dependency>
@@ -96,6 +96,13 @@
         <!-- required to build an executable jar -->
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <useSystemClassLoader>false</useSystemClassLoader>
+        </configuration>
       </plugin>
     </plugins>
   </build>
