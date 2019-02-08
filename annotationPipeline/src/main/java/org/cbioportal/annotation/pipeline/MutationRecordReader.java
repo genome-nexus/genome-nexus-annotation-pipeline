@@ -41,7 +41,6 @@ import org.cbioportal.annotator.Annotator;
 import org.cbioportal.annotator.GenomeNexusAnnotationFailureException;
 import org.cbioportal.models.*;
 import org.mskcc.cbio.maf.MafUtil;
-import static org.mskcc.cbio.maf.MafUtil.variantContainsAmbiguousTumorSeqAllele;
 import org.springframework.batch.item.*;
 import org.springframework.batch.item.file.*;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
@@ -73,8 +72,8 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
     private boolean verbose;
 
     private int failedAnnotations;
+    private int failedServerAnnotations;
     private int failedNullHgvspAnnotations;
-    private int failedMitochondrialAnnotations;
     private int snpAndIndelVariants;
 
     private List<MutationRecord> mutationRecords = new ArrayList<>();
@@ -161,6 +160,8 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
             // log server failure message if applicable
             if (!serverErrorMessage.isEmpty()) {
                 LOG.warn(serverErrorMessage);
+                failedAnnotations++;
+                failedServerAnnotations++;
                 if (errorReportLocation != null) updateErrorMessages(record, record.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), serverErrorMessage);
                 continue;
             }
@@ -170,14 +171,9 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
                 annotationErrorMessage = "Record contains ambiguous SNP and INDEL allele change - SNP allele will be used";
             }
             if (annotatedRecord.getHGVSC().isEmpty() && annotatedRecord.getHGVSP().isEmpty()) {
-                
                 if (annotator.isHgvspNullClassifications(annotatedRecord.getVARIANT_CLASSIFICATION())) {
                     failedNullHgvspAnnotations++;
                     annotationErrorMessage = "Ignoring record with HGVSp null classification '" + annotatedRecord.getVARIANT_CLASSIFICATION() + "'";
-                }
-                else if (annotatedRecord.getCHROMOSOME().equals("M")) {
-                    failedMitochondrialAnnotations++;
-                    annotationErrorMessage = "Mitochondrial variants are not supported at this time for annotation - skipping variant";
                 }
                 else {
                     annotationErrorMessage = "Failed to annotate variant";                    
@@ -190,7 +186,7 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
             }
         }
         // print summary statistics and save error messages to file if applicable
-        printSummaryStatistics(failedAnnotations, failedNullHgvspAnnotations, failedMitochondrialAnnotations, snpAndIndelVariants);
+        printSummaryStatistics(failedAnnotations, failedNullHgvspAnnotations, snpAndIndelVariants, failedServerAnnotations);
         if (errorReportLocation != null) {
             saveErrorMessagesToFile(errorMessages);
         }
@@ -211,14 +207,14 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
         return null;
     }
     
-    private void printSummaryStatistics(Integer failedAnnotations, Integer failedNullHgvspAnnotations, Integer failedMitochondrialAnnotations, Integer snpAndIndelVariants) {
+    private void printSummaryStatistics(Integer failedAnnotations, Integer failedNullHgvspAnnotations, Integer snpAndIndelVariants, Integer failedServerAnnotations) {
         StringBuilder builder = new StringBuilder();
         builder.append("\nAnnotation Summary:")
                 .append("\n\tRecords with ambiguous SNP and INDEL allele changes:  ").append(snpAndIndelVariants);
         if (failedAnnotations > 0) {
                 builder.append("\n\n\tFailed annotations summary:  ").append(failedAnnotations).append(" total failed annotations")
                 .append("\n\t\tRecords with HGVSp null variant classification:  ").append(failedNullHgvspAnnotations)
-                .append("\n\t\tRecords with Mitochondrial variants:  ").append(failedMitochondrialAnnotations);                
+                .append("\n\t\tRecords that failed due to server issue: ").append(failedServerAnnotations);
         }
         else {
             builder.append("\n\tAll variants annotated successfully without failures!");
