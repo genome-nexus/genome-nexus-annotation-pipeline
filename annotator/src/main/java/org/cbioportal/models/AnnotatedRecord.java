@@ -51,6 +51,9 @@ public class AnnotatedRecord extends MutationRecord{
     protected String hotspot;
     protected String consequence;
     protected String proteinPosition;
+    protected String colocatedVariantsGnomadAfrMaf;
+    protected String colocatedVariantsGnomadEasMaf;
+    protected String colocatedVariantsGnomadNfeMaf;
 
     public AnnotatedRecord() {
         addAnnotatedFieldsToHeader();
@@ -105,6 +108,9 @@ public class AnnotatedRecord extends MutationRecord{
         String hotspot,
         String consequence,
         String proteinPosition,
+        String colocatedVariantsGnomadAfrMaf,
+        String colocatedVariantsGnomadEasMaf,
+        String colocatedVariantsGnomadNfeMaf,
         Map<String, String> additionalProperties
     ) {
         super(hugoSymbol,
@@ -157,6 +163,9 @@ public class AnnotatedRecord extends MutationRecord{
         this.hotspot = hotspot;
         this.consequence = consequence;
         this.proteinPosition = proteinPosition;
+        this.colocatedVariantsGnomadAfrMaf = colocatedVariantsGnomadAfrMaf;
+        this.colocatedVariantsGnomadEasMaf = colocatedVariantsGnomadEasMaf;
+        this.colocatedVariantsGnomadNfeMaf = colocatedVariantsGnomadNfeMaf;
         addAnnotatedFieldsToHeader();
     }
     
@@ -211,6 +220,9 @@ public class AnnotatedRecord extends MutationRecord{
         this.hotspot = additionalProperties.get("Hotspot") != null ? additionalProperties.get("Hotspot") : "";
         this.consequence = additionalProperties.get("Consequence") != null ? additionalProperties.get("Consequence") : "";
         this.proteinPosition = additionalProperties.get("Protein_position") != null ? additionalProperties.get("Protein_position") : "";
+        this.colocatedVariantsGnomadAfrMaf = additionalProperties.get("colocatedVariants_gnomad_afr_maf") != null ? additionalProperties.get("colocatedVariants_gnomad_afr_maf") : "";
+        this.colocatedVariantsGnomadEasMaf = additionalProperties.get("colocatedVariants_gnomad_eas_maf") != null ? additionalProperties.get("colocatedVariants_gnomad_eas_maf") : "";
+        this.colocatedVariantsGnomadNfeMaf = additionalProperties.get("colocatedVariants_gnomad_nfe_maf") != null ? additionalProperties.get("colocatedVariants_gnomad_nfe_maf") : "";
         this.additionalProperties = additionalProperties;
     }
 
@@ -286,6 +298,30 @@ public class AnnotatedRecord extends MutationRecord{
         this.consequence = consequence;
     }
 
+    public String getCOLOCATEDVARIANTS_GNOMAD_AFR_MAF() {
+        return this.colocatedVariantsGnomadAfrMaf;
+    }
+
+    public void setCOLOCATEDVARIANTS_GNOMAD_AFR_MAF(String colocatedVariantsGnomadAfrMaf) {
+        this.colocatedVariantsGnomadAfrMaf = colocatedVariantsGnomadAfrMaf;
+    }
+
+    public String getCOLOCATEDVARIANTS_GNOMAD_EAS_MAF() {
+        return this.colocatedVariantsGnomadEasMaf;
+    }
+
+    public void setCOLOCATEDVARIANTS_GNOMAD_EAS_MAF(String colocatedVariantsGnomadEasMaf) {
+        this.colocatedVariantsGnomadEasMaf = colocatedVariantsGnomadEasMaf;
+    }
+
+    public String getCOLOCATEDVARIANTS_GNOMAD_NFE_MAF() {
+        return this.colocatedVariantsGnomadNfeMaf;
+    }
+
+    public void setCOLOCATEDVARIANTS_GNOMAD_NFE_MAF(String colocatedVariantsGnomadNfeMaf) {
+        this.colocatedVariantsGnomadNfeMaf = colocatedVariantsGnomadNfeMaf;
+    }
+
     private void addAnnotatedFieldsToHeader() {
         header.add("HGVSc");
         header.add("HGVSp");
@@ -296,5 +332,8 @@ public class AnnotatedRecord extends MutationRecord{
         header.add("Codons");
         header.add("Hotspot");
         header.add(header.indexOf("Variant_Classification"), "Consequence");
+        header.add("ColocatedVariants_gnomad_afr_maf");
+        header.add("ColocatedVariants_gnomad_eas_maf");
+        header.add("ColocatedVariants_gnomad_nfe_maf");
     }
 }

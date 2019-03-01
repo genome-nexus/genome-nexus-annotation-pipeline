@@ -45,6 +45,7 @@ import org.cbioportal.models.MutationRecord;
 import org.genome_nexus.ApiClient;
 import org.genome_nexus.ApiException;
 import org.genome_nexus.client.AnnotationControllerApi;
+import org.genome_nexus.client.ColocatedVariant;
 import org.genome_nexus.client.TranscriptConsequenceSummary;
 import org.genome_nexus.client.VariantAnnotation;
 import org.mskcc.cbio.maf.MafUtil;
@@ -75,6 +76,7 @@ public class GenomeNexusImpl implements Annotator {
     private MutationRecord mRecord;
     private VariantAnnotation gnResponse;
     private TranscriptConsequenceSummary canonicalTranscript;
+    private ColocatedVariant gnomadData;
 
     private final Log LOG = LogFactory.getLog(GenomeNexusImpl.class);
 
@@ -161,6 +163,8 @@ public class GenomeNexusImpl implements Annotator {
     public AnnotatedRecord convertResponseToAnnotatedRecord(boolean replace) {
         // get the canonical transcript
         canonicalTranscript = getCanonicalTranscript(gnResponse);
+        // get gnomad data
+        gnomadData = getGnomadData(gnResponse);
 
         // annotate the record
         AnnotatedRecord annotatedRecord= new AnnotatedRecord(resolveHugoSymbol(replace),
@@ -212,6 +216,9 @@ public class GenomeNexusImpl implements Annotator {
                 resolveHotspot(),
                 resolveConsequence(),
                 resolveProteinPosition(mRecord),
+                resolveColocatedVariantsGnomadAfrMaf(),
+                resolveColocatedVariantsGnomadEasMaf(),
+                resolveColocatedVariantsGnomadNfeMaf(),
                 mRecord.getAdditionalProperties());
         return annotatedRecord;
     }
@@ -478,6 +485,35 @@ public class GenomeNexusImpl implements Annotator {
         return !Strings.isNullOrEmpty(proteinPosition) ? proteinPosition : record.getAdditionalProperties().getOrDefault("Protein_position", "");
     }
 
+    private String resolveColocatedVariantsGnomadAfrMaf() {
+        String colocatedVariants_gnomad_afr_maf = "";
+
+        if(gnomadData != null) {
+            colocatedVariants_gnomad_afr_maf = gnomadData.getGnomadAfrMaf();
+        }
+
+        return colocatedVariants_gnomad_afr_maf != null ? colocatedVariants_gnomad_afr_maf : "";
+    }
+
+    private String resolveColocatedVariantsGnomadEasMaf() {
+        String colocatedVariants_gnomad_eas_maf = "";
+
+        if(gnomadData != null) {
+            colocatedVariants_gnomad_eas_maf = gnomadData.getGnomadEasMaf();
+        }
+
+        return colocatedVariants_gnomad_eas_maf != null ? colocatedVariants_gnomad_eas_maf : "";
+    }
+    private String resolveColocatedVariantsGnomadNfeMaf() {
+        String colocatedVariants_gnomad_nfe_maf = "";
+
+        if(gnomadData != null) {
+            colocatedVariants_gnomad_nfe_maf = gnomadData.getGnomadNfeMaf();
+        }
+
+        return colocatedVariants_gnomad_nfe_maf != null ? colocatedVariants_gnomad_nfe_maf : "";
+    }
+
     public String extractGenomicLocation(MutationRecord record)
     {
         String chr = record.getCHROMOSOME();
@@ -501,6 +537,18 @@ public class GenomeNexusImpl implements Annotator {
             gnResponse.getAnnotationSummary().getTranscriptConsequences().size() > 0)
         {
             return gnResponse.getAnnotationSummary().getTranscriptConsequences().get(0);
+        }
+        else {
+            return null;
+        }
+    }
+
+    private ColocatedVariant getGnomadData(VariantAnnotation gnResponse) {
+        if (gnResponse.getAnnotationSummary() != null &&
+            gnResponse.getColocatedVariants() != null &&
+            gnResponse.getColocatedVariants().size() > 0)
+        {
+            return gnResponse.getColocatedVariants().get(0);
         }
         else {
             return null;

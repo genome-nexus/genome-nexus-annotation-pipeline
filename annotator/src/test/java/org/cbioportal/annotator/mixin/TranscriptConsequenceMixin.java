@@ -64,5 +64,14 @@ public class TranscriptConsequenceMixin {
 
   @JsonProperty("variant_allele")
   private String variantAllele;
+
+  @JsonProperty("colocatedVariants_gnomad_afr_maf")
+  private String colocatedVariantsGnomadAfrMaf;
+
+  @JsonProperty("colocatedVariants_gnomad_eas_maf")
+  private String colocatedVariantsGnomadEasMaf;
+
+  @JsonProperty("colocatedVariants_gnomad_nfe_maf")
+  private String colocatedVariantsGnomadNfeMaf;
 }
 
