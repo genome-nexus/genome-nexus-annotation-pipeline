@@ -73,5 +73,8 @@ public class TranscriptConsequenceMixin {
 
   @JsonProperty("colocatedVariants_gnomad_nfe_maf")
   private String colocatedVariantsGnomadNfeMaf;
+
+  @JsonProperty("colocatedVariants_dbSnpId")
+  private String colocatedVariantsDbSnpId;
 }
 

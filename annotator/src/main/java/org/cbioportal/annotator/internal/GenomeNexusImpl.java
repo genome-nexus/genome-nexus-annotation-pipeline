@@ -219,6 +219,7 @@ public class GenomeNexusImpl implements Annotator {
                 resolveColocatedVariantsGnomadAfrMaf(),
                 resolveColocatedVariantsGnomadEasMaf(),
                 resolveColocatedVariantsGnomadNfeMaf(),
+                resolveColocatedVariantsDbSnpId(),
                 mRecord.getAdditionalProperties());
         return annotatedRecord;
     }
@@ -512,6 +513,16 @@ public class GenomeNexusImpl implements Annotator {
         }
 
         return colocatedVariants_gnomad_nfe_maf != null ? colocatedVariants_gnomad_nfe_maf : "";
+    }
+
+    private String resolveColocatedVariantsDbSnpId() {
+        String colocatedVariants_dbSnpId = "";
+
+        if(gnomadData != null) {
+            colocatedVariants_dbSnpId = gnomadData.getDbSnpId();
+        }
+
+        return colocatedVariants_dbSnpId != null ? colocatedVariants_dbSnpId : "";
     }
 
     public String extractGenomicLocation(MutationRecord record)

@@ -54,6 +54,7 @@ public class AnnotatedRecord extends MutationRecord{
     protected String colocatedVariantsGnomadAfrMaf;
     protected String colocatedVariantsGnomadEasMaf;
     protected String colocatedVariantsGnomadNfeMaf;
+    protected String colocatedVariantsDbSnpId;
 
     public AnnotatedRecord() {
         addAnnotatedFieldsToHeader();
@@ -111,6 +112,7 @@ public class AnnotatedRecord extends MutationRecord{
         String colocatedVariantsGnomadAfrMaf,
         String colocatedVariantsGnomadEasMaf,
         String colocatedVariantsGnomadNfeMaf,
+        String colocatedVariantsDbSnpId,
         Map<String, String> additionalProperties
     ) {
         super(hugoSymbol,
@@ -166,6 +168,7 @@ public class AnnotatedRecord extends MutationRecord{
         this.colocatedVariantsGnomadAfrMaf = colocatedVariantsGnomadAfrMaf;
         this.colocatedVariantsGnomadEasMaf = colocatedVariantsGnomadEasMaf;
         this.colocatedVariantsGnomadNfeMaf = colocatedVariantsGnomadNfeMaf;
+        this.colocatedVariantsDbSnpId = colocatedVariantsDbSnpId;
         addAnnotatedFieldsToHeader();
     }
     
@@ -223,6 +226,7 @@ public class AnnotatedRecord extends MutationRecord{
         this.colocatedVariantsGnomadAfrMaf = additionalProperties.get("colocatedVariants_gnomad_afr_maf") != null ? additionalProperties.get("colocatedVariants_gnomad_afr_maf") : "";
         this.colocatedVariantsGnomadEasMaf = additionalProperties.get("colocatedVariants_gnomad_eas_maf") != null ? additionalProperties.get("colocatedVariants_gnomad_eas_maf") : "";
         this.colocatedVariantsGnomadNfeMaf = additionalProperties.get("colocatedVariants_gnomad_nfe_maf") != null ? additionalProperties.get("colocatedVariants_gnomad_nfe_maf") : "";
+        this.colocatedVariantsGnomadAfrMaf = additionalProperties.get("colocatedVariants_gnomad_dbSnpId") != null ? additionalProperties.get("colocatedVariants_gnomad_dbSnpId") : "";
         this.additionalProperties = additionalProperties;
     }
 
@@ -322,6 +326,14 @@ public class AnnotatedRecord extends MutationRecord{
         this.colocatedVariantsGnomadNfeMaf = colocatedVariantsGnomadNfeMaf;
     }
 
+    public String getCOLOCATEDVARIANTS_DBSNPID() {
+        return this.colocatedVariantsDbSnpId;
+    }
+
+    public void setCOLOCATEDVARIANTS_DBSNPID(String colocatedVariantsDbSnpId) {
+        this.colocatedVariantsDbSnpId = colocatedVariantsDbSnpId;
+    }
+
     private void addAnnotatedFieldsToHeader() {
         header.add("HGVSc");
         header.add("HGVSp");
@@ -335,5 +347,6 @@ public class AnnotatedRecord extends MutationRecord{
         header.add("ColocatedVariants_gnomad_afr_maf");
         header.add("ColocatedVariants_gnomad_eas_maf");
         header.add("ColocatedVariants_gnomad_nfe_maf");
+        header.add("ColocatedVariants_dbSnpId");
     }
 }
