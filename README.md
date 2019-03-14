@@ -5,6 +5,27 @@ the cBioPortal using [Genome Nexus](http://genomenexus.org)
 ## MAF Annotation
 The `annotationPipeline` module is a command line tool to annotate a maf using genome nexus. 
 
+**Pre-build steps**
+
+Create your `application.properties`:
+
+```
+cp annotationPipeline/src/main/resources/application.properties.EXAMPLE annotationPipeline/src/main/resources/application.properties
+```
+
+If you have your own
+installation of Genome Nexus, you can point to it by modifying the
+`application.properties` file located in
+`annotationPipeline/src/main/resources`.
+
+Create your `log4j.properties`:
+
+```
+cp annotationPipeline/src/main/resources/log4j.properties.EXAMPLE annotationPipeline/src/main/resources/log4j.properties
+```
+
+Modify the property `log4j.appender.a.File` in your `log4j.properties` file to the desired log file path.
+
 To use it, build the project using maven and run it like so:
     
     mvn clean install
@@ -17,10 +38,7 @@ You can choose to replace the gene symbols in the new maf by the gene symbols
 found by Genome Nexus by supplying the `-r` optional parameter. To output error
 reporting to a file, supply the `-e` option a location for the file to be
 saved. By running the jar without any arguments or by providing the optional
-parameter `-h` you can view the full usage statement. If you have your own
-installation of Genome Nexus, you can point to it by modifying the
-`application.properties` file located in
-`annotationPipeline/src/main/resources`.
+parameter `-h` you can view the full usage statement. 
 
 ### Minimal MAF Example
 
