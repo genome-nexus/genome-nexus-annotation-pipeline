@@ -559,7 +559,24 @@ public class GenomeNexusImpl implements Annotator {
             gnResponse.getColocatedVariants() != null &&
             gnResponse.getColocatedVariants().size() > 0)
         {
-            return gnResponse.getColocatedVariants().get(0);
+            ColocatedVariant variant = gnResponse.getColocatedVariants().get(0);
+            
+            // check if the dbSnpId start with "rs", now we have multiple ids returned in dbSnpId, such as "CM112509" or "COSM476".
+            // this checking can be removed after fixing the genome nexus model
+            String tumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1();
+            if (variant.getDbSnpId().startsWith("rs")) {
+                // check if the gnomad_nfe_allele, gnomad_afr_allele and gnomad_eas_allele matches the tumorSeqAllele1
+                if (tumorSeqAllele1 != variant.getGnomadAfrAllele() ||
+                    tumorSeqAllele1 != variant.getGnomadEasAllele() ||
+                    tumorSeqAllele1 != variant.getGnomadNfeAllele()) {
+                // return null if id is correct but allele doesn't match.
+                    return null;
+                }
+                // return varient if id is correct and allele matches.
+                return variant;
+            }
+            // return null if id is incorrect.
+            return null;
         }
         else {
             return null;
