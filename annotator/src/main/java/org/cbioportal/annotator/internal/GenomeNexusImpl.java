@@ -164,7 +164,7 @@ public class GenomeNexusImpl implements Annotator {
         // get the canonical transcript
         canonicalTranscript = getCanonicalTranscript(gnResponse);
         // get gnomad data
-        gnomadData = getGnomadData(gnResponse);
+        gnomadData = getGnomadData(gnResponse, mRecord);
 
         // annotate the record
         AnnotatedRecord annotatedRecord= new AnnotatedRecord(resolveHugoSymbol(replace),
@@ -554,33 +554,33 @@ public class GenomeNexusImpl implements Annotator {
         }
     }
 
-    private ColocatedVariant getGnomadData(VariantAnnotation gnResponse) {
+    private ColocatedVariant getGnomadData(VariantAnnotation gnResponse, MutationRecord record) {
         if (gnResponse.getAnnotationSummary() != null &&
             gnResponse.getColocatedVariants() != null &&
             gnResponse.getColocatedVariants().size() > 0)
         {
             ColocatedVariant variant = gnResponse.getColocatedVariants().get(0);
             
+            // get TUMOR_SEQ_ALLELE1 from mutation record
+            String tumorSeqAllele1 = record.getTUMOR_SEQ_ALLELE1();
+
             // check if the dbSnpId start with "rs", now we have multiple ids returned in dbSnpId, such as "CM112509" or "COSM476".
             // this checking can be removed after fixing the genome nexus model
-            String tumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1();
             if (variant.getDbSnpId().startsWith("rs")) {
+
                 // check if the gnomad_nfe_allele, gnomad_afr_allele and gnomad_eas_allele matches the tumorSeqAllele1
-                if (tumorSeqAllele1 != variant.getGnomadAfrAllele() ||
-                    tumorSeqAllele1 != variant.getGnomadEasAllele() ||
-                    tumorSeqAllele1 != variant.getGnomadNfeAllele()) {
-                // return null if id is correct but allele doesn't match.
+                if (tumorSeqAllele1 != null && 
+                    (variant.getGnomadAfrAllele() != null && tumorSeqAllele1.equals(variant.getGnomadAfrAllele()) == false ||
+                    variant.getGnomadEasAllele() != null && tumorSeqAllele1.equals(variant.getGnomadEasAllele()) == false ||
+                    variant.getGnomadNfeAllele() != null && tumorSeqAllele1.equals(variant.getGnomadNfeAllele()) == false)) {
+                    // return null if id is correct but allele doesn't match.
                     return null;
                 }
                 // return varient if id is correct and allele matches.
                 return variant;
             }
-            // return null if id is incorrect.
-            return null;
         }
-        else {
-            return null;
-        }
+        return null;
     }
 
     private static List<String> initNullClassifications() {
