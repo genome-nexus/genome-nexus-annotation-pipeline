@@ -489,7 +489,7 @@ public class GenomeNexusImpl implements Annotator {
     private String resolveColocatedVariantsGnomadAfrMaf() {
         String colocatedVariants_gnomad_afr_maf = "";
 
-        if(gnomadData != null) {
+        if (gnomadData != null) {
             colocatedVariants_gnomad_afr_maf = gnomadData.getGnomadAfrMaf();
         }
 
@@ -499,7 +499,7 @@ public class GenomeNexusImpl implements Annotator {
     private String resolveColocatedVariantsGnomadEasMaf() {
         String colocatedVariants_gnomad_eas_maf = "";
 
-        if(gnomadData != null) {
+        if (gnomadData != null) {
             colocatedVariants_gnomad_eas_maf = gnomadData.getGnomadEasMaf();
         }
 
@@ -508,7 +508,7 @@ public class GenomeNexusImpl implements Annotator {
     private String resolveColocatedVariantsGnomadNfeMaf() {
         String colocatedVariants_gnomad_nfe_maf = "";
 
-        if(gnomadData != null) {
+        if (gnomadData != null) {
             colocatedVariants_gnomad_nfe_maf = gnomadData.getGnomadNfeMaf();
         }
 
@@ -518,7 +518,7 @@ public class GenomeNexusImpl implements Annotator {
     private String resolveColocatedVariantsDbSnpId() {
         String colocatedVariants_dbSnpId = "";
 
-        if(gnomadData != null) {
+        if (gnomadData != null) {
             colocatedVariants_dbSnpId = gnomadData.getDbSnpId();
         }
 
@@ -557,7 +557,7 @@ public class GenomeNexusImpl implements Annotator {
     private ColocatedVariant getGnomadData(VariantAnnotation gnResponse, MutationRecord record) {
         if (gnResponse.getAnnotationSummary() != null &&
             gnResponse.getColocatedVariants() != null &&
-            gnResponse.getColocatedVariants().size() > 0)
+            gnResponse.getColocatedVariants().size() > 0) 
         {
             ColocatedVariant variant = gnResponse.getColocatedVariants().get(0);
             
@@ -566,13 +566,14 @@ public class GenomeNexusImpl implements Annotator {
 
             // check if the dbSnpId start with "rs", now we have multiple ids returned in dbSnpId, such as "CM112509" or "COSM476".
             // this checking can be removed after fixing the genome nexus model
-            if (variant.getDbSnpId().startsWith("rs")) {
-
+            if (variant.getDbSnpId().startsWith("rs")) 
+            {
                 // check if the gnomad_nfe_allele, gnomad_afr_allele and gnomad_eas_allele matches the tumorSeqAllele1
                 if (tumorSeqAllele1 != null && 
                     (variant.getGnomadAfrAllele() != null && tumorSeqAllele1.equals(variant.getGnomadAfrAllele()) == false ||
                     variant.getGnomadEasAllele() != null && tumorSeqAllele1.equals(variant.getGnomadEasAllele()) == false ||
-                    variant.getGnomadNfeAllele() != null && tumorSeqAllele1.equals(variant.getGnomadNfeAllele()) == false)) {
+                    variant.getGnomadNfeAllele() != null && tumorSeqAllele1.equals(variant.getGnomadNfeAllele()) == false)) 
+                {
                     // return null if id is correct but allele doesn't match.
                     return null;
                 }
