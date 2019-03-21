@@ -568,9 +568,9 @@ public class GenomeNexusImpl implements Annotator {
             if (variant.getDbSnpId().startsWith("rs")) {
                 // check if the gnomad_nfe_allele, gnomad_afr_allele and gnomad_eas_allele matches the tumorSeqAllele1
                 if (tumorSeqAllele1 != null && 
-                    (variant.getGnomadAfrAllele() != null && tumorSeqAllele1.equals(variant.getGnomadAfrAllele()) == false ||
-                    variant.getGnomadEasAllele() != null && tumorSeqAllele1.equals(variant.getGnomadEasAllele()) == false ||
-                    variant.getGnomadNfeAllele() != null && tumorSeqAllele1.equals(variant.getGnomadNfeAllele()) == false)) {
+                    (variant.getGnomadAfrAllele() != null && !tumorSeqAllele1.equals(variant.getGnomadAfrAllele()) ||
+                    variant.getGnomadEasAllele() != null && !tumorSeqAllele1.equals(variant.getGnomadEasAllele()) ||
+                    variant.getGnomadNfeAllele() != null && !tumorSeqAllele1.equals(variant.getGnomadNfeAllele()))) {
                     // return null if id is correct but allele doesn't match.
                     return null;
                 }
