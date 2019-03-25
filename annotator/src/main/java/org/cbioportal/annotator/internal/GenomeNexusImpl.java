@@ -118,7 +118,7 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     @Override
-    public AnnotatedRecord annotateRecord(MutationRecord record, boolean replace, String isoformOverridesSource, boolean reannotate)
+    public AnnotatedRecord annotateRecord(MutationRecord record, boolean replace, String isoformOverridesSource, boolean reannotate, String optionalGnProperties)
             throws GenomeNexusAnnotationFailureException
     {
         this.mRecord = record;

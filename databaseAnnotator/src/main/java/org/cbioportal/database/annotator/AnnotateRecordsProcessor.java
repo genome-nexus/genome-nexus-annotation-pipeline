@@ -56,6 +56,9 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
     @Value("#{jobParameters[isoform]}")
     private String isoform;
 
+    @Value("#{jobParameters['addColumns']}")
+    private String addColumns;
+
     @Autowired
     Annotator annotator;
 
@@ -88,7 +91,7 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
         MutationRecord record = annotator.createRecord(mafLine);
         AnnotatedRecord annotatedRecord;
         try {
-            annotatedRecord = annotator.annotateRecord(record, true, isoform, true);
+            annotatedRecord = annotator.annotateRecord(record, true, isoform, true, addColumns);
         }
         catch (HttpServerErrorException | ResourceAccessException e) {
            LOG.error("Failed to annotate record - errors accessing Genome Nexus");

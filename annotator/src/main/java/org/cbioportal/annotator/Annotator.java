@@ -44,7 +44,7 @@ import org.cbioportal.models.MutationRecord;
 
 public interface Annotator {
 
-    AnnotatedRecord annotateRecord(MutationRecord record, boolean replaceHugo, String isoformOverride, boolean reannotate) throws GenomeNexusAnnotationFailureException;
+    AnnotatedRecord annotateRecord(MutationRecord record, boolean replaceHugo, String isoformOverride, boolean reannotate, String addColumns) throws GenomeNexusAnnotationFailureException;
     MutationRecord createRecord(Map<String, String> mafLine) throws Exception;
     boolean isHgvspNullClassifications(String variantClassification);
     String getUrlForRecord(MutationRecord record, String isoformOverridesSource);

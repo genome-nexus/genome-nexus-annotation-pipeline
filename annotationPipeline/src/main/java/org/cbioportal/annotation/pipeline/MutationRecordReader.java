@@ -71,6 +71,9 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
     @Value("#{jobParameters[verbose]}")
     private boolean verbose;
 
+    @Value("#{jobParameters['addColumns']}")
+    private String addColumns;
+
     private int failedAnnotations;
     private int failedServerAnnotations;
     private int failedNullHgvspAnnotations;
@@ -140,7 +143,7 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
             String serverErrorMessage = "";
             AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
             try {
-                annotatedRecord = annotator.annotateRecord(record, replace, isoformOverride, true);
+                annotatedRecord = annotator.annotateRecord(record, replace, isoformOverride, true, addColumns);
             }
             catch (HttpServerErrorException ex) {
                 serverErrorMessage = "Failed to annotate variant due to internal server error";
