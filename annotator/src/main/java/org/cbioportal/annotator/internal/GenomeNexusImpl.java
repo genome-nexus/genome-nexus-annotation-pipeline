@@ -123,6 +123,11 @@ public class GenomeNexusImpl implements Annotator {
     {
         this.mRecord = record;
 
+        String[] names = optionalGnProperties.split(",");
+        for (String name : names) {
+            this.mRecord.addAdditionalProperty(name, name);
+        }
+
         //check if record already is annotated
         if(!reannotate && !annotationNeeded(record)) {
             return new AnnotatedRecord(mRecord);
