@@ -8,3 +8,13 @@ annotationPipeline/src/main/resources/log4j.properties
 databaseAnnotator/src/main/resources/log4j.properties
 *.iml
 swagger-codegen-cli.jar
+.idea/l*
+*.prefs
+*.class
+*.EXAMPLE
+*.properties
+*.jar
+*.project
+*.lst
+.idea/*
+*.classpath

@@ -36,6 +36,7 @@ import com.google.common.base.Strings;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cbioportal.annotator.Annotator;
@@ -121,12 +122,7 @@ public class GenomeNexusImpl implements Annotator {
     public AnnotatedRecord annotateRecord(MutationRecord record, boolean replace, String isoformOverridesSource, boolean reannotate, String optionalGnProperties)
             throws GenomeNexusAnnotationFailureException
     {
-        this.mRecord = record;
-
-        String[] names = optionalGnProperties.split(",");
-        for (String name : names) {
-            this.mRecord.addAdditionalProperty(name, name);
-        }
+        this.mRecord = record;  
 
         //check if record already is annotated
         if(!reannotate && !annotationNeeded(record)) {
@@ -141,6 +137,15 @@ public class GenomeNexusImpl implements Annotator {
                     Arrays.asList(this.enrichmentFields.split(",")));
         } catch (ApiException e) {
             throw new GenomeNexusAnnotationFailureException("Empty Response From Genome Nexus: " + genomicLocation);
+        }
+        if (optionalGnProperties.contains(",")) {
+            String[] names = optionalGnProperties.split(",");
+            for (String name : names) {
+                this.mRecord.addAdditionalProperty(name, resolveAdditionalHeader(name));
+            }
+        }
+        else {
+            this.mRecord.addAdditionalProperty(optionalGnProperties, resolveAdditionalHeader(optionalGnProperties));
         }
 
         return convertResponseToAnnotatedRecord(replace);
@@ -510,6 +515,17 @@ public class GenomeNexusImpl implements Annotator {
         else {
             return null;
         }
+    }
+
+    private String resolveAdditionalHeader(String headerName) {
+        try {
+            String result = (String) GenomeNexusImpl.class.getDeclaredMethod("resolve" + StringUtils.capitalize(headerName)).invoke(this);
+            return result;
+        }
+        catch(Exception e) {
+
+        }
+        return "";
     }
 
     private static List<String> initNullClassifications() {
