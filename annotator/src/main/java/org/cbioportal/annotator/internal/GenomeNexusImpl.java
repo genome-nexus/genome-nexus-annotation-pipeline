@@ -119,7 +119,7 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     @Override
-    public AnnotatedRecord annotateRecord(MutationRecord record, boolean replace, String isoformOverridesSource, boolean reannotate, String optionalGnProperties)
+    public AnnotatedRecord annotateRecord(MutationRecord record, boolean replace, String isoformOverridesSource, boolean reannotate, String optionalGnProperties, String prefix)
             throws GenomeNexusAnnotationFailureException
     {
         this.mRecord = record;  
@@ -141,11 +141,11 @@ public class GenomeNexusImpl implements Annotator {
         if (optionalGnProperties.contains(",")) {
             String[] names = optionalGnProperties.split(",");
             for (String name : names) {
-                this.mRecord.addAdditionalProperty(name, resolveAdditionalHeader(name));
+                this.mRecord.addAdditionalProperty(name, resolveAdditionalHeader(name), prefix);
             }
         }
         else {
-            this.mRecord.addAdditionalProperty(optionalGnProperties, resolveAdditionalHeader(optionalGnProperties));
+            this.mRecord.addAdditionalProperty(optionalGnProperties, resolveAdditionalHeader(optionalGnProperties), prefix);
         }
 
         return convertResponseToAnnotatedRecord(replace);

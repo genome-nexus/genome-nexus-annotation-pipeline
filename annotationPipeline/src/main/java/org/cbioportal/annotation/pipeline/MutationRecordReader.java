@@ -74,6 +74,9 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
     @Value("#{jobParameters['addColumns']}")
     private String addColumns;
 
+    @Value("#{jobParameters['prefix']}")
+    private String prefix;
+
     private int failedAnnotations;
     private int failedServerAnnotations;
     private int failedNullHgvspAnnotations;
@@ -143,7 +146,7 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
             String serverErrorMessage = "";
             AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
             try {
-                annotatedRecord = annotator.annotateRecord(record, replace, isoformOverride, true, addColumns);
+                annotatedRecord = annotator.annotateRecord(record, replace, isoformOverride, true, addColumns, prefix);
             }
             catch (HttpServerErrorException ex) {
                 serverErrorMessage = "Failed to annotate variant due to internal server error";
@@ -158,7 +161,7 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
                 serverErrorMessage = "Failed to annotate variant due to Genome Nexus : " + ex.getMessage();
             }
             annotatedRecords.add(annotatedRecord);
-            header.addAll(annotatedRecord.getHeaderWithAdditionalFields());
+            header.addAll(annotatedRecord.getHeaderWithAdditionalFields(prefix));
             
             // log server failure message if applicable
             if (!serverErrorMessage.isEmpty()) {

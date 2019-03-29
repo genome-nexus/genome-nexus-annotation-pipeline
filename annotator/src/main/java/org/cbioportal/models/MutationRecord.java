@@ -441,8 +441,8 @@ public class MutationRecord {
         this.nAltCount = nAltCount;
     }
 
-    public void addAdditionalProperty(String property, String value) {
-        this.additionalProperties.put(property, value);
+    public void addAdditionalProperty(String property, String value, String prefix) {
+        this.additionalProperties.put(prefix + "." + property, value);
     }
 
     public Map<String, String> getAdditionalProperties() {
@@ -453,7 +453,7 @@ public class MutationRecord {
         this.additionalProperties = additionalProperties;
     }
 
-    public List<String> getHeaderWithAdditionalFields() {
+    public List<String> getHeaderWithAdditionalFields(String prefix) {
         List<String> headerWithAdditionalFields = new ArrayList<>();
         headerWithAdditionalFields.addAll(header);
 

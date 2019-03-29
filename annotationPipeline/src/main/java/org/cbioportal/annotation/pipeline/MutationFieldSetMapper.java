@@ -57,7 +57,7 @@ public class MutationFieldSetMapper implements  FieldSetMapper<MutationRecord> {
             }
             catch (Exception e) {
                 if (e.getClass().equals(NoSuchMethodException.class)) {
-                    record.addAdditionalProperty(field, fs.readRawString(field));
+                    record.addAdditionalProperty(field, fs.readRawString(field), "");
                 }
                 else {
                     LOG.error("Something went wrong reading field " + field);
