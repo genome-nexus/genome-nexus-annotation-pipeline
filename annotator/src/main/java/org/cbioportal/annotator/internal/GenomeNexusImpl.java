@@ -112,6 +112,8 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     private boolean annotationNeeded(MutationRecord record) {
+        // AdditionalProperties are additional columns that are not part of the standard MAF header,
+        // it preserves columns and their values from the input MAF that’s being annotated
         Map<String, String> additionalProperties = record.getAdditionalProperties();
         if (!additionalProperties.containsKey("HGVSp_Short")) {
             return true;
