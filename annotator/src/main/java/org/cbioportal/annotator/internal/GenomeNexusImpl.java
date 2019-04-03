@@ -563,8 +563,8 @@ public class GenomeNexusImpl implements Annotator {
             // get TUMOR_SEQ_ALLELE1 from mutation record
             String tumorSeqAllele1 = record.getTUMOR_SEQ_ALLELE1();
 
+            // TODO: move this to the genome nexus service (https://github.com/genome-nexus/genome-nexus/issues/254)
             // check if the dbSnpId start with "rs", now we have multiple ids returned in dbSnpId, such as "CM112509" or "COSM476".
-            // this checking can be removed after fixing the genome nexus model
             if (variant.getDbSnpId().startsWith("rs")) {
                 // check if the gnomad_nfe_allele, gnomad_afr_allele and gnomad_eas_allele matches the tumorSeqAllele1
                 if (tumorSeqAllele1 != null && 
