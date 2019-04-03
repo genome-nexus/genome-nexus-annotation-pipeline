@@ -507,6 +507,7 @@ public class GenomeNexusImpl implements Annotator {
 
         return colocatedVariants_gnomad_eas_maf != null ? colocatedVariants_gnomad_eas_maf : "";
     }
+    
     private String resolveColocatedVariantsGnomadNfeMaf() {
         String colocatedVariants_gnomad_nfe_maf = "";
 
