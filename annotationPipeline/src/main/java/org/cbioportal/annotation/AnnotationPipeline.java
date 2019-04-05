@@ -100,6 +100,6 @@ public class AnnotationPipeline
             !commandLine.hasOption("output-filename")) {
             help(gnuOptions, 0);
         }
-        launchJob(args, commandLine.getOptionValue("filename"), commandLine.getOptionValue("output-filename"), commandLine.getOptionValue("isoform-override"), commandLine.hasOption("error-report-location") ? commandLine.getOptionValue("error-report-location") : null, commandLine.hasOption("replace-symbol-entrez"), commandLine.hasOption("verbose"));
+        launchJob(args, commandLine.getOptionValue("filename"), commandLine.getOptionValue("output-filename"), commandLine.getOptionValue("isoform-override"), commandLine.hasOption("error-report-location") ? commandLine.getOptionValue("error-report-location") : null, commandLine.hasOption("replace-symbol-entrez"), commandLine.hasOption("verbose") ? Boolean.valueOf(commandLine.getOptionValue("verbose")) : true);
     }
 }
