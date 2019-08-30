@@ -476,7 +476,7 @@ public class MutationRecord {
         List<String> sortedValues = new ArrayList<>();
         for (String additionalPropertiesKey : getSortedAdditionalPropertiesKeys()) {
             if (!getHeader().contains(additionalPropertiesKey)) {
-                sortedValues.add(getAdditionalProperties.getOrDefault(additionalPropertiesKey,""));
+                sortedValues.add(getAdditionalProperties().getOrDefault(additionalPropertiesKey,""));
             }
         }
         return sortedValues;
