@@ -66,9 +66,9 @@
     </dependency>
     <!-- cbioportal -->
     <dependency>
-      <groupId>com.github.cbioportal</groupId>
-      <artifactId>cbioportal</artifactId>
-      <version>rc-SNAPSHOT</version>
+      <groupId>com.github.cbioportal.cbioportal</groupId>
+      <artifactId>core</artifactId>
+      <version>c84ecb0bd6b6f32466a3e8a12c00f900e1b7af37</version>
     </dependency>
     <!-- api client -->
     <dependency>
