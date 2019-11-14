@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 - 2019 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -48,5 +48,5 @@ public interface Annotator {
     MutationRecord createRecord(Map<String, String> mafLine) throws Exception;
     boolean isHgvspNullClassifications(String variantClassification);
     String getUrlForRecord(MutationRecord record, String isoformOverridesSource);
-
+    String getVersion();
 }
