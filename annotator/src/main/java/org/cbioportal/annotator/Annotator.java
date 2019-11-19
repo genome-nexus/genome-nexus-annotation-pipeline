@@ -32,8 +32,8 @@
 
 package org.cbioportal.annotator;
 
-import java.util.Map;
-import org.cbioportal.annotator.GenomeNexusAnnotationFailureException;
+import java.util.*;
+import org.cbioportal.annotator.internal.AnnotationSummaryStatistics;
 import org.cbioportal.models.AnnotatedRecord;
 import org.cbioportal.models.MutationRecord;
 
@@ -49,4 +49,5 @@ public interface Annotator {
     boolean isHgvspNullClassifications(String variantClassification);
     String getUrlForRecord(MutationRecord record, String isoformOverridesSource);
     String getVersion();
+    List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace) throws Exception;
 }

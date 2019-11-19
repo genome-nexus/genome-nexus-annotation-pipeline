@@ -34,13 +34,12 @@ package org.cbioportal.annotation.pipeline;
 
 import java.io.*;
 import java.util.*;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cbioportal.annotator.internal.AnnotationSummaryStatistics;
 import org.cbioportal.annotator.Annotator;
 import org.cbioportal.annotator.GenomeNexusAnnotationFailureException;
 import org.cbioportal.models.*;
-import org.mskcc.cbio.maf.MafUtil;
 import org.springframework.batch.item.*;
 import org.springframework.batch.item.file.*;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
@@ -68,22 +67,13 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
 
     @Value("#{jobParameters[errorReportLocation]}")
     private String errorReportLocation;
-    
-    @Value("#{jobParameters[verbose]}")
-    private boolean verbose;
 
-    private int failedAnnotations;
-    private int failedServerAnnotations;
-    private int failedNullHgvspAnnotations;
-    private int snpAndIndelVariants;
+    @Value("#{jobParameters[postIntervalSize]}")
+    private Integer postIntervalSize;
 
-    private List<MutationRecord> mutationRecords = new ArrayList<>();
-    private List<AnnotatedRecord> annotatedRecords = new ArrayList<>();
-    private List<String> errorMessages = new ArrayList<>();
+    private AnnotationSummaryStatistics summaryStatistics;
+    private List<AnnotatedRecord> allAnnotatedRecords = new ArrayList<>();
     private Set<String> header = new LinkedHashSet<>();
-    private List<String> errorHeader = Arrays.asList(new String[]{"SAMPLE_ID", "CHR", "START",
-                                            "END", "REF", "ALT", "VARIANT_CLASSIFICATION", 
-                                            "FAILURE_REASON", "URL"});
 
     @Autowired
     Annotator annotator;
@@ -92,11 +82,30 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
 
     @Override
     public void open(ExecutionContext ec) throws ItemStreamException {
-
+        this.summaryStatistics = new AnnotationSummaryStatistics(annotator);
         String genomeNexusVersion = annotator.getVersion();
 
         processComments(ec, genomeNexusVersion);
+        List<MutationRecord> mutationRecords = loadMutationRecordsFromMaf();
+        if (postIntervalSize > 0) {
+            try {
+                this.allAnnotatedRecords = annotateRecordsWithPOST(mutationRecords);
+            } catch (Exception ex) {
+                LOG.error("ERROR ANNOTATING WITH POST REQUESTS");
+                throw new RuntimeException(ex);
+            }
+        } else {
+            this.allAnnotatedRecords = annotateRecordsWithGET(ec, mutationRecords);
+        }
+        ec.put("mutation_header", new ArrayList(header));
+        summaryStatistics.printSummaryStatistics();
+        if (errorReportLocation != null) {
+            summaryStatistics.saveErrorMessagesToFile(errorReportLocation);
+        }
+    }
 
+    private List<MutationRecord> loadMutationRecordsFromMaf() {
+        List<MutationRecord> mutationRecords = new ArrayList<>();
         FlatFileItemReader<MutationRecord> reader = new FlatFileItemReader<>();
         reader.setResource(new FileSystemResource(filename));
         DefaultLineMapper<MutationRecord> mapper = new DefaultLineMapper<>();
@@ -112,8 +121,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
                     tokenizer.setNames(line.split("\t"));
                 }
         });
-        reader.open(ec);
-
+        reader.open(new ExecutionContext());
         LOG.info("Loading records from: " + filename);
         MutationRecord mutationRecord;
         try {
@@ -125,15 +133,49 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
             throw new ItemStreamException(e);
         }
         reader.close();
+        LOG.info("Loaded " + String.valueOf(mutationRecords.size()) + " records from: " + filename);
+        return mutationRecords;
+    }
 
-        int variantsToAnnotateCount = mutationRecords.size();
+    private List<AnnotatedRecord> annotateRecordsWithPOST(List<MutationRecord> mutationRecords) throws Exception {
+        List<AnnotatedRecord> annotatedRecordsList = new ArrayList<>();
+        List<List<MutationRecord>> partitionedMutationRecordsList = partitionMutationRecordsListForPOST(mutationRecords);
+        int totalVariantsToAnnotateCount = mutationRecords.size();
         int annotatedVariantsCount = 0;
-        LOG.info(String.valueOf(variantsToAnnotateCount) + " records to annotate");
-        for (MutationRecord record : mutationRecords) {
-            annotatedVariantsCount++;
-            if (annotatedVariantsCount % 2000 == 0) {
-                LOG.info("\tOn record " + String.valueOf(annotatedVariantsCount) + " out of " + String.valueOf(variantsToAnnotateCount) + ", annotation " + String.valueOf((int)(((annotatedVariantsCount * 1.0)/variantsToAnnotateCount) * 100)) + "% complete");
+        for (List<MutationRecord> partitionedList : partitionedMutationRecordsList) {
+            List<AnnotatedRecord> annotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, partitionedList, isoformOverride, replace);
+            for (AnnotatedRecord ar : annotatedRecords) {
+                logAnnotationProgress(++annotatedVariantsCount, totalVariantsToAnnotateCount, postIntervalSize);
+                header.addAll(ar.getHeaderWithAdditionalFields());
             }
+            annotatedRecordsList.addAll(annotatedRecords);
+        }
+        return annotatedRecordsList;
+    }
+
+    private List<List<MutationRecord>> partitionMutationRecordsListForPOST(List<MutationRecord> mutationRecords) {
+
+        int start = 0;
+        int end = postIntervalSize;
+        List<List<MutationRecord>> mutationRecordPartionedLists = new ArrayList<>();
+        while(end <= mutationRecords.size()) {
+            mutationRecordPartionedLists.add(mutationRecords.subList(start, end));
+            start = end;
+            end = start + postIntervalSize;
+        }
+        if (end > mutationRecords.size()) {
+            mutationRecordPartionedLists.add(mutationRecords.subList(start, mutationRecords.size()));
+        }
+        return mutationRecordPartionedLists;
+    }
+
+    private List<AnnotatedRecord> annotateRecordsWithGET(ExecutionContext ec, List<MutationRecord> mutationRecords) {
+        List<AnnotatedRecord> annotatedRecordsList = new ArrayList<>();
+        int totalVariantsToAnnotateCount = mutationRecords.size();
+        int annotatedVariantsCount = 0;
+        LOG.info(String.valueOf(totalVariantsToAnnotateCount) + " records to annotate");
+        for (MutationRecord record : mutationRecords) {
+            logAnnotationProgress(++annotatedVariantsCount, totalVariantsToAnnotateCount, 2000);
             // save variant details for logging
             String variantDetails = "(sampleId,chr,start,end,ref,alt,url)= (" + record.getTUMOR_SAMPLE_BARCODE() + "," +  record.getCHROMOSOME() + "," + record.getSTART_POSITION() + ","
                     + record.getEND_POSITION() + "," + record.getREFERENCE_ALLELE() + "," + record.getTUMOR_SEQ_ALLELE2() + "," + annotator.getUrlForRecord(record, isoformOverride) + ")";
@@ -157,43 +199,25 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
             catch (GenomeNexusAnnotationFailureException ex) {
                 serverErrorMessage = "Failed to annotate variant due to Genome Nexus : " + ex.getMessage();
             }
-            annotatedRecords.add(annotatedRecord);
+            annotatedRecordsList.add(annotatedRecord);
             header.addAll(annotatedRecord.getHeaderWithAdditionalFields());
-            
+
             // log server failure message if applicable
             if (!serverErrorMessage.isEmpty()) {
-                LOG.warn(serverErrorMessage);
-                failedAnnotations++;
-                failedServerAnnotations++;
-                if (errorReportLocation != null) updateErrorMessages(record, record.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), serverErrorMessage);
+                summaryStatistics.addFailedAnnotatedRecordDueToServer(record, serverErrorMessage, isoformOverride);
                 continue;
             }
-            String annotationErrorMessage = "";
-            if (MafUtil.variantContainsAmbiguousTumorSeqAllele(record.getREFERENCE_ALLELE(), record.getTUMOR_SEQ_ALLELE1(), record.getTUMOR_SEQ_ALLELE2())) {
-                snpAndIndelVariants++;
-                annotationErrorMessage = "Record contains ambiguous SNP and INDEL allele change - SNP allele will be used";
-            }
-            if (annotatedRecord.getHGVSC().isEmpty() && annotatedRecord.getHGVSP().isEmpty()) {
-                if (annotator.isHgvspNullClassifications(annotatedRecord.getVARIANT_CLASSIFICATION())) {
-                    failedNullHgvspAnnotations++;
-                    annotationErrorMessage = "Ignoring record with HGVSp null classification '" + annotatedRecord.getVARIANT_CLASSIFICATION() + "'";
-                }
-                else {
-                    annotationErrorMessage = "Failed to annotate variant";                    
-                }
-                failedAnnotations++;
-            }
-            if (!annotationErrorMessage.isEmpty()) {
-                if (verbose) LOG.info(annotationErrorMessage + ": " + variantDetails);
-                if (errorReportLocation != null) updateErrorMessages(record, annotatedRecord.getVARIANT_CLASSIFICATION(), annotator.getUrlForRecord(record, isoformOverride), annotationErrorMessage);                
-            }
+            // dont need to do anything with output, just need to call method
+            summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverride);
         }
-        // print summary statistics and save error messages to file if applicable
-        printSummaryStatistics(failedAnnotations, failedNullHgvspAnnotations, snpAndIndelVariants, failedServerAnnotations);
-        if (errorReportLocation != null) {
-            saveErrorMessagesToFile(errorMessages);
+        return annotatedRecordsList;
+    }
+
+    private void logAnnotationProgress(Integer annotatedVariantsCount, Integer totalVariantsToAnnotateCount, Integer intervalSize) {
+        if (annotatedVariantsCount % intervalSize == 0 || Objects.equals(annotatedVariantsCount, totalVariantsToAnnotateCount)) {
+                LOG.info("\tOn record " + String.valueOf(annotatedVariantsCount) + " out of " + String.valueOf(totalVariantsToAnnotateCount) +
+                        ", annotation " + String.valueOf((int)(((annotatedVariantsCount * 1.0)/totalVariantsToAnnotateCount) * 100)) + "% complete");
         }
-        ec.put("mutation_header", new ArrayList(header));
     }
 
     @Override
@@ -204,51 +228,10 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
 
     @Override
     public AnnotatedRecord read() throws Exception {
-        if (!annotatedRecords.isEmpty()) {
-            return annotatedRecords.remove(0);
+        if (!allAnnotatedRecords.isEmpty()) {
+            return allAnnotatedRecords.remove(0);
         }
         return null;
-    }
-    
-    private void printSummaryStatistics(Integer failedAnnotations, Integer failedNullHgvspAnnotations, Integer snpAndIndelVariants, Integer failedServerAnnotations) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("\nAnnotation Summary:")
-                .append("\n\tRecords with ambiguous SNP and INDEL allele changes:  ").append(snpAndIndelVariants);
-        if (failedAnnotations > 0) {
-                builder.append("\n\n\tFailed annotations summary:  ").append(failedAnnotations).append(" total failed annotations")
-                .append("\n\t\tRecords with HGVSp null variant classification:  ").append(failedNullHgvspAnnotations)
-                .append("\n\t\tRecords that failed due to server issue: ").append(failedServerAnnotations);
-        }
-        else {
-            builder.append("\n\tAll variants annotated successfully without failures!");
-        }
-        builder.append("\n\n");
-        System.out.print(builder.toString());
-    }
-    
-    private void updateErrorMessages(MutationRecord record, String variantClassification, String url, String errorMessage) {
-        List<String> msg = Arrays.asList(new String[]{record.getTUMOR_SAMPLE_BARCODE(), record.getCHROMOSOME(),
-                                record.getSTART_POSITION(), record.getEND_POSITION(), record.getREFERENCE_ALLELE(),
-                                record.getTUMOR_SEQ_ALLELE1(), record.getTUMOR_SEQ_ALLELE2(), variantClassification, 
-                                errorMessage, url});
-        errorMessages.add(StringUtils.join(msg, "\t"));
-    }
-
-    private void saveErrorMessagesToFile(List<String> errorMessages) {
-        if (errorMessages.isEmpty()) {
-            LOG.info("No errors to write - error report will not be generated.");
-            return;
-        }
-        try {
-            FileWriter writer = new FileWriter(errorReportLocation);
-            writer.write(StringUtils.join(errorHeader, "\t") + "\n");
-            writer.write(StringUtils.join(errorMessages, "\n"));
-            writer.close();
-        }
-        catch (IOException e) {
-            LOG.error("Unable to save error messages to file!");
-            e.printStackTrace();
-        }
     }
 
     private void processComments(ExecutionContext ec, String genomeNexusVersion) {
