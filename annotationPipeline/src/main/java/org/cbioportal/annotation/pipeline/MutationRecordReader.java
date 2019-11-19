@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 - 2019 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -55,7 +55,8 @@ import org.springframework.web.client.HttpServerErrorException;
  *
  * @author Zachary Heins
  */
-public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
+public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
+
     @Value("#{jobParameters[filename]}")
     private String filename;
 
@@ -92,7 +93,9 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
     @Override
     public void open(ExecutionContext ec) throws ItemStreamException {
 
-        processComments(ec);
+        String genomeNexusVersion = annotator.getVersion();
+
+        processComments(ec, genomeNexusVersion);
 
         FlatFileItemReader<MutationRecord> reader = new FlatFileItemReader<>();
         reader.setResource(new FileSystemResource(filename));
@@ -248,9 +251,10 @@ public class MutationRecordReader  implements ItemStreamReader<AnnotatedRecord>{
         }
     }
 
-    private void processComments(ExecutionContext ec) {
+    private void processComments(ExecutionContext ec, String genomeNexusVersion) {
         List<String> comments = new ArrayList<>();
-        String sequencedSamples = "";
+        comments.add("#genome_nexus_version: " + genomeNexusVersion);
+        comments.add("#isoform: " + isoformOverride);
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(filename));

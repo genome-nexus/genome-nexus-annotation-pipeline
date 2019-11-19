@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-18 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016-19 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -45,8 +45,10 @@ import org.cbioportal.models.MutationRecord;
 import org.genome_nexus.ApiClient;
 import org.genome_nexus.ApiException;
 import org.genome_nexus.client.AnnotationControllerApi;
+import org.genome_nexus.client.InfoControllerApi;
 import org.genome_nexus.client.TranscriptConsequenceSummary;
 import org.genome_nexus.client.VariantAnnotation;
+import org.genome_nexus.client.Version;
 import org.mskcc.cbio.maf.MafUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -75,6 +77,7 @@ public class GenomeNexusImpl implements Annotator {
     private MutationRecord mRecord;
     private VariantAnnotation gnResponse;
     private TranscriptConsequenceSummary canonicalTranscript;
+    private static final String UKNOWN_GENOME_NEXUS_VERSION = "unknown";
 
     private final Log LOG = LogFactory.getLog(GenomeNexusImpl.class);
 
@@ -139,6 +142,17 @@ public class GenomeNexusImpl implements Annotator {
         }
 
         return convertResponseToAnnotatedRecord(replace);
+    }
+
+    public String getVersion() {
+        InfoControllerApi infoApiClient = new InfoControllerApi();
+        try {
+            Version result = infoApiClient.fetchVersionGET();
+            return result.getVersion();
+        } catch (ApiException e) {
+            LOG.error("Exception when calling InfoControllerApi#fetchVersionGET, genome nexus version is unknown", e);
+        }
+        return UKNOWN_GENOME_NEXUS_VERSION;
     }
 
     private AnnotationControllerApi initApiClient()

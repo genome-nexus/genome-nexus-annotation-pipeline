@@ -21,7 +21,7 @@ test_output.uniprot.maf:
 	else \
 		AWK=awk; \
 	fi; \
-	(echo $(COMPARE_COLUMNS) | sed 's/\ /	/g'; tail -n+2 $< | $$AWK -vOFS='\t' -vFS='\t' -f ./../../scripts/select_by_column_name.awk $(COMPARE_COLUMNS)) > $@
+	(echo $(COMPARE_COLUMNS) | sed 's/\ /	/g'; grep -v "^#" $< | $$AWK -vOFS='\t' -vFS='\t' -f ./../../scripts/select_by_column_name.awk $(COMPARE_COLUMNS)) > $@
 
 all: $(ALL)
 
