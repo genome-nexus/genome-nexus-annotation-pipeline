@@ -68,7 +68,7 @@
     <dependency>
       <groupId>com.github.cbioportal</groupId>
       <artifactId>cbioportal</artifactId>
-      <version>c84ecb0bd6b6f32466a3e8a12c00f900e1b7af37</version>
+      <version>c9fc0929163070bed9ee32f5db6fcab39552657c</version>
     </dependency>
     <!-- api client -->
     <dependency>
