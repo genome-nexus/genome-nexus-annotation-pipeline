@@ -40,6 +40,7 @@ import org.cbioportal.annotator.MockGenomeNexusImpl;
 import java.util.*;
 import org.junit.*;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -57,6 +58,12 @@ public class GenomeNexusImplTest {
     @Autowired
     MockGenomeNexusImpl annotator;
 
+    private AnnotationSummaryStatistics summaryStatistics;
+    @Autowired
+    private void setSummaryStatistics() {
+        this.summaryStatistics = Mockito.mock(AnnotationSummaryStatistics.class);
+    }
+
     @Autowired
     public void initAnnotator() {
         ReflectionTestUtils.setField(annotator, "genomeNexusBaseUrl", GenomeNexusTestConfiguration.GENOME_NEXUS_BASE_URL);
@@ -68,6 +75,12 @@ public class GenomeNexusImplTest {
     @Autowired
     private void setMockAnnotatedRecords() {
         this.mockAnnotatedRecords = makeMockAnnotatedRecords();
+    }
+
+    private List<AnnotatedRecord> mockAnnotatedRecordsWithPost;
+    @Autowired
+    private void setMockAnnotatedRecordsWithPost() {
+        this.mockAnnotatedRecordsWithPost = makeMockAnnotatedRecordsWithPost();
     }
 
     /**
@@ -131,7 +144,7 @@ public class GenomeNexusImplTest {
 
         Map<String, String> expectedGenomicLocations = makeMockExpectedGenomicLocations();
         for (AnnotatedRecord record : mockAnnotatedRecords) {
-            String genomicLocation = annotator.extractGenomicLocation(record);
+            String genomicLocation = annotator.extractGenomicLocationAsString(record);
             if (!genomicLocation.equals(expectedGenomicLocations.get(record.getTUMOR_SAMPLE_BARCODE()))) {
                 errorMessage.append("testConvertToHgvs(), record genomicLocation '")
                         .append(genomicLocation)
@@ -147,6 +160,39 @@ public class GenomeNexusImplTest {
         if (failCount > 0) {
             Assert.fail(errorMessage.toString());
         }
+    }
+
+    @Test
+    public void testPostVsGetAnnotationResults() throws Exception {
+        StringBuilder errorMessage = new StringBuilder("\nFailures:\n");
+        int failCount = 0;
+
+        Map<String, String> expectedProteinChanges = makeMockExpectedProteinChange();
+        for (AnnotatedRecord record : mockAnnotatedRecordsWithPost) {
+            if (!record.getHGVSP_SHORT().equals(expectedProteinChanges.get(record.getTUMOR_SAMPLE_BARCODE()))) {
+                errorMessage.append("testResolveProteinChange(), annotated record protein change '")
+                        .append(record.getHGVSP_SHORT())
+                        .append("' does not match expected protein change '")
+                        .append(expectedProteinChanges.get(record.getTUMOR_SAMPLE_BARCODE()))
+                        .append(" for record '")
+                        .append(record.getTUMOR_SAMPLE_BARCODE())
+                        .append("'\n");
+                failCount += 1;
+            }
+        }
+
+        if (failCount > 0) {
+            Assert.fail(errorMessage.toString());
+        }
+    }
+
+    private List<AnnotatedRecord> makeMockAnnotatedRecordsWithPost() {
+        List<MutationRecord> mockMutationRecords = makeMockMutationRecords();
+        List<AnnotatedRecord> mockAnnotatedRecordsWithPost = new ArrayList();
+        for (MutationRecord record : mockMutationRecords) {
+            mockAnnotatedRecordsWithPost.add(annotator.makeMockPOSTAnnotatedRecord(record));
+        }
+        return mockAnnotatedRecordsWithPost;
     }
 
     private List<AnnotatedRecord> makeMockAnnotatedRecords() {

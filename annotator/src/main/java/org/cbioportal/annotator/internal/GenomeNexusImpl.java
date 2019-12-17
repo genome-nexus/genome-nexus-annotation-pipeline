@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-19 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 - 2019 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -44,8 +44,10 @@ import org.cbioportal.models.AnnotatedRecord;
 import org.cbioportal.models.MutationRecord;
 import org.genome_nexus.ApiClient;
 import org.genome_nexus.ApiException;
+import org.genome_nexus.StringUtil;
 import org.genome_nexus.client.AnnotationControllerApi;
 import org.genome_nexus.client.InfoControllerApi;
+import org.genome_nexus.client.GenomicLocation;
 import org.genome_nexus.client.TranscriptConsequenceSummary;
 import org.genome_nexus.client.VariantAnnotation;
 import org.genome_nexus.client.Version;
@@ -73,12 +75,7 @@ public class GenomeNexusImpl implements Annotator {
     private String enrichmentFields;
 
     private AnnotationControllerApi apiClient;
-
-    private MutationRecord mRecord;
-    private VariantAnnotation gnResponse;
-    private TranscriptConsequenceSummary canonicalTranscript;
     private static final String UKNOWN_GENOME_NEXUS_VERSION = "unknown";
-
     private final Log LOG = LogFactory.getLog(GenomeNexusImpl.class);
 
     private final Pattern PROTEIN_POSITTION_REGEX = Pattern.compile("p.[A-Za-z]([0-9]*).*$");
@@ -104,14 +101,6 @@ public class GenomeNexusImpl implements Annotator {
         this.genomeNexusBaseUrl = genomeNexusBaseUrl;
     }
 
-    public void setGnResponse(VariantAnnotation gnResponse) {
-        this.gnResponse = gnResponse;
-    }
-
-    public void setMutationRecord(MutationRecord record) {
-        this.mRecord = record;
-    }
-
     private boolean annotationNeeded(MutationRecord record) {
         Map<String, String> additionalProperties = record.getAdditionalProperties();
         if (!additionalProperties.containsKey("HGVSp_Short")) {
@@ -121,29 +110,29 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     @Override
-    public AnnotatedRecord annotateRecord(MutationRecord record, boolean replace, String isoformOverridesSource, boolean reannotate)
+    public AnnotatedRecord annotateRecord(MutationRecord mRecord, boolean replace, String isoformOverridesSource, boolean reannotate)
             throws GenomeNexusAnnotationFailureException
     {
-        this.mRecord = record;
 
         //check if record already is annotated
-        if(!reannotate && !annotationNeeded(record)) {
+        if(!reannotate && !annotationNeeded(mRecord)) {
             return new AnnotatedRecord(mRecord);
         }
 
-        String genomicLocation = this.extractGenomicLocation(record);
-
+        String genomicLocation = this.extractGenomicLocationAsString(mRecord);
+        VariantAnnotation gnResponse = null;
         try {
-            this.gnResponse = this.apiClient.fetchVariantAnnotationByGenomicLocationGET(genomicLocation,
+            gnResponse = this.apiClient.fetchVariantAnnotationByGenomicLocationGET(genomicLocation,
                     isoformOverridesSource,
                     Arrays.asList(this.enrichmentFields.split(",")));
         } catch (ApiException e) {
             throw new GenomeNexusAnnotationFailureException("Empty Response From Genome Nexus: " + genomicLocation);
         }
 
-        return convertResponseToAnnotatedRecord(replace);
+        return convertResponseToAnnotatedRecord(gnResponse, mRecord, replace);
     }
 
+    @Override
     public String getVersion() {
         InfoControllerApi infoApiClient = new InfoControllerApi();
         try {
@@ -172,24 +161,24 @@ public class GenomeNexusImpl implements Annotator {
         return apiClient;
     }
 
-    public AnnotatedRecord convertResponseToAnnotatedRecord(boolean replace) {
+    public AnnotatedRecord convertResponseToAnnotatedRecord(VariantAnnotation gnResponse, MutationRecord mRecord, boolean replace) {
         // get the canonical transcript
-        canonicalTranscript = getCanonicalTranscript(gnResponse);
+        TranscriptConsequenceSummary canonicalTranscript = getCanonicalTranscript(gnResponse);
 
         // annotate the record
-        AnnotatedRecord annotatedRecord= new AnnotatedRecord(resolveHugoSymbol(replace),
-                resolveEntrezGeneId(replace),
+        AnnotatedRecord annotatedRecord= new AnnotatedRecord(resolveHugoSymbol(canonicalTranscript, mRecord, replace),
+                resolveEntrezGeneId(canonicalTranscript, mRecord, replace),
                 mRecord.getCENTER(),
-                resolveAssemblyName(),
-                resolveChromosome(),
-                resolveStart(),
-                resolveEnd(),
-                resolveStrandSign(),
-                resolveVariantClassification(),
-                resolveVariantType(),
-                resolveReferenceAllele(),
+                resolveAssemblyName(gnResponse, mRecord),
+                resolveChromosome(gnResponse, mRecord),
+                resolveStart(gnResponse, mRecord),
+                resolveEnd(gnResponse, mRecord),
+                resolveStrandSign(gnResponse, mRecord),
+                resolveVariantClassification(canonicalTranscript, mRecord),
+                resolveVariantType(gnResponse),
+                resolveReferenceAllele(gnResponse, mRecord),
                 mRecord.getTUMOR_SEQ_ALLELE1(),
-                resolveTumorSeqAllele(),
+                resolveTumorSeqAllele(gnResponse, mRecord),
                 mRecord.getDBSNP_RS(),
                 mRecord.getDBSNP_VAL_STATUS(),
                 mRecord.getTUMOR_SAMPLE_BARCODE(),
@@ -215,17 +204,17 @@ public class GenomeNexusImpl implements Annotator {
                 mRecord.getT_ALT_COUNT(),
                 mRecord.getN_REF_COUNT(),
                 mRecord.getN_ALT_COUNT(),
-                resolveHgvsc(),
-                resolveHgvsp(),
-                resolveHgvspShort(),
-                resolveTranscriptId(),
-                resolveRefSeq(),
-                resolveProteinPosStart(),
-                resolveProteinPosEnd(),
-                resolveCodonChange(),
+                resolveHgvsc(canonicalTranscript),
+                resolveHgvsp(canonicalTranscript),
+                resolveHgvspShort(canonicalTranscript),
+                resolveTranscriptId(canonicalTranscript),
+                resolveRefSeq(canonicalTranscript),
+                resolveProteinPosStart(canonicalTranscript),
+                resolveProteinPosEnd(canonicalTranscript),
+                resolveCodonChange(canonicalTranscript),
                 resolveHotspot(),
-                resolveConsequence(),
-                resolveProteinPosition(mRecord),
+                resolveConsequence(canonicalTranscript),
+                resolveProteinPosition(canonicalTranscript, mRecord),
                 mRecord.getAdditionalProperties());
         return annotatedRecord;
     }
@@ -249,14 +238,14 @@ public class GenomeNexusImpl implements Annotator {
 
     @Override
     public String getUrlForRecord(MutationRecord record, String isoformOverridesSource) {
-        String genomicLocation = extractGenomicLocation(record);
+        String genomicLocation = extractGenomicLocationAsString(record);
 
         // TODO this is now handled by the API client, we don't really need this (keeping for logging purposes only)
         return genomeNexusBaseUrl + "annotation/genomic/" + genomicLocation + "?" +
                 isoformQueryParameter + "=" + isoformOverridesSource + "&fields=" + enrichmentFields;
     }
 
-    private String resolveHugoSymbol(boolean replace) {
+    private String resolveHugoSymbol(TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord, boolean replace) {
         if (replace && canonicalTranscript != null && canonicalTranscript.getHugoGeneSymbol() != null) {
             return canonicalTranscript.getHugoGeneSymbol();
         }
@@ -265,7 +254,7 @@ public class GenomeNexusImpl implements Annotator {
         }
     }
 
-    private String resolveChromosome() {
+    private String resolveChromosome(VariantAnnotation gnResponse, MutationRecord mRecord) {
         if (gnResponse.getAnnotationSummary() != null &&
             gnResponse.getAnnotationSummary().getGenomicLocation().getChromosome() != null)
         {
@@ -276,11 +265,11 @@ public class GenomeNexusImpl implements Annotator {
         }
     }
 
-    private String resolveAssemblyName() {
+    private String resolveAssemblyName(VariantAnnotation gnResponse, MutationRecord mRecord) {
         return (gnResponse.getAssemblyName() == null) ? mRecord.getNCBI_BUILD() : gnResponse.getAssemblyName();
     }
 
-    private String resolveStart() {
+    private String resolveStart(VariantAnnotation gnResponse, MutationRecord mRecord) {
         if (gnResponse.getAnnotationSummary() != null &&
             gnResponse.getAnnotationSummary().getGenomicLocation().getStart() != null)
         {
@@ -291,7 +280,7 @@ public class GenomeNexusImpl implements Annotator {
         }
     }
 
-    private String resolveEnd() {
+    private String resolveEnd(VariantAnnotation gnResponse, MutationRecord mRecord) {
         if (gnResponse.getAnnotationSummary() != null &&
             gnResponse.getAnnotationSummary().getGenomicLocation().getEnd() != null)
         {
@@ -302,7 +291,7 @@ public class GenomeNexusImpl implements Annotator {
         }
     }
 
-    private String resolveStrandSign() {
+    private String resolveStrandSign(VariantAnnotation gnResponse, MutationRecord mRecord) {
         String strand = String.valueOf(gnResponse.getStrand());
 
         if (gnResponse.getAnnotationSummary() != null &&
@@ -317,7 +306,7 @@ public class GenomeNexusImpl implements Annotator {
         return strand;
     }
 
-    private String resolveVariantClassification() {
+    private String resolveVariantClassification(TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord) {
         String variantClassification = null;
 
         if (canonicalTranscript != null) {
@@ -327,7 +316,7 @@ public class GenomeNexusImpl implements Annotator {
         return variantClassification != null ? variantClassification : mRecord.getVARIANT_CLASSIFICATION();
     }
 
-    private String resolveVariantType() {
+    private String resolveVariantType(VariantAnnotation gnResponse) {
         String variantType = "";
 
         if (gnResponse.getAnnotationSummary() != null &&
@@ -339,7 +328,7 @@ public class GenomeNexusImpl implements Annotator {
         return variantType;
     }
 
-    private String resolveReferenceAllele() {
+    private String resolveReferenceAllele(VariantAnnotation gnResponse, MutationRecord mRecord) {
         if (gnResponse.getAnnotationSummary() != null &&
             gnResponse.getAnnotationSummary().getGenomicLocation().getReferenceAllele() != null)
         {
@@ -348,7 +337,7 @@ public class GenomeNexusImpl implements Annotator {
         return mRecord.getREFERENCE_ALLELE();
     }
 
-    private String resolveTumorSeqAllele() {
+    private String resolveTumorSeqAllele(VariantAnnotation gnResponse, MutationRecord mRecord) {
         if (gnResponse.getAnnotationSummary() != null &&
                 gnResponse.getAnnotationSummary().getGenomicLocation().getVariantAllele() != null)
         {
@@ -359,7 +348,7 @@ public class GenomeNexusImpl implements Annotator {
                 mRecord.getTUMOR_SEQ_ALLELE2());
     }
 
-    private String resolveHgvsc() {
+    private String resolveHgvsc(TranscriptConsequenceSummary canonicalTranscript) {
         String hgvsc = "";
 
         if (canonicalTranscript != null &&
@@ -371,7 +360,7 @@ public class GenomeNexusImpl implements Annotator {
         return hgvsc;
     }
 
-    private String resolveHgvsp() {
+    private String resolveHgvsp(TranscriptConsequenceSummary canonicalTranscript) {
         String hgvsp = "";
 
         if (canonicalTranscript != null &&
@@ -383,7 +372,7 @@ public class GenomeNexusImpl implements Annotator {
         return hgvsp;
     }
 
-    private String resolveHgvspShort() {
+    private String resolveHgvspShort(TranscriptConsequenceSummary canonicalTranscript) {
         String hgvsp = "";
 
         if (canonicalTranscript != null &&
@@ -395,7 +384,7 @@ public class GenomeNexusImpl implements Annotator {
         return hgvsp;
     }
 
-    private String resolveTranscriptId() {
+    private String resolveTranscriptId(TranscriptConsequenceSummary canonicalTranscript) {
         String transcriptId = "";
 
         if(canonicalTranscript != null) {
@@ -405,7 +394,7 @@ public class GenomeNexusImpl implements Annotator {
         return transcriptId != null ? transcriptId : "";
     }
 
-    private String resolveRefSeq() {
+    private String resolveRefSeq(TranscriptConsequenceSummary canonicalTranscript) {
         String refSeq = "";
 
         if(canonicalTranscript != null) {
@@ -415,7 +404,7 @@ public class GenomeNexusImpl implements Annotator {
         return refSeq != null ? refSeq : "";
     }
 
-    private String resolveProteinPosStart() {
+    private String resolveProteinPosStart(TranscriptConsequenceSummary canonicalTranscript) {
         Integer proteinStart = null;
 
         if(canonicalTranscript != null && canonicalTranscript.getProteinPosition() != null) {
@@ -425,7 +414,7 @@ public class GenomeNexusImpl implements Annotator {
         return proteinStart != null ? proteinStart.toString() : "";
     }
 
-    private String resolveProteinPosEnd() {
+    private String resolveProteinPosEnd(TranscriptConsequenceSummary canonicalTranscript) {
         Integer proteinEnd = null;
 
         if(canonicalTranscript != null && canonicalTranscript.getProteinPosition() != null) {
@@ -435,7 +424,7 @@ public class GenomeNexusImpl implements Annotator {
         return proteinEnd != null ? proteinEnd.toString() : "";
     }
 
-    private String resolveCodonChange() {
+    private String resolveCodonChange(TranscriptConsequenceSummary canonicalTranscript) {
         String codonChange = "";
         if(canonicalTranscript != null) {
             codonChange = canonicalTranscript.getCodonChange();
@@ -456,7 +445,7 @@ public class GenomeNexusImpl implements Annotator {
         return hotspot;
     }
 
-    private String resolveConsequence() {
+    private String resolveConsequence(TranscriptConsequenceSummary canonicalTranscript) {
         if (canonicalTranscript == null || canonicalTranscript.getConsequenceTerms() == null) {
             return "";
         }
@@ -465,7 +454,7 @@ public class GenomeNexusImpl implements Annotator {
         }
     }
 
-    private String resolveEntrezGeneId(boolean replace) {
+    private String resolveEntrezGeneId(TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord, boolean replace) {
         if (!replace || canonicalTranscript == null || canonicalTranscript.getEntrezGeneId() == null) {
             return mRecord.getENTREZ_GENE_ID();
         }
@@ -474,11 +463,11 @@ public class GenomeNexusImpl implements Annotator {
         }
     }
 
-    private String resolveProteinPosition(MutationRecord record) {
+    private String resolveProteinPosition(TranscriptConsequenceSummary canonicalTranscript, MutationRecord record) {
         String proteinPosition = null;
         if (canonicalTranscript != null) {
-            String proteinPosStart = resolveProteinPosStart();
-            String hgvspShort = resolveHgvspShort();
+            String proteinPosStart = resolveProteinPosStart(canonicalTranscript);
+            String hgvspShort = resolveHgvspShort(canonicalTranscript);
             if (!Strings.isNullOrEmpty(proteinPosStart)) {
                 proteinPosition = proteinPosStart;
             } else if (!Strings.isNullOrEmpty(hgvspShort)) {
@@ -491,22 +480,35 @@ public class GenomeNexusImpl implements Annotator {
         }
         return !Strings.isNullOrEmpty(proteinPosition) ? proteinPosition : record.getAdditionalProperties().getOrDefault("Protein_position", "");
     }
+    public String extractGenomicLocationAsString(GenomicLocation genomicLocation) {
+        return StringUtil.join(
+                new String[]{genomicLocation.getChromosome(),
+                    genomicLocation.getStart().toString(),
+                    genomicLocation.getEnd().toString(),
+                    genomicLocation.getReferenceAllele(),
+                    genomicLocation.getVariantAllele()},
+                ",");
+    }
 
-    public String extractGenomicLocation(MutationRecord record)
-    {
-        String chr = record.getCHROMOSOME();
-        String start = record.getSTART_POSITION();
-        String end = record.getEND_POSITION();
-        String ref = record.getREFERENCE_ALLELE();
-        String var = MafUtil.resolveTumorSeqAllele(record.getREFERENCE_ALLELE(),
-                record.getTUMOR_SEQ_ALLELE1(),
-                record.getTUMOR_SEQ_ALLELE2());
-
-        if(ref.equals(var)) {
-            LOG.warn("Warning: Reference allele extracted from " + chr + ":" + start + "-" + end + " matches alt allele. Sample: " + record.getTUMOR_SAMPLE_BARCODE());
+    public String extractGenomicLocationAsString(MutationRecord record) {
+        GenomicLocation genomicLocation = extractGenomicLocation(record);
+        if(genomicLocation.getReferenceAllele().equals(genomicLocation.getVariantAllele())) {
+            LOG.warn("Warning: Reference allele extracted from " + genomicLocation.getChromosome() + ":" + genomicLocation.getStart() +
+                    "-" + genomicLocation.getEnd() + " matches alt allele. Sample: " + record.getTUMOR_SAMPLE_BARCODE());
         }
+        return extractGenomicLocationAsString(genomicLocation);
+    }
 
-        return chr + "," + start + "," + end + "," + ref + "," + var;
+    public GenomicLocation extractGenomicLocation(MutationRecord record) {
+        GenomicLocation genomicLocation = new GenomicLocation();
+        genomicLocation.setChromosome(record.getCHROMOSOME());
+        genomicLocation.setStart(Integer.valueOf(record.getSTART_POSITION()));
+        genomicLocation.setEnd(Integer.valueOf(record.getEND_POSITION()));
+        genomicLocation.setReferenceAllele(record.getREFERENCE_ALLELE());
+        genomicLocation.setVariantAllele(MafUtil.resolveTumorSeqAllele(record.getREFERENCE_ALLELE(),
+                record.getTUMOR_SEQ_ALLELE1(),
+                record.getTUMOR_SEQ_ALLELE2()));
+        return genomicLocation;
     }
 
     private TranscriptConsequenceSummary getCanonicalTranscript(VariantAnnotation gnResponse) {
@@ -531,5 +533,36 @@ public class GenomeNexusImpl implements Annotator {
         hgvspNullClassifications.add("Intron");
         hgvspNullClassifications.add("RNA");
         return hgvspNullClassifications;
+    }
+
+    @Override
+    public List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace) throws Exception {
+        // construct list of genomic location objects to pass to api client
+        List<GenomicLocation> genomicLocations = new ArrayList<>();
+        for (MutationRecord record : mutationRecords) {
+            genomicLocations.add(extractGenomicLocation(record));
+        }
+        List<VariantAnnotation> gnResponseList = apiClient.fetchVariantAnnotationByGenomicLocationPOST(genomicLocations,
+                isoformOverridesSource, Arrays.asList(this.enrichmentFields.split(",")));
+        Map<String, VariantAnnotation> gnResponseVariantKeyMap = new HashMap<>();
+        for (VariantAnnotation gnResponse : gnResponseList) {
+            gnResponseVariantKeyMap.put(extractGenomicLocationAsString(gnResponse.getAnnotationSummary().getGenomicLocation()), gnResponse);
+        }
+        // create annotated records by merging the responses from gn with their corresponding MAF record
+        List<AnnotatedRecord> annotatedRecords = new ArrayList<>();
+        for (MutationRecord record : mutationRecords) {
+            String genomicLocationKey = extractGenomicLocationAsString(record);
+            AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
+            // if not a failed annotation then convert/merge the response from gn with the maf record
+            VariantAnnotation gnResponse = gnResponseVariantKeyMap.get(genomicLocationKey);
+            if (gnResponse == null) {
+                summaryStatistics.addFailedAnnotatedRecordDueToServer(record, "Annotation failed due to server error", isoformOverridesSource);
+            }
+            else if (!summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverridesSource)) {
+                annotatedRecord = convertResponseToAnnotatedRecord(gnResponseVariantKeyMap.get(genomicLocationKey), record, replace);
+            }
+            annotatedRecords.add(annotatedRecord);
+        }
+        return annotatedRecords;
     }
 }
