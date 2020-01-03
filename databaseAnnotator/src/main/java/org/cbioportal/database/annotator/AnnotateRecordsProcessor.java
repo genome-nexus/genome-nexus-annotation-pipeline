@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2017 * 2019 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cbioportal.models.*;
 import org.cbioportal.annotator.Annotator;
+import org.cbioportal.annotator.GenomeNexusAnnotationFailureException;
 import org.cbioportal.database.annotator.model.*;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,6 +90,10 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
         AnnotatedRecord annotatedRecord;
         try {
             annotatedRecord = annotator.annotateRecord(record, true, isoform, true);
+        }
+        catch (GenomeNexusAnnotationFailureException ex1) {
+            LOG.warn("Failed to annotate record: " + ex1.getMessage());
+            return i;
         }
         catch (HttpServerErrorException | ResourceAccessException e) {
            LOG.error("Failed to annotate record - errors accessing Genome Nexus");
