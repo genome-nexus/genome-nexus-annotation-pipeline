@@ -87,8 +87,10 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
 
         processComments(ec, genomeNexusVersion);
         List<MutationRecord> mutationRecords = loadMutationRecordsFromMaf();
+        System.out.println("In MUTATIONRECORDREADER WOWZERS");
         if (postIntervalSize > 0) {
             try {
+                System.out.println("Guess we're POST-ing tonight bois");
                 this.allAnnotatedRecords = annotateRecordsWithPOST(mutationRecords);
             } catch (Exception ex) {
                 LOG.error("ERROR ANNOTATING WITH POST REQUESTS");
@@ -140,14 +142,19 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
     private List<AnnotatedRecord> annotateRecordsWithPOST(List<MutationRecord> mutationRecords) throws Exception {
         List<AnnotatedRecord> annotatedRecordsList = new ArrayList<>();
         List<List<MutationRecord>> partitionedMutationRecordsList = partitionMutationRecordsListForPOST(mutationRecords);
+        System.out.println("FINISHED PARTITIONING");
         int totalVariantsToAnnotateCount = mutationRecords.size();
         int annotatedVariantsCount = 0;
         for (List<MutationRecord> partitionedList : partitionedMutationRecordsList) {
             List<AnnotatedRecord> annotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, partitionedList, isoformOverride, replace);
+            System.out.println("FINISHED POST");
             for (AnnotatedRecord ar : annotatedRecords) {
                 logAnnotationProgress(++annotatedVariantsCount, totalVariantsToAnnotateCount, postIntervalSize);
+                System.out.println("additionalFieldsasdlkfas");
                 header.addAll(ar.getHeaderWithAdditionalFields());
+                System.out.println("doing something with annotatedRecord");
             }
+            System.out.println("done with for loop");
             annotatedRecordsList.addAll(annotatedRecords);
         }
         return annotatedRecordsList;

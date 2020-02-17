@@ -546,7 +546,11 @@ public class GenomeNexusImpl implements Annotator {
                 isoformOverridesSource, Arrays.asList(this.enrichmentFields.split(",")));
         Map<String, VariantAnnotation> gnResponseVariantKeyMap = new HashMap<>();
         for (VariantAnnotation gnResponse : gnResponseList) {
-            gnResponseVariantKeyMap.put(extractGenomicLocationAsString(gnResponse.getAnnotationSummary().getGenomicLocation()), gnResponse);
+            if (gnResponse.isSuccessfullyAnnotated()) {
+                gnResponseVariantKeyMap.put(extractGenomicLocationAsString(gnResponse.getAnnotationSummary().getGenomicLocation()), gnResponse);
+            } else {
+                LOG.warn("Annotation failed for variant " + gnResponse.getVariant());
+            }
         }
         // create annotated records by merging the responses from gn with their corresponding MAF record
         List<AnnotatedRecord> annotatedRecords = new ArrayList<>();
@@ -557,8 +561,7 @@ public class GenomeNexusImpl implements Annotator {
             VariantAnnotation gnResponse = gnResponseVariantKeyMap.get(genomicLocationKey);
             if (gnResponse == null) {
                 summaryStatistics.addFailedAnnotatedRecordDueToServer(record, "Annotation failed due to server error", isoformOverridesSource);
-            }
-            else if (!summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverridesSource)) {
+            } else if (!summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverridesSource)) {
                 annotatedRecord = convertResponseToAnnotatedRecord(gnResponseVariantKeyMap.get(genomicLocationKey), record, replace);
             }
             annotatedRecords.add(annotatedRecord);
