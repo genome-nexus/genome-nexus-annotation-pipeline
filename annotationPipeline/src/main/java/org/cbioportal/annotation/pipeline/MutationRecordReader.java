@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2019 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 - 2020 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -91,7 +91,12 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
         if (postIntervalSize > 0) {
             try {
                 System.out.println("Guess we're POST-ing tonight bois");
-                this.allAnnotatedRecords = annotateRecordsWithPOST(mutationRecords);
+                this.allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize);
+                // TODO this is an extra loop we previously did not have to do, can GenomeNexuxImpl do this?  do other clients need it?
+                for (AnnotatedRecord ar : this.allAnnotatedRecords) {
+                    header.addAll(ar.getHeaderWithAdditionalFields());
+                }
+                System.out.println("We now have " + this.allAnnotatedRecords.size() + " annotated records");
             } catch (Exception ex) {
                 LOG.error("ERROR ANNOTATING WITH POST REQUESTS");
                 throw new RuntimeException(ex);
@@ -137,43 +142,6 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
         reader.close();
         LOG.info("Loaded " + String.valueOf(mutationRecords.size()) + " records from: " + filename);
         return mutationRecords;
-    }
-
-    private List<AnnotatedRecord> annotateRecordsWithPOST(List<MutationRecord> mutationRecords) throws Exception {
-        List<AnnotatedRecord> annotatedRecordsList = new ArrayList<>();
-        List<List<MutationRecord>> partitionedMutationRecordsList = partitionMutationRecordsListForPOST(mutationRecords);
-        System.out.println("FINISHED PARTITIONING");
-        int totalVariantsToAnnotateCount = mutationRecords.size();
-        int annotatedVariantsCount = 0;
-        for (List<MutationRecord> partitionedList : partitionedMutationRecordsList) {
-            List<AnnotatedRecord> annotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, partitionedList, isoformOverride, replace);
-            System.out.println("FINISHED POST");
-            for (AnnotatedRecord ar : annotatedRecords) {
-                logAnnotationProgress(++annotatedVariantsCount, totalVariantsToAnnotateCount, postIntervalSize);
-                System.out.println("additionalFieldsasdlkfas");
-                header.addAll(ar.getHeaderWithAdditionalFields());
-                System.out.println("doing something with annotatedRecord");
-            }
-            System.out.println("done with for loop");
-            annotatedRecordsList.addAll(annotatedRecords);
-        }
-        return annotatedRecordsList;
-    }
-
-    private List<List<MutationRecord>> partitionMutationRecordsListForPOST(List<MutationRecord> mutationRecords) {
-
-        int start = 0;
-        int end = postIntervalSize;
-        List<List<MutationRecord>> mutationRecordPartionedLists = new ArrayList<>();
-        while(end <= mutationRecords.size()) {
-            mutationRecordPartionedLists.add(mutationRecords.subList(start, end));
-            start = end;
-            end = start + postIntervalSize;
-        }
-        if (end > mutationRecords.size()) {
-            mutationRecordPartionedLists.add(mutationRecords.subList(start, mutationRecords.size()));
-        }
-        return mutationRecordPartionedLists;
     }
 
     private List<AnnotatedRecord> annotateRecordsWithGET(ExecutionContext ec, List<MutationRecord> mutationRecords) {

@@ -50,4 +50,5 @@ public interface Annotator {
     String getUrlForRecord(MutationRecord record, String isoformOverridesSource);
     String getVersion();
     List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace) throws Exception;
+    List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, Integer postIntervalSize) throws Exception;
 }
