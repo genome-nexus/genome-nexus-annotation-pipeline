@@ -46,9 +46,6 @@ import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 
 /**
  *
@@ -87,22 +84,13 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
 
         processComments(ec, genomeNexusVersion);
         List<MutationRecord> mutationRecords = loadMutationRecordsFromMaf();
-        System.out.println("In MUTATIONRECORDREADER WOWZERS");
         if (postIntervalSize > 0) {
-            try {
-                System.out.println("Guess we're POST-ing tonight bois");
-                this.allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize);
-                // TODO this is an extra loop we previously did not have to do, can GenomeNexuxImpl do this?  do other clients need it?
-                for (AnnotatedRecord ar : this.allAnnotatedRecords) {
-                    header.addAll(ar.getHeaderWithAdditionalFields());
-                }
-                System.out.println("We now have " + this.allAnnotatedRecords.size() + " annotated records");
-            } catch (Exception ex) {
-                LOG.error("ERROR ANNOTATING WITH POST REQUESTS");
-                throw new RuntimeException(ex);
-            }
+            this.allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize);
         } else {
-            this.allAnnotatedRecords = annotateRecordsWithGET(ec, mutationRecords);
+            this.allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, replace);
+        }
+        for (AnnotatedRecord ar : this.allAnnotatedRecords) {
+            header.addAll(ar.getHeaderWithAdditionalFields());
         }
         ec.put("mutation_header", new ArrayList(header));
         summaryStatistics.printSummaryStatistics();
@@ -144,49 +132,6 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
         return mutationRecords;
     }
 
-    private List<AnnotatedRecord> annotateRecordsWithGET(ExecutionContext ec, List<MutationRecord> mutationRecords) {
-        List<AnnotatedRecord> annotatedRecordsList = new ArrayList<>();
-        int totalVariantsToAnnotateCount = mutationRecords.size();
-        int annotatedVariantsCount = 0;
-        LOG.info(String.valueOf(totalVariantsToAnnotateCount) + " records to annotate");
-        for (MutationRecord record : mutationRecords) {
-            logAnnotationProgress(++annotatedVariantsCount, totalVariantsToAnnotateCount, 2000);
-            // save variant details for logging
-            String variantDetails = "(sampleId,chr,start,end,ref,alt,url)= (" + record.getTUMOR_SAMPLE_BARCODE() + "," +  record.getCHROMOSOME() + "," + record.getSTART_POSITION() + ","
-                    + record.getEND_POSITION() + "," + record.getREFERENCE_ALLELE() + "," + record.getTUMOR_SEQ_ALLELE2() + "," + annotator.getUrlForRecord(record, isoformOverride) + ")";
-
-            // init annotated record w/o genome nexus in case server error occurs
-            // if no error then annotated record will get overwritten anyway with genome nexus response
-            String serverErrorMessage = "";
-            AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
-            try {
-                annotatedRecord = annotator.annotateRecord(record, replace, isoformOverride, true);
-            }
-            catch (HttpServerErrorException ex) {
-                serverErrorMessage = "Failed to annotate variant due to internal server error";
-            }
-            catch (HttpClientErrorException ex) {
-                serverErrorMessage = "Failed to annotate variant due to client error";
-            }
-            catch (HttpMessageNotReadableException ex) {
-                serverErrorMessage = "Failed to annotate variant due to message not readable error";
-            }
-            catch (GenomeNexusAnnotationFailureException ex) {
-                serverErrorMessage = "Failed to annotate variant due to Genome Nexus : " + ex.getMessage();
-            }
-            annotatedRecordsList.add(annotatedRecord);
-            header.addAll(annotatedRecord.getHeaderWithAdditionalFields());
-
-            // log server failure message if applicable
-            if (!serverErrorMessage.isEmpty()) {
-                summaryStatistics.addFailedAnnotatedRecordDueToServer(record, serverErrorMessage, isoformOverride);
-                continue;
-            }
-            // dont need to do anything with output, just need to call method
-            summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverride);
-        }
-        return annotatedRecordsList;
-    }
 
     private void logAnnotationProgress(Integer annotatedVariantsCount, Integer totalVariantsToAnnotateCount, Integer intervalSize) {
         if (annotatedVariantsCount % intervalSize == 0 || Objects.equals(annotatedVariantsCount, totalVariantsToAnnotateCount)) {

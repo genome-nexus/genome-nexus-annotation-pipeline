@@ -90,7 +90,6 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
         Boolean failedAnnotation = Boolean.FALSE;
         if (MafUtil.variantContainsAmbiguousTumorSeqAllele(record.getREFERENCE_ALLELE(),
                 record.getTUMOR_SEQ_ALLELE1(), record.getTUMOR_SEQ_ALLELE2())) {
-            System.out.println("variantContainsAmbiguousTumorSeqAllele"); 
             this.ambiguousTumorSeqAlleleRecords++;
             this.failedAnnotatedRecordsErrorMessages.add(
                     constructErrorMessageFromRecord(record,
@@ -102,9 +101,7 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
 
         }
         if (annotatedRecord.getHGVSC().isEmpty() && annotatedRecord.getHGVSP().isEmpty()) {
-            System.out.println("getHGVSC().isEmpty() && getHGVSP().isEmpty()"); 
             if (annotator.isHgvspNullClassifications(annotatedRecord.getVARIANT_CLASSIFICATION())) {
-                System.out.println("isHgvspNullClassifications"); 
                 this.nullVariantClassificationRecords++;
                 this.failedAnnotatedRecordsErrorMessages.add(
                         constructErrorMessageFromRecord(record,
@@ -114,7 +111,6 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
                 );
                 failedAnnotation = Boolean.TRUE;
             } else {
-                System.out.println("this.otherFailedAnnotatedRecords"); 
                 this.otherFailedAnnotatedRecords++;
                 this.failedAnnotatedRecordsErrorMessages.add(
                         constructErrorMessageFromRecord(record,
