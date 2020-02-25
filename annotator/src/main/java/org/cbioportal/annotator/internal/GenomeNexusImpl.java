@@ -127,6 +127,7 @@ public class GenomeNexusImpl implements Annotator {
         try {
             gnResponse = this.apiClient.fetchVariantAnnotationByGenomicLocationGET(genomicLocation,
                     isoformOverridesSource,
+                    "",
                     Arrays.asList(this.enrichmentFields.split(",")));
         } catch (ApiException e) {
             // catch case where Genome Nexus Server is down
@@ -611,7 +612,7 @@ public class GenomeNexusImpl implements Annotator {
             // Get annotations from Genome Nexus and log if server error (e.g VEP is down) 
             try {    
                  gnResponseList = apiClient.fetchVariantAnnotationByGenomicLocationPOST(partitionedList,
-                    isoformOverridesSource, Arrays.asList(this.enrichmentFields.split(",")));
+                    isoformOverridesSource, "", Arrays.asList(this.enrichmentFields.split(",")));
             } catch (Exception e) {
                 LOG.error("Annotation failed for ALL variants in this partition. " + e.getMessage());
             }
@@ -641,12 +642,12 @@ public class GenomeNexusImpl implements Annotator {
                 // logged above when we verify GN response
                 // but still logging for error report
                 summaryStatistics.addFailedAnnotatedRecordDueToServer(record, "Genome Nexus failed to annotate", isoformOverridesSource);
-            } else if (summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverridesSource)) {
-                // log cases where "wrapped" mutation record is invalid
-                // but this still gets returned (but w/o additional GN annotation fields)
-                LOG.warn("Original mutation record is invalid. It will not be annotated.");
             } else {
                 annotatedRecord = convertResponseToAnnotatedRecord(gnResponseVariantKeyMap.get(genomicLocationKey), record, replace);
+                if (summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverridesSource)) {
+                    // Log case where annotation comes back from Genome Nexus but still invalid (e.g null variant classification)
+                    LOG.warn("Annotated record is invalid for variant " + gnResponseVariantKeyMap.get(genomicLocationKey).getVariant());
+                }
             }
             annotatedRecords.add(annotatedRecord);
         }
