@@ -244,7 +244,10 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
             String line;
             while((line = reader.readLine()) != null) {
                 if (line.startsWith("#")) {
-                    comments.add(line);
+                    // do not duplicate comments in header for version or isoform used
+                    if (!line.startsWith("#genome_nexus_version") && !line.startsWith("#isoform")) {
+                        comments.add(line);
+                    }
                 }
                 else {
                     // no more comments, go on processing
