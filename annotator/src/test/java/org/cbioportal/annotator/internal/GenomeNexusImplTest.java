@@ -394,9 +394,9 @@ public class GenomeNexusImplTest {
         map.put("SAMPLE-VARIANT-4", "p.F594_D600delinsSPPPH");
         map.put("SAMPLE-VARIANT-5", "p.E1350del");
         map.put("SAMPLE-VARIANT-6", "p.S124_S127del");
-        map.put("SAMPLE-VARIANT-7", "p.K373E");
-        map.put("SAMPLE-VARIANT-8", "p.X17_splice");
-        map.put("SAMPLE-VARIANT-9", "p.Q906*");
+        map.put("SAMPLE-VARIANT-7", "p.K416E");
+        map.put("SAMPLE-VARIANT-8", "p.X218_splice");
+        map.put("SAMPLE-VARIANT-9", "p.Q928*");
         map.put("SAMPLE-VARIANT-10", "p.L431Vfs*22");
         map.put("SAMPLE-VARIANT-11", "p.D1450*");
         map.put("SAMPLE-VARIANT-12", "p.A765Rfs*98");

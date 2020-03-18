@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2019 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 - 2020 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -46,9 +46,6 @@ import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 
 /**
  *
@@ -88,14 +85,12 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
         processComments(ec, genomeNexusVersion);
         List<MutationRecord> mutationRecords = loadMutationRecordsFromMaf();
         if (postIntervalSize > 0) {
-            try {
-                this.allAnnotatedRecords = annotateRecordsWithPOST(mutationRecords);
-            } catch (Exception ex) {
-                LOG.error("ERROR ANNOTATING WITH POST REQUESTS");
-                throw new RuntimeException(ex);
-            }
+            this.allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize);
         } else {
-            this.allAnnotatedRecords = annotateRecordsWithGET(ec, mutationRecords);
+            this.allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, replace);
+        }
+        for (AnnotatedRecord ar : this.allAnnotatedRecords) {
+            header.addAll(ar.getHeaderWithAdditionalFields());
         }
         ec.put("mutation_header", new ArrayList(header));
         summaryStatistics.printSummaryStatistics();
@@ -137,81 +132,6 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
         return mutationRecords;
     }
 
-    private List<AnnotatedRecord> annotateRecordsWithPOST(List<MutationRecord> mutationRecords) throws Exception {
-        List<AnnotatedRecord> annotatedRecordsList = new ArrayList<>();
-        List<List<MutationRecord>> partitionedMutationRecordsList = partitionMutationRecordsListForPOST(mutationRecords);
-        int totalVariantsToAnnotateCount = mutationRecords.size();
-        int annotatedVariantsCount = 0;
-        for (List<MutationRecord> partitionedList : partitionedMutationRecordsList) {
-            List<AnnotatedRecord> annotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, partitionedList, isoformOverride, replace);
-            for (AnnotatedRecord ar : annotatedRecords) {
-                logAnnotationProgress(++annotatedVariantsCount, totalVariantsToAnnotateCount, postIntervalSize);
-                header.addAll(ar.getHeaderWithAdditionalFields());
-            }
-            annotatedRecordsList.addAll(annotatedRecords);
-        }
-        return annotatedRecordsList;
-    }
-
-    private List<List<MutationRecord>> partitionMutationRecordsListForPOST(List<MutationRecord> mutationRecords) {
-
-        int start = 0;
-        int end = postIntervalSize;
-        List<List<MutationRecord>> mutationRecordPartionedLists = new ArrayList<>();
-        while(end <= mutationRecords.size()) {
-            mutationRecordPartionedLists.add(mutationRecords.subList(start, end));
-            start = end;
-            end = start + postIntervalSize;
-        }
-        if (end > mutationRecords.size()) {
-            mutationRecordPartionedLists.add(mutationRecords.subList(start, mutationRecords.size()));
-        }
-        return mutationRecordPartionedLists;
-    }
-
-    private List<AnnotatedRecord> annotateRecordsWithGET(ExecutionContext ec, List<MutationRecord> mutationRecords) {
-        List<AnnotatedRecord> annotatedRecordsList = new ArrayList<>();
-        int totalVariantsToAnnotateCount = mutationRecords.size();
-        int annotatedVariantsCount = 0;
-        LOG.info(String.valueOf(totalVariantsToAnnotateCount) + " records to annotate");
-        for (MutationRecord record : mutationRecords) {
-            logAnnotationProgress(++annotatedVariantsCount, totalVariantsToAnnotateCount, 2000);
-            // save variant details for logging
-            String variantDetails = "(sampleId,chr,start,end,ref,alt,url)= (" + record.getTUMOR_SAMPLE_BARCODE() + "," +  record.getCHROMOSOME() + "," + record.getSTART_POSITION() + ","
-                    + record.getEND_POSITION() + "," + record.getREFERENCE_ALLELE() + "," + record.getTUMOR_SEQ_ALLELE2() + "," + annotator.getUrlForRecord(record, isoformOverride) + ")";
-
-            // init annotated record w/o genome nexus in case server error occurs
-            // if no error then annotated record will get overwritten anyway with genome nexus response
-            String serverErrorMessage = "";
-            AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
-            try {
-                annotatedRecord = annotator.annotateRecord(record, replace, isoformOverride, true);
-            }
-            catch (HttpServerErrorException ex) {
-                serverErrorMessage = "Failed to annotate variant due to internal server error";
-            }
-            catch (HttpClientErrorException ex) {
-                serverErrorMessage = "Failed to annotate variant due to client error";
-            }
-            catch (HttpMessageNotReadableException ex) {
-                serverErrorMessage = "Failed to annotate variant due to message not readable error";
-            }
-            catch (GenomeNexusAnnotationFailureException ex) {
-                serverErrorMessage = "Failed to annotate variant due to Genome Nexus : " + ex.getMessage();
-            }
-            annotatedRecordsList.add(annotatedRecord);
-            header.addAll(annotatedRecord.getHeaderWithAdditionalFields());
-
-            // log server failure message if applicable
-            if (!serverErrorMessage.isEmpty()) {
-                summaryStatistics.addFailedAnnotatedRecordDueToServer(record, serverErrorMessage, isoformOverride);
-                continue;
-            }
-            // dont need to do anything with output, just need to call method
-            summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverride);
-        }
-        return annotatedRecordsList;
-    }
 
     private void logAnnotationProgress(Integer annotatedVariantsCount, Integer totalVariantsToAnnotateCount, Integer intervalSize) {
         if (annotatedVariantsCount % intervalSize == 0 || Objects.equals(annotatedVariantsCount, totalVariantsToAnnotateCount)) {
