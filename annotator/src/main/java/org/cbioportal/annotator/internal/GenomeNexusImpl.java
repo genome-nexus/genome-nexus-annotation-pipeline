@@ -83,6 +83,7 @@ public class GenomeNexusImpl implements Annotator {
 
     private final Pattern PROTEIN_POSITTION_REGEX = Pattern.compile("p.[A-Za-z]([0-9]*).*$");
     private static List<String> hgvspNullClassifications = initNullClassifications();
+    private final Integer READ_TIMEOUT_OVERRIDE = 300000; // built-in default of 5 seconds is not enough time to read responses
 
     @Bean
     public GenomeNexusImpl annotator(String genomeNexusBaseUrl) {
@@ -202,6 +203,7 @@ public class GenomeNexusImpl implements Annotator {
         if (this.genomeNexusBaseUrl != null && this.genomeNexusBaseUrl.length() > 0)
         {
             ApiClient client = new ApiClient();
+            client.setReadTimeout(READ_TIMEOUT_OVERRIDE);
             client.setBasePath(this.genomeNexusBaseUrl);
             apiClient = new AnnotationControllerApi(client);
         }
