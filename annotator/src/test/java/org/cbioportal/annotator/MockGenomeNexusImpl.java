@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2018 - 2020 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,6 +32,10 @@
 
 package org.cbioportal.annotator;
 
+import org.cbioportal.annotator.mixin.AlleleFrequencyMixin;
+import org.cbioportal.annotator.mixin.GnomadMixin;
+import org.cbioportal.annotator.mixin.MyVariantInfoMixin;
+import org.cbioportal.annotator.mixin.MyVariantInfoAnnotationMixin;
 import org.cbioportal.annotator.mixin.TranscriptConsequenceMixin;
 import org.cbioportal.annotator.mixin.VariantAnnotationMixin;
 import org.cbioportal.models.AnnotatedRecord;
@@ -44,6 +48,10 @@ import java.util.*;
 import org.cbioportal.annotator.mixin.TranscriptConsequenceSummaryMixin;
 import org.cbioportal.annotator.mixin.VariantAnnotationSummaryMixin;
 
+import org.genome_nexus.client.AlleleFrequency;
+import org.genome_nexus.client.Gnomad;
+import org.genome_nexus.client.MyVariantInfo;
+import org.genome_nexus.client.MyVariantInfoAnnotation;
 import org.genome_nexus.client.TranscriptConsequence;
 import org.genome_nexus.client.TranscriptConsequenceSummary;
 import org.genome_nexus.client.VariantAnnotation;
@@ -108,6 +116,14 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
         this.mockGenomeNexusHgvsPOSTResponseMap = map;
     }
 
+    private Map<String, String> mockGenomeNexusMyVariantInfoResponseMap = new HashMap<>();
+    @Autowired
+    private void setMockGenomeNexusMyVariantInfoResponseMap() {
+        Map<String, String> map = new HashMap<>();
+        map.put("4,9784947,9784948,-,AGA", "{\"variant\":\"4:g.9784947_9784948insAGA\",\"hgvsg\":\"4:g.9784947_9784948insAGA\",\"id\":\"4:g.9784947_9784948insAGA\",\"assembly_name\":\"GRCh37\",\"seq_region_name\":\"4\",\"start\":9784948,\"end\":9784947,\"allele_string\":\"-/AGA\",\"strand\":1,\"most_severe_consequence\":\"protein_altering_variant\",\"transcript_consequences\":[{\"exon\":\"1/1\",\"transcript_id\":\"ENST00000304374\",\"hgvsp\":\"ENSP00000306129.2:p.Gly432delinsGluSer\",\"hgvsc\":\"ENST00000304374.2:c.1294_1295insAGA\",\"variant_allele\":\"AGA\",\"codons\":\"ggt/gAGAgt\",\"protein_id\":\"ENSP00000306129\",\"protein_start\":432,\"protein_end\":432,\"gene_symbol\":\"DRD5\",\"gene_id\":\"ENSG00000169676\",\"amino_acids\":\"G/ES\",\"hgnc_id\":\"3026\",\"canonical\":\"1\",\"refseq_transcript_ids\":[\"NM_000798.4\"],\"consequence_terms\":[\"protein_altering_variant\"]},{\"transcript_id\":\"ENST00000503803\",\"hgvsc\":\"ENST00000503803.1:n.386-3259_386-3258insTCT\",\"variant_allele\":\"AGA\",\"gene_symbol\":\"SLC2A9\",\"gene_id\":\"ENSG00000109667\",\"hgnc_id\":\"13446\",\"consequence_terms\":[\"intron_variant\",\"non_coding_transcript_variant\"]},{\"transcript_id\":\"ENST00000508585\",\"hgvsc\":\"ENST00000508585.1:n.182-11955_182-11954insTCT\",\"variant_allele\":\"AGA\",\"gene_symbol\":\"SLC2A9\",\"gene_id\":\"ENSG00000109667\",\"hgnc_id\":\"13446\",\"consequence_terms\":[\"intron_variant\",\"non_coding_transcript_variant\"]}],\"annotation_summary\":{\"variant\":\"4:g.9784947_9784948insAGA\",\"genomicLocation\":{\"chromosome\":\"4\",\"start\":9784947,\"end\":9784948,\"referenceAllele\":\"-\",\"variantAllele\":\"AGA\"},\"strandSign\":\"+\",\"variantType\":\"INS\",\"assemblyName\":\"GRCh37\",\"canonicalTranscriptId\":\"ENST00000304374\",\"transcriptConsequences\":[{\"transcriptId\":\"ENST00000304374\",\"codonChange\":\"ggt/gAGAgt\",\"entrezGeneId\":\"1816\",\"consequenceTerms\":\"protein_altering_variant\",\"hugoGeneSymbol\":\"DRD5\",\"hgvspShort\":\"p.G432delinsES\",\"hgvsp\":\"p.Gly432delinsGluSer\",\"hgvsc\":\"ENST00000304374.2:c.1294_1295insAGA\",\"proteinPosition\":{\"start\":432,\"end\":432},\"refSeq\":\"NM_000798.4\",\"variantClassification\":\"In_Frame_Ins\",\"exon\":\"1/1\"}],\"transcriptConsequenceSummaries\":[{\"transcriptId\":\"ENST00000304374\",\"codonChange\":\"ggt/gAGAgt\",\"entrezGeneId\":\"1816\",\"consequenceTerms\":\"protein_altering_variant\",\"hugoGeneSymbol\":\"DRD5\",\"hgvspShort\":\"p.G432delinsES\",\"hgvsp\":\"p.Gly432delinsGluSer\",\"hgvsc\":\"ENST00000304374.2:c.1294_1295insAGA\",\"proteinPosition\":{\"start\":432,\"end\":432},\"refSeq\":\"NM_000798.4\",\"variantClassification\":\"In_Frame_Ins\",\"exon\":\"1/1\"},{\"transcriptId\":\"ENST00000503803\",\"entrezGeneId\":\"56606\",\"consequenceTerms\":\"intron_variant,non_coding_transcript_variant\",\"hugoGeneSymbol\":\"SLC2A9\",\"hgvspShort\":\"*129*\",\"hgvsc\":\"ENST00000503803.1:n.386-3259_386-3258insTCT\",\"variantClassification\":\"Intron\"},{\"transcriptId\":\"ENST00000508585\",\"entrezGeneId\":\"56606\",\"consequenceTerms\":\"intron_variant,non_coding_transcript_variant\",\"hugoGeneSymbol\":\"SLC2A9\",\"hgvspShort\":\"*61*\",\"hgvsc\":\"ENST00000508585.1:n.182-11955_182-11954insTCT\",\"variantClassification\":\"Intron\"}],\"transcriptConsequenceSummary\":{\"transcriptId\":\"ENST00000304374\",\"codonChange\":\"ggt/gAGAgt\",\"entrezGeneId\":\"1816\",\"consequenceTerms\":\"protein_altering_variant\",\"hugoGeneSymbol\":\"DRD5\",\"hgvspShort\":\"p.G432delinsES\",\"hgvsp\":\"p.Gly432delinsGluSer\",\"hgvsc\":\"ENST00000304374.2:c.1294_1295insAGA\",\"proteinPosition\":{\"start\":432,\"end\":432},\"refSeq\":\"NM_000798.4\",\"variantClassification\":\"In_Frame_Ins\",\"exon\":\"1/1\"}},\"my_variant_info\": { \"annotation\": { \"gnomadExome\": {\"alleleFrequency\":{\"af\":0.000449569,\"af_afr\":0,\"af_amr\":0.0000578704,\"af_asj\":0.00773963,\"af_eas\":0,\"af_fin\":0.0000461979,\"af_nfe\":0.000228704,\"af_oth\":0.000978155,\"af_sas\":0}}}}}");
+        this.mockGenomeNexusMyVariantInfoResponseMap = map;
+    }
+
     @Bean
     @Override
     public MockGenomeNexusImpl annotator() {
@@ -138,6 +154,18 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
         return convertResponseToAnnotatedRecord(gnResponse, record, REPLACE);
     }
 
+    public AnnotatedRecord makeMockMyVariantInfoAnnotatedRecord(MutationRecord record) {
+        VariantAnnotation gnResponse = null;
+        try {
+            gnResponse = makeMockGenomeNexusResponse(mockGenomeNexusMyVariantInfoResponseMap.get(extractGenomicLocationAsString(record)));
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return convertResponseToAnnotatedRecord(gnResponse, record, REPLACE);
+    }
+
     private VariantAnnotation makeMockGenomeNexusResponse(String mockReturnJsonString) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setMixInAnnotations(this.initMixinMap());
@@ -152,6 +180,10 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
         mixinMap.put(TranscriptConsequence.class, TranscriptConsequenceMixin.class);
         mixinMap.put(TranscriptConsequenceSummary.class, TranscriptConsequenceSummaryMixin.class);
         mixinMap.put(VariantAnnotationSummary.class, VariantAnnotationSummaryMixin.class);
+        mixinMap.put(MyVariantInfoAnnotation.class, MyVariantInfoAnnotationMixin.class);
+        mixinMap.put(MyVariantInfo.class, MyVariantInfoMixin.class);
+        mixinMap.put(Gnomad.class, GnomadMixin.class);
+        mixinMap.put(AlleleFrequency.class, AlleleFrequencyMixin.class);
 
         return mixinMap;
     }

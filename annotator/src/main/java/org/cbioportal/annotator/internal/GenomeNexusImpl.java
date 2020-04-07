@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2019 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 - 2020 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -45,9 +45,13 @@ import org.cbioportal.models.MutationRecord;
 import org.genome_nexus.ApiClient;
 import org.genome_nexus.ApiException;
 import org.genome_nexus.StringUtil;
+import org.genome_nexus.client.AlleleFrequency;
 import org.genome_nexus.client.AnnotationControllerApi;
 import org.genome_nexus.client.GenomicLocation;
+import org.genome_nexus.client.Gnomad;
 import org.genome_nexus.client.InfoControllerApi;
+import org.genome_nexus.client.MyVariantInfo;
+import org.genome_nexus.client.MyVariantInfoAnnotation;
 import org.genome_nexus.client.TranscriptConsequenceSummary;
 import org.genome_nexus.client.VariantAnnotation;
 import org.genome_nexus.client.Version;
@@ -136,7 +140,7 @@ public class GenomeNexusImpl implements Annotator {
             throw new GenomeNexusAnnotationFailureException("Server error from Genome Nexus: " + genomicLocation);
         }
         // catch case where annotation fails (server will return default "failed" variant) 
-        if (!gnResponse.isSuccessfullyAnnotated()) {
+        if (gnResponse == null || !gnResponse.isSuccessfullyAnnotated()) {
             // only logs cases which can't be annotated due to a problem with input
             LOG.warn("Annotation failed for variant " + gnResponse.getVariant());
             throw new GenomeNexusAnnotationFailureException("Genome Nexus failed to annotate: " + gnResponse.getVariant());
@@ -269,6 +273,21 @@ public class GenomeNexusImpl implements Annotator {
                 resolveConsequence(canonicalTranscript),
                 resolveProteinPosition(canonicalTranscript, mRecord),
                 mRecord.getAdditionalProperties());
+
+        if (enrichmentFields.contains("my_variant_info")) {
+            // get the gnomad allele frequency
+            AlleleFrequency alleleFrequency = getGnomadAlleleFrequency(gnResponse);
+            annotatedRecord.setGnomadFields(resolveGnomadAlleleFrequency(alleleFrequency),
+                resolveGnomadAlleleFrequencyAFR(alleleFrequency),
+                resolveGnomadAlleleFrequencyAMR(alleleFrequency),
+                resolveGnomadAlleleFrequencyASJ(alleleFrequency),
+                resolveGnomadAlleleFrequencyEAS(alleleFrequency),
+                resolveGnomadAlleleFrequencyFIN(alleleFrequency),
+                resolveGnomadAlleleFrequencyNFE(alleleFrequency),
+                resolveGnomadAlleleFrequencyOTH(alleleFrequency),
+                resolveGnomadAlleleFrequencySAS(alleleFrequency));
+        }
+
         return annotatedRecord;
     }
 
@@ -533,6 +552,114 @@ public class GenomeNexusImpl implements Annotator {
         }
         return !Strings.isNullOrEmpty(proteinPosition) ? proteinPosition : record.getAdditionalProperties().getOrDefault("Protein_position", "");
     }
+
+    private String resolveGnomadAlleleFrequency(AlleleFrequency alleleFrequency) {
+        if (alleleFrequency != null) {
+            Double toReturn = alleleFrequency.getAf();
+            if (toReturn != null) {
+                return toReturn.toString();
+            }
+        }
+        return "";
+    }
+
+    private String resolveGnomadAlleleFrequencyAFR(AlleleFrequency alleleFrequency) {
+        if (alleleFrequency != null) {
+            Double toReturn = alleleFrequency.getAfAfr();
+            if (toReturn != null) {
+                return toReturn.toString();
+            }
+        }
+        return "";
+    }
+
+    private String resolveGnomadAlleleFrequencyAMR(AlleleFrequency alleleFrequency) {
+        if (alleleFrequency != null) {
+            Double toReturn = alleleFrequency.getAfAmr();
+            if (toReturn != null) {
+                return toReturn.toString();
+            }
+        }
+        return "";
+    }
+
+    private String resolveGnomadAlleleFrequencyASJ(AlleleFrequency alleleFrequency) {
+        if (alleleFrequency != null) {
+            Double toReturn = alleleFrequency.getAfAsj();
+            if (toReturn != null) {
+                return toReturn.toString();
+            }
+        }
+        return "";
+    }
+
+    private String resolveGnomadAlleleFrequencyEAS(AlleleFrequency alleleFrequency) {
+        if (alleleFrequency != null) {
+            Double toReturn = alleleFrequency.getAfEas();
+            if (toReturn != null) {
+                return toReturn.toString();
+            }
+        }
+        return "";
+    }
+
+    private String resolveGnomadAlleleFrequencyFIN(AlleleFrequency alleleFrequency) {
+        if (alleleFrequency != null) {
+            Double toReturn = alleleFrequency.getAfFin();
+            if (toReturn != null) {
+                return toReturn.toString();
+            }
+        }
+        return "";
+    }
+
+    private String resolveGnomadAlleleFrequencyNFE(AlleleFrequency alleleFrequency) {
+        if (alleleFrequency != null) {
+            Double toReturn = alleleFrequency.getAfNfe();
+            if (toReturn != null) {
+                return toReturn.toString();
+            }
+        }
+        return "";
+    }
+
+    private String resolveGnomadAlleleFrequencyOTH(AlleleFrequency alleleFrequency) {
+        if (alleleFrequency != null) {
+            Double toReturn = alleleFrequency.getAfOth();
+            if (toReturn != null) {
+                return toReturn.toString();
+            }
+        }
+        return "";
+    }
+
+    private String resolveGnomadAlleleFrequencySAS(AlleleFrequency alleleFrequency) {
+        if (alleleFrequency != null) {
+            Double toReturn = alleleFrequency.getAfSas();
+            if (toReturn != null) {
+                return toReturn.toString();
+            }
+        }
+        return "";
+    }
+
+    private AlleleFrequency getGnomadAlleleFrequency(VariantAnnotation gnResponse) {
+        MyVariantInfoAnnotation myVariantInfoAnnotation = gnResponse.getMyVariantInfo();
+        if (myVariantInfoAnnotation != null) {
+            MyVariantInfo myVariantInfo = myVariantInfoAnnotation.getAnnotation();
+            if (myVariantInfo != null) {
+                Gnomad gnomad = myVariantInfo.getGnomadExome();
+                if (gnomad != null) {
+                    AlleleFrequency alleleFrequency = gnomad.getAlleleFrequency();
+                    if (alleleFrequency != null) {
+                       return alleleFrequency;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     public String extractGenomicLocationAsString(GenomicLocation genomicLocation) {
         return StringUtil.join(
                 new String[]{genomicLocation.getChromosome(),
