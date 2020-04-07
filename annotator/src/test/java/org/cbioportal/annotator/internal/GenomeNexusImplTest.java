@@ -186,6 +186,35 @@ public class GenomeNexusImplTest {
         }
     }
 
+    @Test
+    public void testGnomadAnnotationResultsExcluded() throws Exception {
+        // test records that should not have the gnomad records
+        for (AnnotatedRecord record : mockAnnotatedRecordsWithPost) {
+            if (record.getGNOMAD_AF() != null) {
+                Assert.fail("testGnomadAnnotationResultsExcluded(), annotated record includes GNOMAD_AF when it should not, value is: '" + record.getGNOMAD_AF() + "'");
+            }
+        }
+    }
+
+    @Test
+    public void testGnomadAnnotationResultsIncluded() throws Exception {
+        // annotate now with my_variant_info included in enrichmentFields
+        ReflectionTestUtils.setField(annotator, "enrichmentFields", GenomeNexusTestConfiguration.MY_VARIANT_INFO_ENRICHMENT_FIELDS);
+
+        String expectedValue = "4.49569E-4";
+
+        AnnotatedRecord record = annotator.makeMockMyVariantInfoAnnotatedRecord(mockAnnotatedRecordsWithPost.get(0));
+        if (record.getGNOMAD_AF() == null) {
+            Assert.fail("testGnomadAnnotationResultsIncluded(), annotated record does not have GNOMAD_AF value when my_variant_info was included, expected value is: '" + expectedValue + "', value is null");
+        }
+        if (!record.getGNOMAD_AF().equals(expectedValue)) {
+            Assert.fail("testGnomadAnnotationResultsIncluded(), expected annotated record to have GNOMAD_AF = '" + expectedValue + "', instead it has: '" + record.getGNOMAD_AF() + "'");
+        }
+
+        // reset enrichment fields
+        ReflectionTestUtils.setField(annotator, "enrichmentFields", GenomeNexusTestConfiguration.ENRICHMENT_FIELDS);
+    }
+
     private List<AnnotatedRecord> makeMockAnnotatedRecordsWithPost() {
         List<MutationRecord> mockMutationRecords = makeMockMutationRecords();
         List<AnnotatedRecord> mockAnnotatedRecordsWithPost = new ArrayList();

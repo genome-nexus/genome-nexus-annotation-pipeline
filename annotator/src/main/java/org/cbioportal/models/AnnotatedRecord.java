@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 - 2020 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -38,7 +38,7 @@ import java.util.*;
  * @author Zachary Heins
  */
 
-public class AnnotatedRecord extends MutationRecord{
+public class AnnotatedRecord extends MutationRecord {
 
     protected String hgvsc;
     protected String hgvsp;
@@ -51,6 +51,15 @@ public class AnnotatedRecord extends MutationRecord{
     protected String hotspot;
     protected String consequence;
     protected String proteinPosition;
+    protected String gnomadAlleleFrequency;
+    protected String gnomadAlleleFrequencyAFR;
+    protected String gnomadAlleleFrequencyAMR;
+    protected String gnomadAlleleFrequencyASJ;
+    protected String gnomadAlleleFrequencyEAS;
+    protected String gnomadAlleleFrequencyFIN;
+    protected String gnomadAlleleFrequencyNFE;
+    protected String gnomadAlleleFrequencyOTH;
+    protected String gnomadAlleleFrequencySAS;
 
     public AnnotatedRecord() {
         addAnnotatedFieldsToHeader();
@@ -214,6 +223,35 @@ public class AnnotatedRecord extends MutationRecord{
         this.additionalProperties = additionalProperties;
     }
 
+    public void setGnomadFields(String gnomadAlleleFrequency,
+        String gnomadAlleleFrequencyAFR,
+        String gnomadAlleleFrequencyAMR,
+        String gnomadAlleleFrequencyASJ,
+        String gnomadAlleleFrequencyEAS,
+        String gnomadAlleleFrequencyFIN,
+        String gnomadAlleleFrequencyNFE,
+        String gnomadAlleleFrequencyOTH,
+        String gnomadAlleleFrequencySAS) {
+        header.add("gnomAD_AF");
+        header.add("gnomAD_AFR_AF");
+        header.add("gnomAD_AMR_AF");
+        header.add("gnomAD_ASJ_AF");
+        header.add("gnomAD_EAS_AF");
+        header.add("gnomAD_FIN_AF");
+        header.add("gnomAD_NFE_AF");
+        header.add("gnomAD_OTH_AF");
+        header.add("gnomAD_SAS_AF");
+        this.gnomadAlleleFrequency = gnomadAlleleFrequency;
+        this.gnomadAlleleFrequencyAFR = gnomadAlleleFrequencyAFR;
+        this.gnomadAlleleFrequencyAMR = gnomadAlleleFrequencyAMR;
+        this.gnomadAlleleFrequencyASJ = gnomadAlleleFrequencyASJ;
+        this.gnomadAlleleFrequencyEAS = gnomadAlleleFrequencyEAS;
+        this.gnomadAlleleFrequencyFIN = gnomadAlleleFrequencyFIN;
+        this.gnomadAlleleFrequencyNFE = gnomadAlleleFrequencyNFE;
+        this.gnomadAlleleFrequencyOTH = gnomadAlleleFrequencyOTH;
+        this.gnomadAlleleFrequencySAS = gnomadAlleleFrequencySAS;
+    }
+
     public String getHGVSC() {
         return this.hgvsc;
     }
@@ -284,6 +322,78 @@ public class AnnotatedRecord extends MutationRecord{
 
     public void setCONSEQUENCE(String consequence) {
         this.consequence = consequence;
+    }
+
+    public String getGNOMAD_AF() {
+        return this.gnomadAlleleFrequency;
+    }
+
+    public void setGNOMAD_AF(String gnomadAlleleFrequency) {
+        this.gnomadAlleleFrequency = gnomadAlleleFrequency;
+    }
+
+    public String getGNOMAD_AFR_AF() {
+        return this.gnomadAlleleFrequencyAFR;
+    }
+
+    public void setGNOMAD_AFR_AF(String gnomadAlleleFrequencyAFR) {
+        this.gnomadAlleleFrequencyAFR = gnomadAlleleFrequencyAFR;
+    }
+
+    public String getGNOMAD_AMR_AF() {
+        return this.gnomadAlleleFrequencyAMR;
+    }
+
+    public void setGNOMAD_AMR_AF(String gnomadAlleleFrequencyAMR) {
+        this.gnomadAlleleFrequencyAMR = gnomadAlleleFrequencyAMR;
+    }
+
+    public String getGNOMAD_ASJ_AF() {
+        return this.gnomadAlleleFrequencyASJ;
+    }
+
+    public void setGNOMAD_ASJ_AF(String gnomadAlleleFrequencyASJ) {
+        this.gnomadAlleleFrequencyASJ = gnomadAlleleFrequencyASJ;
+    }
+
+    public String getGNOMAD_EAS_AF() {
+        return this.gnomadAlleleFrequencyEAS;
+    }
+
+    public void setGNOMAD_EAS_AF(String gnomadAlleleFrequencyEAS) {
+        this.gnomadAlleleFrequencyEAS = gnomadAlleleFrequencyEAS;
+    }
+
+    public String getGNOMAD_FIN_AF() {
+        return this.gnomadAlleleFrequencyFIN;
+    }
+
+    public void setGNOMAD_FIN_AF(String gnomadAlleleFrequencyFIN) {
+        this.gnomadAlleleFrequencyFIN = gnomadAlleleFrequencyFIN;
+    }
+
+    public String getGNOMAD_NFE_AF() {
+        return this.gnomadAlleleFrequencyNFE;
+    }
+
+    public void setGNOMAD_NFE_AF(String gnomadAlleleFrequencyNFE) {
+        this.gnomadAlleleFrequencyNFE = gnomadAlleleFrequencyNFE;
+    }
+
+    public String getGNOMAD_OTH_AF() {
+        return this.gnomadAlleleFrequencyOTH;
+    }
+
+    public void setGNOMAD_OTH_AF(String gnomadAlleleFrequencyOTH) {
+        this.gnomadAlleleFrequencyOTH = gnomadAlleleFrequencyOTH;
+    }
+
+    public String getGNOMAD_SAS_AF() {
+        return this.gnomadAlleleFrequencySAS;
+    }
+
+    public void setGNOMAD_SAS_AF(String gnomadAlleleFrequencySAS) {
+        this.gnomadAlleleFrequencySAS = gnomadAlleleFrequencySAS;
     }
 
     private void addAnnotatedFieldsToHeader() {
