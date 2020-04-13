@@ -47,6 +47,7 @@ import org.genome_nexus.ApiException;
 import org.genome_nexus.StringUtil;
 import org.genome_nexus.client.AlleleFrequency;
 import org.genome_nexus.client.AnnotationControllerApi;
+import org.genome_nexus.client.ColocatedVariant;
 import org.genome_nexus.client.GenomicLocation;
 import org.genome_nexus.client.Gnomad;
 import org.genome_nexus.client.InfoControllerApi;
@@ -88,6 +89,7 @@ public class GenomeNexusImpl implements Annotator {
     private final Pattern PROTEIN_POSITTION_REGEX = Pattern.compile("p.[A-Za-z]([0-9]*).*$");
     private static List<String> hgvspNullClassifications = initNullClassifications();
     private final Integer READ_TIMEOUT_OVERRIDE = 300000; // built-in default of 5 seconds is not enough time to read responses
+    private static final Pattern DBSNP_RSID_REGIX = Pattern.compile("^(rs\\d*)$");
 
     @Bean
     public GenomeNexusImpl annotator(String genomeNexusBaseUrl) {
@@ -139,7 +141,7 @@ public class GenomeNexusImpl implements Annotator {
             // not logging here because if GN is down you could write out an arbitarily large logfile of "failures"
             throw new GenomeNexusAnnotationFailureException("Server error from Genome Nexus: " + genomicLocation);
         }
-        // catch case where annotation fails (server will return default "failed" variant) 
+        // catch case where annotation fails (server will return default "failed" variant)
         if (gnResponse == null || !gnResponse.isSuccessfullyAnnotated()) {
             // only logs cases which can't be annotated due to a problem with input
             LOG.warn("Annotation failed for variant " + gnResponse.getVariant());
@@ -153,7 +155,7 @@ public class GenomeNexusImpl implements Annotator {
         int totalVariantsToAnnotateCount = mutationRecords.size();
         int annotatedVariantsCount = 0;
         LOG.info(String.valueOf(totalVariantsToAnnotateCount) + " records to annotate");
-        
+
         for (MutationRecord record : mutationRecords) {
             logAnnotationProgress(++annotatedVariantsCount, totalVariantsToAnnotateCount, 2000);
             // init annotated record w/o genome nexus in case server error occurs
@@ -187,7 +189,7 @@ public class GenomeNexusImpl implements Annotator {
         }
         return annotatedRecordsList;
     }
-    
+
     @Override
     public String getVersion() {
         InfoControllerApi infoApiClient = new InfoControllerApi();
@@ -236,7 +238,7 @@ public class GenomeNexusImpl implements Annotator {
                 resolveReferenceAllele(gnResponse, mRecord),
                 mRecord.getTUMOR_SEQ_ALLELE1(),
                 resolveTumorSeqAllele(gnResponse, mRecord),
-                mRecord.getDBSNP_RS(),
+                resolveDbSnpRs(gnResponse, mRecord),
                 mRecord.getDBSNP_VAL_STATUS(),
                 mRecord.getTUMOR_SAMPLE_BARCODE(),
                 mRecord.getMATCHED_NORM_SAMPLE_BARCODE(),
@@ -703,6 +705,20 @@ public class GenomeNexusImpl implements Annotator {
         }
     }
 
+    private String resolveDbSnpRs(VariantAnnotation gnResponse, MutationRecord mRecord) {
+        String dbSnpRs = null;
+        if (gnResponse.getColocatedVariants() != null && !gnResponse.getColocatedVariants().isEmpty()) {
+            for (ColocatedVariant cv : gnResponse.getColocatedVariants()) {
+                Matcher dbSnpRsIdMatcher = DBSNP_RSID_REGIX.matcher(cv.getDbSnpId());
+                if (dbSnpRsIdMatcher.find()) {
+                    dbSnpRs = dbSnpRsIdMatcher.group(0);
+                    break;
+                }
+            }
+        }
+        return dbSnpRs != null ? dbSnpRs : mRecord.getDBSNP_RS();
+    }
+
     private static List<String> initNullClassifications() {
         List<String> hgvspNullClassifications = new ArrayList<>();
         hgvspNullClassifications.add("3'UTR");
@@ -740,8 +756,8 @@ public class GenomeNexusImpl implements Annotator {
         int annotatedVariantsCount = 0;
         for (List<GenomicLocation> partitionedList : partitionedGenomicLocationList) {
             List<VariantAnnotation> gnResponseList = null;
-            // Get annotations from Genome Nexus and log if server error (e.g VEP is down) 
-            try {    
+            // Get annotations from Genome Nexus and log if server error (e.g VEP is down)
+            try {
                  gnResponseList = apiClient.fetchVariantAnnotationByGenomicLocationPOST(partitionedList,
                     isoformOverridesSource, "", Arrays.asList(this.enrichmentFields.split(",")));
             } catch (Exception e) {
