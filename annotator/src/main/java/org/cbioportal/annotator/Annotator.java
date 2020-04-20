@@ -45,11 +45,11 @@ import org.cbioportal.models.MutationRecord;
 public interface Annotator {
 
     AnnotatedRecord annotateRecord(MutationRecord record, boolean replaceHugo, String isoformOverride, boolean reannotate) throws GenomeNexusAnnotationFailureException;
-    List<AnnotatedRecord> annotateRecordsUsingGET(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace);
+    List<AnnotatedRecord> annotateRecordsUsingGET(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, boolean reannotate);
     MutationRecord createRecord(Map<String, String> mafLine) throws Exception;
     boolean isHgvspNullClassifications(String variantClassification);
     String getUrlForRecord(MutationRecord record, String isoformOverridesSource);
     String getVersion();
-    List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace);
-    List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, Integer postIntervalSize);
+    List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, boolean reannotate);
+    List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, Integer postIntervalSize, boolean reannotate);
 }

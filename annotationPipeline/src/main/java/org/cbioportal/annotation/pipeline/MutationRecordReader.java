@@ -85,9 +85,9 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
         processComments(ec, genomeNexusVersion);
         List<MutationRecord> mutationRecords = loadMutationRecordsFromMaf();
         if (postIntervalSize > 0) {
-            this.allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize);
+            this.allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize, true);
         } else {
-            this.allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, replace);
+            this.allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, replace, true);
         }
         for (AnnotatedRecord ar : this.allAnnotatedRecords) {
             header.addAll(ar.getHeaderWithAdditionalFields());
