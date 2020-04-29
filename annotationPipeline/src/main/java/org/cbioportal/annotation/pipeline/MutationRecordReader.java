@@ -84,19 +84,27 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
 
         processComments(ec, genomeNexusVersion);
         List<MutationRecord> mutationRecords = loadMutationRecordsFromMaf();
-        if (postIntervalSize > 0) {
-            this.allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize, true);
+        if (!mutationRecords.isEmpty()) {
+            if (postIntervalSize > 0) {
+                this.allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize, true);
+            } else {
+                this.allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, replace, true);
+            }
+            for (AnnotatedRecord ar : this.allAnnotatedRecords) {
+                header.addAll(ar.getHeaderWithAdditionalFields());
+            }
+            ec.put("mutation_header", new ArrayList(header));
+            summaryStatistics.printSummaryStatistics();
+            if (errorReportLocation != null) {
+                summaryStatistics.saveErrorMessagesToFile(errorReportLocation);
+            }
         } else {
-            this.allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, replace, true);
+            LOG.warn("Did not extract any records from the MAF, nothing to process - ending annotation job...");
         }
-        for (AnnotatedRecord ar : this.allAnnotatedRecords) {
-            header.addAll(ar.getHeaderWithAdditionalFields());
-        }
-        ec.put("mutation_header", new ArrayList(header));
-        summaryStatistics.printSummaryStatistics();
-        if (errorReportLocation != null) {
-            summaryStatistics.saveErrorMessagesToFile(errorReportLocation);
-        }
+        // always add size of "allAnnotatedRecords" to execution context
+        // this is used to determine whether an output file should be generated or not
+        // to prevent writing a file without any annotated records
+        ec.put("records_to_write_count", allAnnotatedRecords.size());
     }
 
     private List<MutationRecord> loadMutationRecordsFromMaf() {
