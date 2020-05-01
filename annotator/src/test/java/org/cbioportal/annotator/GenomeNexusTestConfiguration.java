@@ -44,5 +44,6 @@ public class GenomeNexusTestConfiguration {
     public final static String GENOME_NEXUS_BASE_URL = "http://annotation.genomenexus.org/";
     public final static String ISOFORM_QUERY_PARAMETER = "isoformOverrideSource";
     public final static String ENRICHMENT_FIELDS = "fields=hotspots";
+    public final static String MY_VARIANT_INFO_ENRICHMENT_FIELDS = "fields=annotation_summary,my_variant_info";
 
 }

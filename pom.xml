@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.cbioportal.annotation.pipeline</groupId>
   <artifactId>master</artifactId>
-  <packaging>pom</packaging>
-  <name>cBioPortal Annotation Pipeline Master</name>
   <version>1.0.0</version>
-  <description>master maven module</description>
-  <url>https://github.com/cBioPortal/genome-nexus-annotation-pipeline/</url>
+  <name>Genome Nexus Variant Annotation Tools</name>
+  <description>tools for annotating variants via genome nexus</description>
+  <packaging>pom</packaging>
+  <url>https://github.com/cbioportal/genome-nexus-annotation-pipeline/</url>
 
   <modules>
     <module>annotationPipeline</module>
@@ -68,18 +68,18 @@
     <dependency>
       <groupId>com.github.cbioportal</groupId>
       <artifactId>cbioportal</artifactId>
-      <version>c9fc0929163070bed9ee32f5db6fcab39552657c</version>
+      <version>c27ef907841b0ee3e66bd4c133b5a527e7de7d38</version>
     </dependency>
     <!-- api client -->
     <dependency>
       <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
       <artifactId>genomeNexusPublicApiClient</artifactId>
-      <version>v1.1.0-beta</version>
+      <version>0709b8232bab5ff07f21aee73f1a0c1536fc20d5</version>
     </dependency>
     <dependency>
       <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
       <artifactId>genomeNexusInternalApiClient</artifactId>
-      <version>v1.1.0-beta</version>
+      <version>0709b8232bab5ff07f21aee73f1a0c1536fc20d5</version>
     </dependency>
   </dependencies>
 

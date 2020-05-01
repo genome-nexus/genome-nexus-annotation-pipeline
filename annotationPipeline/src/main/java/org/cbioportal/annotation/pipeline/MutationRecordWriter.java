@@ -48,40 +48,45 @@ import org.springframework.core.io.FileSystemResource;
  * @author Zachary Heins
  */
 public class MutationRecordWriter implements ItemStreamWriter<String> {
-    
+
     @Value("#{jobParameters[outputFilename]}")
-    private String outputFilename;        
-    
+    private String outputFilename;
+
     @Value("#{stepExecutionContext['commentLines']}")
-    private List<String> commentLines;   
-    
+    private List<String> commentLines;
+
     @Value("#{stepExecutionContext['mutation_header']}")
     private List<String> header;
-    
+
+    @Value("#{stepExecutionContext['records_to_write_count']}")
+    private Integer recordsToWriteCount;
+
     private Path stagingFile;
     private FlatFileItemWriter<String> flatFileItemWriter = new FlatFileItemWriter<>();
 
     // Set up the writer and print the json from CVR to a file
     @Override
     public void open(ExecutionContext ec) throws ItemStreamException {
-        stagingFile = Paths.get(outputFilename);       
-        
-        PassThroughLineAggregator aggr = new PassThroughLineAggregator();
-        flatFileItemWriter.setLineAggregator(aggr);
-        flatFileItemWriter.setResource( new FileSystemResource(stagingFile.toString()));        
-        flatFileItemWriter.setHeaderCallback(new FlatFileHeaderCallback() {
-            @Override
-            public void writeHeader(Writer writer) throws IOException { 
-                AnnotatedRecord record = new AnnotatedRecord();
-                
-                // first write out the comment lines, then write the actual header
-                for (String comment : commentLines) {
-                    writer.write(comment + "\n");
+        if (recordsToWriteCount > 0) {
+            stagingFile = Paths.get(outputFilename);
+
+            PassThroughLineAggregator aggr = new PassThroughLineAggregator();
+            flatFileItemWriter.setLineAggregator(aggr);
+            flatFileItemWriter.setResource( new FileSystemResource(stagingFile.toString()));
+            flatFileItemWriter.setHeaderCallback(new FlatFileHeaderCallback() {
+                @Override
+                public void writeHeader(Writer writer) throws IOException {
+                    AnnotatedRecord record = new AnnotatedRecord();
+
+                    // first write out the comment lines, then write the actual header
+                    for (String comment : commentLines) {
+                        writer.write(comment + "\n");
+                    }
+                    writer.write(StringUtils.join(header, "\t"));
                 }
-                writer.write(StringUtils.join(header, "\t"));
-            }                
-        });  
-        flatFileItemWriter.open(ec);        
+            });
+            flatFileItemWriter.open(ec);
+        }
     }
 
     @Override
@@ -89,11 +94,16 @@ public class MutationRecordWriter implements ItemStreamWriter<String> {
 
     @Override
     public void close() throws ItemStreamException {
-        flatFileItemWriter.close();
+        if (recordsToWriteCount > 0) {
+            flatFileItemWriter.close();
+        }
     }
 
     @Override
-    public void write(List<? extends String> items) throws Exception {        
-         flatFileItemWriter.write(items);
-    }    
+    public void write(List<? extends String> items) throws Exception {
+        if (recordsToWriteCount > 0) {
+            flatFileItemWriter.write(items);
+        }
+
+    }
 }

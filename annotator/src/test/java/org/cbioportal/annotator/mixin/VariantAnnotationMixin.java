@@ -2,6 +2,7 @@ package org.cbioportal.annotator.mixin;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.genome_nexus.client.MyVariantInfoAnnotation;
 import org.genome_nexus.client.TranscriptConsequence;
 import org.genome_nexus.client.VariantAnnotationSummary;
 
@@ -32,4 +33,6 @@ public class VariantAnnotationMixin
     private String variant;
     @JsonProperty("annotation_summary")
     private VariantAnnotationSummary annotationSummary;
+    @JsonProperty("my_variant_info")
+    private MyVariantInfoAnnotation myVariantInfo;
 }

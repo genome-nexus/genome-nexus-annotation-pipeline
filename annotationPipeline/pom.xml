@@ -1,10 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
-  <name>cBioPortal Annotation Pipeline</name>
-  <description>Annotation Pipeline</description>
+  <groupId>org.cbioportal.annotation.pipeline</groupId>
   <artifactId>annotationPipeline</artifactId>
   <version>1.0.0</version>
+  <name>cBioPortal Annotation Pipeline</name>
+  <description>Annotation Pipeline</description>
 
   <parent>
     <groupId>org.cbioportal.annotation.pipeline</groupId>
@@ -18,7 +19,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.cbioportal.annotator</groupId>
+      <groupId>org.cbioportal.annotation.pipeline</groupId>
       <artifactId>annotator</artifactId>
       <version>1.0.0</version>
     </dependency>
@@ -56,5 +57,5 @@
       <type>jar</type>
     </dependency>
   </dependencies>
+
 </project>
-  
