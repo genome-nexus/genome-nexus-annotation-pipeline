@@ -99,6 +99,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
                 summaryStatistics.saveErrorMessagesToFile(errorReportLocation);
             }
         } else {
+            System.out.println("It seems that the input mutation file does not contain any mutation records. Exiting without writing an output file.");
             LOG.warn("Did not extract any records from the MAF, nothing to process - ending annotation job...");
         }
         // always add size of "allAnnotatedRecords" to execution context

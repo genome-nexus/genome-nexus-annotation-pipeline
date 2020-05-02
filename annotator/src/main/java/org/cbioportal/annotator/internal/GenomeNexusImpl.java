@@ -815,7 +815,7 @@ public class GenomeNexusImpl implements Annotator {
             start = end;
             end = start + postIntervalSize;
         }
-        if (end > sortedGenomicLocations.size()) {
+        if (start < sortedGenomicLocations.size()) {
             genomicLocationPartitionedLists.add(sortedGenomicLocations.subList(start, sortedGenomicLocations.size()));
         }
         return genomicLocationPartitionedLists;
