@@ -3,7 +3,7 @@ These tools allow for annotation of genomic variants from a MAF for import into
 the cBioPortal using [Genome Nexus](http://genomenexus.org)
 
 ## Updating the Genome Nexus Annotation Pipeline
-The annotation pipeline uses models brought in by the auto-generated [**genome-nexus-java-api-client**](https://github.com/averyniceday/genome-nexus-annotation-pipeline/blob/2356cad06aa602ee423b08d5792c50e903200a1d/pom.xml#L75). 
+The annotation pipeline uses models brought in by the auto-generated **genome-nexus-java-api-client** [here](https://github.com/averyniceday/genome-nexus-annotation-pipeline/blob/2356cad06aa602ee423b08d5792c50e903200a1d/pom.xml#L77) and [here](https://github.com/averyniceday/genome-nexus-annotation-pipeline/blob/2356cad06aa602ee423b08d5792c50e903200a1d/pom.xml#L82) . 
 
 In the case of an update to the Genome Nexus server (e.g adding to an existing model), the genome-nexus-java-api-client must be regenerated and propagated to this codebase. To generate the newest genome-nexus-java-api-client, refer to instructions [here](https://github.com/genome-nexus/genome-nexus-java-api-client/blob/master/README.md). 
 
