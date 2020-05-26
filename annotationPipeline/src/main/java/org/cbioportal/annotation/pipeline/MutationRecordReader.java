@@ -93,6 +93,10 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
             for (AnnotatedRecord ar : this.allAnnotatedRecords) {
                 header.addAll(ar.getHeaderWithAdditionalFields());
             }
+            // add 'Annotation_Status' to header if not already present
+            if (!header.contains("Annotation_Status")) {
+                header.add("Annotation_Status");
+            }
             ec.put("mutation_header", new ArrayList(header));
             summaryStatistics.printSummaryStatistics();
             if (errorReportLocation != null) {

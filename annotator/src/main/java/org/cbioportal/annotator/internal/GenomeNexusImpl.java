@@ -164,6 +164,7 @@ public class GenomeNexusImpl implements Annotator {
             AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
             try {
                 annotatedRecord = annotateRecord(record, replace, isoformOverridesSource, reannotate);
+                annotatedRecord.setANNOTATION_STATUS("SUCCESS");
             }
             catch (HttpServerErrorException ex) {
                 serverErrorMessage = "Failed to annotate variant due to internal server error";
@@ -181,6 +182,7 @@ public class GenomeNexusImpl implements Annotator {
 
             // log server failure message if applicable
             if (!serverErrorMessage.isEmpty()) {
+                annotatedRecord.setANNOTATION_STATUS("FAILED");
                 summaryStatistics.addFailedAnnotatedRecordDueToServer(record, serverErrorMessage, isoformOverridesSource);
                 continue;
             }
@@ -788,10 +790,12 @@ public class GenomeNexusImpl implements Annotator {
             if (gnResponse == null) {
                 if(reannotate || annotationNeeded(record)) {
                     // only log if record actually attempted annotation
+                    annotatedRecord.setANNOTATION_STATUS("FAILED");
                     summaryStatistics.addFailedAnnotatedRecordDueToServer(record, "Genome Nexus failed to annotate", isoformOverridesSource);
                 }
             } else {
                 annotatedRecord = convertResponseToAnnotatedRecord(gnResponseVariantKeyMap.get(genomicLocationKey), record, replace);
+                annotatedRecord.setANNOTATION_STATUS("SUCCESS"); // annotation status indicates if a response was returned from GN, not whether the annotation is considered valid or not
                 if (summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverridesSource)) {
                     // Log case where annotation comes back from Genome Nexus but still invalid (e.g null variant classification)
                     LOG.warn("Annotated record is invalid for variant " + gnResponseVariantKeyMap.get(genomicLocationKey).getVariant());

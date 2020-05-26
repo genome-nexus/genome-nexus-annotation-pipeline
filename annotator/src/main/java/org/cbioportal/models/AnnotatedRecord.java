@@ -60,6 +60,7 @@ public class AnnotatedRecord extends MutationRecord {
     protected String gnomadAlleleFrequencyNFE;
     protected String gnomadAlleleFrequencyOTH;
     protected String gnomadAlleleFrequencySAS;
+    protected String annotationStatus;
 
     public AnnotatedRecord() {
         addAnnotatedFieldsToHeader();
@@ -394,6 +395,14 @@ public class AnnotatedRecord extends MutationRecord {
 
     public void setGNOMAD_SAS_AF(String gnomadAlleleFrequencySAS) {
         this.gnomadAlleleFrequencySAS = gnomadAlleleFrequencySAS;
+    }
+
+    public String getANNOTATION_STATUS() {
+        return this.annotationStatus != null ? this.annotationStatus : "NOT_ATTEMPTED";
+    }
+
+    public void setANNOTATION_STATUS(String annotationStatus) {
+        this.annotationStatus = annotationStatus;
     }
 
     private void addAnnotatedFieldsToHeader() {
