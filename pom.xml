@@ -24,8 +24,8 @@
 
   <properties>
     <java.version>1.8</java.version>
-    <slf4j.version>1.6.6</slf4j.version>
-    <spring.version>4.3.14.RELEASE</spring.version>
+    <slf4j.version>1.7.30</slf4j.version>
+    <spring.version>5.0.14.RELEASE</spring.version>
     <jackson.version>2.9.5</jackson.version>
     <start-class>org.cbioportal.annotation.AnnotationPipeline</start-class>
   </properties>
@@ -49,10 +49,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.springframework.batch</groupId>
-      <artifactId>spring-batch-test</artifactId>
-    </dependency>
     <!-- slf4j -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -64,11 +60,29 @@
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.batch</groupId>
+      <artifactId>spring-batch-test</artifactId>
+    </dependency>
+
     <!-- cbioportal -->
     <dependency>
       <groupId>com.github.cbioportal</groupId>
       <artifactId>cbioportal</artifactId>
-      <version>c27ef907841b0ee3e66bd4c133b5a527e7de7d38</version>
+      <version>60519c57e46cc37008f197955fb263a7f48d3a18</version>
+      <exclusions>
+          <exclusion>
+              <groupId>org.apache.logging.log4j</groupId>
+              <artifactId>log4j-core</artifactId>
+          </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- allows junit3 or juni4 tests to run in the juni5 environment -->
+    <dependency>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
+      <version>5.6.2</version>
+      <scope>test</scope>
     </dependency>
     <!-- api client -->
     <dependency>
@@ -102,6 +116,9 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <useSystemClassLoader>false</useSystemClassLoader>
+          <properties>
+            <includeTags>junit5</includeTags>
+          </properties>
         </configuration>
       </plugin>
     </plugins>
