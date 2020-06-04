@@ -25,7 +25,7 @@
   <properties>
     <java.version>1.8</java.version>
     <slf4j.version>1.7.30</slf4j.version>
-    <spring.version>5.0.14.RELEASE</spring.version>
+    <spring.version>5.2.6.RELEASE</spring.version>
     <jackson.version>2.9.5</jackson.version>
     <start-class>org.cbioportal.annotation.AnnotationPipeline</start-class>
   </properties>
