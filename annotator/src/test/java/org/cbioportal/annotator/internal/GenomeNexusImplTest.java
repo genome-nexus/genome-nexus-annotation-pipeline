@@ -36,6 +36,7 @@ import org.cbioportal.models.AnnotatedRecord;
 import org.cbioportal.models.MutationRecord;
 import org.cbioportal.annotator.GenomeNexusTestConfiguration;
 import org.cbioportal.annotator.MockGenomeNexusImpl;
+import org.genome_nexus.client.GenomicLocation;
 
 import java.util.*;
 import org.junit.*;
@@ -144,7 +145,7 @@ public class GenomeNexusImplTest {
 
         Map<String, String> expectedGenomicLocations = makeMockExpectedGenomicLocations();
         for (AnnotatedRecord record : mockAnnotatedRecords) {
-            String genomicLocation = annotator.extractGenomicLocationAsString(record);
+            String genomicLocation = annotator.parseGenomicLocationString(record);
             if (!genomicLocation.equals(expectedGenomicLocations.get(record.getTUMOR_SAMPLE_BARCODE()))) {
                 errorMessage.append("testConvertToHgvs(), record genomicLocation '")
                         .append(genomicLocation)
