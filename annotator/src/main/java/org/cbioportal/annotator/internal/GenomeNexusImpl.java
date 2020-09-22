@@ -291,6 +291,12 @@ public class GenomeNexusImpl implements Annotator {
                 resolveGnomadAlleleFrequencyOTH(alleleFrequency),
                 resolveGnomadAlleleFrequencySAS(alleleFrequency));
         }
+        if (enrichmentFields.contains("polyphen")) {
+            annotatedRecord.setPolyphenFields(canonicalTranscript.getPolyphenPrediction(), String.valueOf(canonicalTranscript.getPolyphenScore()));
+        }
+        if (enrichmentFields.contains("sift")) {
+            annotatedRecord.setSiftFields(canonicalTranscript.getSiftPrediction(), String.valueOf(canonicalTranscript.getSiftScore()));
+        }
 
         return annotatedRecord;
     }

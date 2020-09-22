@@ -61,6 +61,10 @@ public class AnnotatedRecord extends MutationRecord {
     protected String gnomadAlleleFrequencyOTH;
     protected String gnomadAlleleFrequencySAS;
     protected String annotationStatus;
+    protected String polyphenPrediction;
+    protected String polyphenScore;
+    protected String siftPrediction;
+    protected String siftScore;
 
     public AnnotatedRecord() {
         addAnnotatedFieldsToHeader();
@@ -169,7 +173,7 @@ public class AnnotatedRecord extends MutationRecord {
         this.proteinPosition = proteinPosition;
         addAnnotatedFieldsToHeader();
     }
-    
+
     public AnnotatedRecord(MutationRecord mRecord) {
         Map<String, String> additionalProperties = mRecord.getAdditionalProperties();
         this.hugoSymbol = mRecord.getHUGO_SYMBOL();
@@ -251,6 +255,20 @@ public class AnnotatedRecord extends MutationRecord {
         this.gnomadAlleleFrequencyNFE = gnomadAlleleFrequencyNFE;
         this.gnomadAlleleFrequencyOTH = gnomadAlleleFrequencyOTH;
         this.gnomadAlleleFrequencySAS = gnomadAlleleFrequencySAS;
+    }
+
+    public void setPolyphenFields(String polyphenPrediction, String polyphenScore) {
+        header.add("Polyphen_Prediction");
+        header.add("Polyphen_Score");
+        this.polyphenPrediction = polyphenPrediction;
+        this.polyphenScore = polyphenScore;
+    }
+
+    public void setSiftFields(String siftPrediction, String siftScore) {
+        header.add("SIFT_Prediction");
+        header.add("SIFT_Score");
+        this.siftPrediction = siftPrediction;
+        this.siftScore = siftScore;
     }
 
     public String getHGVSC() {
@@ -403,6 +421,39 @@ public class AnnotatedRecord extends MutationRecord {
 
     public void setANNOTATION_STATUS(String annotationStatus) {
         this.annotationStatus = annotationStatus;
+    }
+
+    public String getPOLYPHEN_PREDICTION() {
+        return this.polyphenPrediction;
+    }
+
+    public void setPOLYPHEN_PREDICTION(String polyphenPrediction) {
+        this.polyphenPrediction = polyphenPrediction;
+    }
+
+    public String getPOLYPHEN_SCORE() {
+        return this.polyphenScore;
+    }
+
+    public void setPOLYPHEN_SCORE(String polyphenScore) {
+        this.polyphenScore = polyphenScore;
+    }
+
+
+    public String getSIFT_PREDICTION() {
+        return this.siftPrediction;
+    }
+
+    public void setSIFT_PREDICTION(String siftPrediction) {
+        this.siftPrediction = siftPrediction;
+    }
+
+    public String getSIFT_SCORE() {
+        return this.siftScore;
+    }
+
+    public void setSIFT_SCORE(String siftScore) {
+        this.siftScore = siftScore;
     }
 
     private void addAnnotatedFieldsToHeader() {
