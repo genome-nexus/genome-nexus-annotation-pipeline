@@ -32,10 +32,9 @@
 
 package org.cbioportal.annotator.internal;
 
-import com.google.common.base.Strings;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.mskcc.cbio.maf.MafUtil;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,25 +44,15 @@ import org.cbioportal.models.AnnotatedRecord;
 import org.cbioportal.models.MutationRecord;
 import org.genome_nexus.ApiClient;
 import org.genome_nexus.ApiException;
-import org.genome_nexus.StringUtil;
-import org.genome_nexus.client.AlleleFrequency;
-import org.genome_nexus.client.AnnotationControllerApi;
-import org.genome_nexus.client.ColocatedVariant;
-import org.genome_nexus.client.GenomicLocation;
-import org.genome_nexus.client.Gnomad;
-import org.genome_nexus.client.InfoControllerApi;
-import org.genome_nexus.client.MyVariantInfo;
-import org.genome_nexus.client.MyVariantInfoAnnotation;
-import org.genome_nexus.client.TranscriptConsequenceSummary;
-import org.genome_nexus.client.VariantAnnotation;
-import org.genome_nexus.client.Version;
-import org.mskcc.cbio.maf.MafUtil;
+import org.genome_nexus.client.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.cbioportal.annotator.util.AnnotationUtil;
 
 /**
  *
@@ -87,10 +76,11 @@ public class GenomeNexusImpl implements Annotator {
     private static final String UKNOWN_GENOME_NEXUS_VERSION = "unknown";
     private final Log LOG = LogFactory.getLog(GenomeNexusImpl.class);
 
-    private final Pattern PROTEIN_POSITTION_REGEX = Pattern.compile("p.[A-Za-z]([0-9]*).*$");
     private static List<String> hgvspNullClassifications = initNullClassifications();
     private final Integer READ_TIMEOUT_OVERRIDE = 300000; // built-in default of 5 seconds is not enough time to read responses
-    private static final Pattern DBSNP_RSID_REGIX = Pattern.compile("^(rs\\d*)$");
+
+    @Autowired
+    private AnnotationUtil annotationUtil;
 
     @Bean
     public GenomeNexusImpl annotator(String genomeNexusBaseUrl) {
@@ -204,18 +194,15 @@ public class GenomeNexusImpl implements Annotator {
         return UKNOWN_GENOME_NEXUS_VERSION;
     }
 
-    private AnnotationControllerApi initApiClient()
-    {
+    private AnnotationControllerApi initApiClient() {
         AnnotationControllerApi apiClient;
 
-        if (this.genomeNexusBaseUrl != null && this.genomeNexusBaseUrl.length() > 0)
-        {
+        if (this.genomeNexusBaseUrl != null && this.genomeNexusBaseUrl.length() > 0) {
             ApiClient client = new ApiClient();
             client.setReadTimeout(READ_TIMEOUT_OVERRIDE);
             client.setBasePath(this.genomeNexusBaseUrl);
             apiClient = new AnnotationControllerApi(client);
-        }
-        else {
+        } else {
             apiClient = new AnnotationControllerApi();
         }
 
@@ -227,20 +214,20 @@ public class GenomeNexusImpl implements Annotator {
         TranscriptConsequenceSummary canonicalTranscript = getCanonicalTranscript(gnResponse);
 
         // annotate the record
-        AnnotatedRecord annotatedRecord= new AnnotatedRecord(resolveHugoSymbol(canonicalTranscript, mRecord, replace),
-                resolveEntrezGeneId(canonicalTranscript, mRecord, replace),
+        AnnotatedRecord annotatedRecord= new AnnotatedRecord(annotationUtil.resolveHugoSymbol(canonicalTranscript, mRecord, replace),
+                annotationUtil.resolveEntrezGeneId(canonicalTranscript, mRecord, replace),
                 mRecord.getCENTER(),
-                resolveAssemblyName(gnResponse, mRecord),
-                resolveChromosome(gnResponse, mRecord),
-                resolveStart(gnResponse, mRecord),
-                resolveEnd(gnResponse, mRecord),
-                resolveStrandSign(gnResponse, mRecord),
-                resolveVariantClassification(canonicalTranscript, mRecord),
-                resolveVariantType(gnResponse),
-                resolveReferenceAllele(gnResponse, mRecord),
+                annotationUtil.resolveAssemblyName(gnResponse, mRecord),
+                annotationUtil.resolveChromosome(gnResponse, mRecord),
+                annotationUtil.resolveStart(gnResponse, mRecord),
+                annotationUtil.resolveEnd(gnResponse, mRecord),
+                annotationUtil.resolveStrandSign(gnResponse, mRecord),
+                annotationUtil.resolveVariantClassification(canonicalTranscript, mRecord),
+                annotationUtil.resolveVariantType(gnResponse),
+                annotationUtil.resolveReferenceAllele(gnResponse, mRecord),
                 mRecord.getTUMOR_SEQ_ALLELE1(),
-                resolveTumorSeqAllele(gnResponse, mRecord),
-                resolveDbSnpRs(gnResponse, mRecord),
+                annotationUtil.resolveTumorSeqAllele(gnResponse, mRecord),
+                annotationUtil.resolveDbSnpRs(gnResponse, mRecord),
                 mRecord.getDBSNP_VAL_STATUS(),
                 mRecord.getTUMOR_SAMPLE_BARCODE(),
                 mRecord.getMATCHED_NORM_SAMPLE_BARCODE(),
@@ -265,37 +252,43 @@ public class GenomeNexusImpl implements Annotator {
                 mRecord.getT_ALT_COUNT(),
                 mRecord.getN_REF_COUNT(),
                 mRecord.getN_ALT_COUNT(),
-                resolveHgvsc(canonicalTranscript),
-                resolveHgvsp(canonicalTranscript),
-                resolveHgvspShort(canonicalTranscript),
-                resolveTranscriptId(canonicalTranscript),
-                resolveRefSeq(canonicalTranscript),
-                resolveProteinPosStart(canonicalTranscript),
-                resolveProteinPosEnd(canonicalTranscript),
-                resolveCodonChange(canonicalTranscript),
-                resolveHotspot(),
-                resolveConsequence(canonicalTranscript),
-                resolveProteinPosition(canonicalTranscript, mRecord),
+                annotationUtil.resolveHgvsc(canonicalTranscript),
+                annotationUtil.resolveHgvsp(canonicalTranscript),
+                annotationUtil.resolveHgvspShort(canonicalTranscript),
+                annotationUtil.resolveTranscriptId(canonicalTranscript),
+                annotationUtil.resolveRefSeq(canonicalTranscript),
+                annotationUtil.resolveProteinPosStart(canonicalTranscript),
+                annotationUtil.resolveProteinPosEnd(canonicalTranscript),
+                annotationUtil.resolveCodonChange(canonicalTranscript),
+                annotationUtil.resolveHotspot(),
+                annotationUtil.resolveConsequence(canonicalTranscript),
+                annotationUtil.resolveProteinPosition(canonicalTranscript, mRecord),
                 mRecord.getAdditionalProperties());
 
         if (enrichmentFields.contains("my_variant_info")) {
             // get the gnomad allele frequency
             AlleleFrequency alleleFrequency = getGnomadAlleleFrequency(gnResponse);
-            annotatedRecord.setGnomadFields(resolveGnomadAlleleFrequency(alleleFrequency),
-                resolveGnomadAlleleFrequencyAFR(alleleFrequency),
-                resolveGnomadAlleleFrequencyAMR(alleleFrequency),
-                resolveGnomadAlleleFrequencyASJ(alleleFrequency),
-                resolveGnomadAlleleFrequencyEAS(alleleFrequency),
-                resolveGnomadAlleleFrequencyFIN(alleleFrequency),
-                resolveGnomadAlleleFrequencyNFE(alleleFrequency),
-                resolveGnomadAlleleFrequencyOTH(alleleFrequency),
-                resolveGnomadAlleleFrequencySAS(alleleFrequency));
+            annotatedRecord.setGnomadFields(annotationUtil.resolveGnomadAlleleFrequency(alleleFrequency),
+                annotationUtil.resolveGnomadAlleleFrequencyAFR(alleleFrequency),
+                annotationUtil.resolveGnomadAlleleFrequencyAMR(alleleFrequency),
+                annotationUtil.resolveGnomadAlleleFrequencyASJ(alleleFrequency),
+                annotationUtil.resolveGnomadAlleleFrequencyEAS(alleleFrequency),
+                annotationUtil.resolveGnomadAlleleFrequencyFIN(alleleFrequency),
+                annotationUtil.resolveGnomadAlleleFrequencyNFE(alleleFrequency),
+                annotationUtil.resolveGnomadAlleleFrequencyOTH(alleleFrequency),
+                annotationUtil.resolveGnomadAlleleFrequencySAS(alleleFrequency));
         }
         if (enrichmentFields.contains("polyphen")) {
-            annotatedRecord.setPolyphenFields(canonicalTranscript.getPolyphenPrediction(), String.valueOf(canonicalTranscript.getPolyphenScore()));
+            annotatedRecord.setPolyphenFields(
+                    annotationUtil.resolvePolyphenPrediction(canonicalTranscript),
+                    annotationUtil.resolvePolyphenScore(canonicalTranscript)
+            );
         }
         if (enrichmentFields.contains("sift")) {
-            annotatedRecord.setSiftFields(canonicalTranscript.getSiftPrediction(), String.valueOf(canonicalTranscript.getSiftScore()));
+            annotatedRecord.setSiftFields(
+                    annotationUtil.resolveSiftPrediction(canonicalTranscript),
+                    annotationUtil.resolveSiftScore(canonicalTranscript)
+            );
         }
 
         return annotatedRecord;
@@ -327,331 +320,6 @@ public class GenomeNexusImpl implements Annotator {
                 isoformQueryParameter + "=" + isoformOverridesSource + "&fields=" + enrichmentFields;
     }
 
-    private String resolveHugoSymbol(TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord, boolean replace) {
-        if (replace && canonicalTranscript != null && canonicalTranscript.getHugoGeneSymbol() != null) {
-            return canonicalTranscript.getHugoGeneSymbol();
-        }
-        else {
-            return mRecord.getHUGO_SYMBOL();
-        }
-    }
-
-    private String resolveChromosome(VariantAnnotation gnResponse, MutationRecord mRecord) {
-        if (gnResponse.getAnnotationSummary() != null &&
-            gnResponse.getAnnotationSummary().getGenomicLocation().getChromosome() != null)
-        {
-            return gnResponse.getAnnotationSummary().getGenomicLocation().getChromosome();
-        }
-        else {
-            return mRecord.getCHROMOSOME();
-        }
-    }
-
-    private String resolveAssemblyName(VariantAnnotation gnResponse, MutationRecord mRecord) {
-        return (gnResponse.getAssemblyName() == null) ? mRecord.getNCBI_BUILD() : gnResponse.getAssemblyName();
-    }
-
-    private String resolveStart(VariantAnnotation gnResponse, MutationRecord mRecord) {
-        if (gnResponse.getAnnotationSummary() != null &&
-            gnResponse.getAnnotationSummary().getGenomicLocation().getStart() != null)
-        {
-            return gnResponse.getAnnotationSummary().getGenomicLocation().getStart().toString();
-        }
-        else {
-            return mRecord.getSTART_POSITION();
-        }
-    }
-
-    private String resolveEnd(VariantAnnotation gnResponse, MutationRecord mRecord) {
-        if (gnResponse.getAnnotationSummary() != null &&
-            gnResponse.getAnnotationSummary().getGenomicLocation().getEnd() != null)
-        {
-            return gnResponse.getAnnotationSummary().getGenomicLocation().getEnd().toString();
-        }
-        else {
-            return mRecord.getEND_POSITION();
-        }
-    }
-
-    private String resolveStrandSign(VariantAnnotation gnResponse, MutationRecord mRecord) {
-        String strand = String.valueOf(gnResponse.getStrand());
-
-        if (gnResponse.getAnnotationSummary() != null &&
-            gnResponse.getAnnotationSummary().getStrandSign() != null)
-        {
-            strand = gnResponse.getAnnotationSummary().getStrandSign();
-        }
-        else {
-            strand = mRecord.getSTRAND();
-        }
-
-        return strand;
-    }
-
-    private String resolveVariantClassification(TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord) {
-        String variantClassification = null;
-
-        if (canonicalTranscript != null) {
-            variantClassification = canonicalTranscript.getVariantClassification();
-        }
-
-        return variantClassification != null ? variantClassification : mRecord.getVARIANT_CLASSIFICATION();
-    }
-
-    private String resolveVariantType(VariantAnnotation gnResponse) {
-        String variantType = "";
-
-        if (gnResponse.getAnnotationSummary() != null &&
-            gnResponse.getAnnotationSummary().getVariantType() != null)
-        {
-            variantType = gnResponse.getAnnotationSummary().getVariantType();
-        }
-
-        return variantType;
-    }
-
-    private String resolveReferenceAllele(VariantAnnotation gnResponse, MutationRecord mRecord) {
-        if (gnResponse.getAnnotationSummary() != null &&
-            gnResponse.getAnnotationSummary().getGenomicLocation().getReferenceAllele() != null)
-        {
-            return gnResponse.getAnnotationSummary().getGenomicLocation().getReferenceAllele();
-        }
-        return mRecord.getREFERENCE_ALLELE();
-    }
-
-    private String resolveTumorSeqAllele(VariantAnnotation gnResponse, MutationRecord mRecord) {
-        if (gnResponse.getAnnotationSummary() != null &&
-                gnResponse.getAnnotationSummary().getGenomicLocation().getVariantAllele() != null)
-        {
-            return gnResponse.getAnnotationSummary().getGenomicLocation().getVariantAllele();
-        }
-        return MafUtil.resolveTumorSeqAllele(mRecord.getREFERENCE_ALLELE(),
-                mRecord.getTUMOR_SEQ_ALLELE1(),
-                mRecord.getTUMOR_SEQ_ALLELE2());
-    }
-
-    private String resolveHgvsc(TranscriptConsequenceSummary canonicalTranscript) {
-        String hgvsc = "";
-
-        if (canonicalTranscript != null &&
-            canonicalTranscript.getHgvsc() != null)
-        {
-            hgvsc = canonicalTranscript.getHgvsc();
-        }
-
-        return hgvsc;
-    }
-
-    private String resolveHgvsp(TranscriptConsequenceSummary canonicalTranscript) {
-        String hgvsp = "";
-
-        if (canonicalTranscript != null &&
-            canonicalTranscript.getHgvsp() != null)
-        {
-            hgvsp = canonicalTranscript.getHgvsp();
-        }
-
-        return hgvsp;
-    }
-
-    private String resolveHgvspShort(TranscriptConsequenceSummary canonicalTranscript) {
-        String hgvsp = "";
-
-        if (canonicalTranscript != null &&
-            canonicalTranscript.getHgvspShort() != null)
-        {
-            hgvsp = canonicalTranscript.getHgvspShort();
-        }
-
-        return hgvsp;
-    }
-
-    private String resolveTranscriptId(TranscriptConsequenceSummary canonicalTranscript) {
-        String transcriptId = "";
-
-        if(canonicalTranscript != null) {
-            transcriptId = canonicalTranscript.getTranscriptId();
-        }
-
-        return transcriptId != null ? transcriptId : "";
-    }
-
-    private String resolveRefSeq(TranscriptConsequenceSummary canonicalTranscript) {
-        String refSeq = "";
-
-        if(canonicalTranscript != null) {
-            refSeq = canonicalTranscript.getRefSeq();
-        }
-
-        return refSeq != null ? refSeq : "";
-    }
-
-    private String resolveProteinPosStart(TranscriptConsequenceSummary canonicalTranscript) {
-        Integer proteinStart = null;
-
-        if(canonicalTranscript != null && canonicalTranscript.getProteinPosition() != null) {
-            proteinStart = canonicalTranscript.getProteinPosition().getStart();
-        }
-
-        return proteinStart != null ? proteinStart.toString() : "";
-    }
-
-    private String resolveProteinPosEnd(TranscriptConsequenceSummary canonicalTranscript) {
-        Integer proteinEnd = null;
-
-        if(canonicalTranscript != null && canonicalTranscript.getProteinPosition() != null) {
-            proteinEnd = canonicalTranscript.getProteinPosition().getEnd();
-        }
-
-        return proteinEnd != null ? proteinEnd.toString() : "";
-    }
-
-    private String resolveCodonChange(TranscriptConsequenceSummary canonicalTranscript) {
-        String codonChange = "";
-        if(canonicalTranscript != null) {
-            codonChange = canonicalTranscript.getCodonChange();
-        }
-
-        return codonChange != null ? codonChange : "";
-    }
-
-    private String resolveHotspot() {
-        String hotspot = "0";
-        // TODO this hotspot field is not valid anymore:
-        // we need to redo this part if we want to include hotspot information
-//        if (canonicalTranscript != null) {
-//            if (canonicalTranscript.getIsHotspot() != null) {
-//                hotspot = canonicalTranscript.getIsHotspot().equals("true") ? "1" : "0";
-//            }
-//        }
-        return hotspot;
-    }
-
-    private String resolveConsequence(TranscriptConsequenceSummary canonicalTranscript) {
-        if (canonicalTranscript == null || canonicalTranscript.getConsequenceTerms() == null) {
-            return "";
-        }
-        else {
-            return canonicalTranscript.getConsequenceTerms();
-        }
-    }
-
-    private String resolveEntrezGeneId(TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord, boolean replace) {
-        if (!replace || canonicalTranscript == null || canonicalTranscript.getEntrezGeneId() == null) {
-            return mRecord.getENTREZ_GENE_ID();
-        }
-        else {
-            return canonicalTranscript.getEntrezGeneId();
-        }
-    }
-
-    private String resolveProteinPosition(TranscriptConsequenceSummary canonicalTranscript, MutationRecord record) {
-        String proteinPosition = null;
-        if (canonicalTranscript != null) {
-            String proteinPosStart = resolveProteinPosStart(canonicalTranscript);
-            String hgvspShort = resolveHgvspShort(canonicalTranscript);
-            if (!Strings.isNullOrEmpty(proteinPosStart)) {
-                proteinPosition = proteinPosStart;
-            } else if (!Strings.isNullOrEmpty(hgvspShort)) {
-                // try extracting from hgvspShort if proteinPosStart null/empty
-                Matcher matcher = PROTEIN_POSITTION_REGEX.matcher(hgvspShort);
-                if (matcher.find()) {
-                    proteinPosition = matcher.group(1);
-                }
-            }
-        }
-        return !Strings.isNullOrEmpty(proteinPosition) ? proteinPosition : record.getAdditionalProperties().getOrDefault("Protein_position", "");
-    }
-
-    private String resolveGnomadAlleleFrequency(AlleleFrequency alleleFrequency) {
-        if (alleleFrequency != null) {
-            Double toReturn = alleleFrequency.getAf();
-            if (toReturn != null) {
-                return toReturn.toString();
-            }
-        }
-        return "";
-    }
-
-    private String resolveGnomadAlleleFrequencyAFR(AlleleFrequency alleleFrequency) {
-        if (alleleFrequency != null) {
-            Double toReturn = alleleFrequency.getAfAfr();
-            if (toReturn != null) {
-                return toReturn.toString();
-            }
-        }
-        return "";
-    }
-
-    private String resolveGnomadAlleleFrequencyAMR(AlleleFrequency alleleFrequency) {
-        if (alleleFrequency != null) {
-            Double toReturn = alleleFrequency.getAfAmr();
-            if (toReturn != null) {
-                return toReturn.toString();
-            }
-        }
-        return "";
-    }
-
-    private String resolveGnomadAlleleFrequencyASJ(AlleleFrequency alleleFrequency) {
-        if (alleleFrequency != null) {
-            Double toReturn = alleleFrequency.getAfAsj();
-            if (toReturn != null) {
-                return toReturn.toString();
-            }
-        }
-        return "";
-    }
-
-    private String resolveGnomadAlleleFrequencyEAS(AlleleFrequency alleleFrequency) {
-        if (alleleFrequency != null) {
-            Double toReturn = alleleFrequency.getAfEas();
-            if (toReturn != null) {
-                return toReturn.toString();
-            }
-        }
-        return "";
-    }
-
-    private String resolveGnomadAlleleFrequencyFIN(AlleleFrequency alleleFrequency) {
-        if (alleleFrequency != null) {
-            Double toReturn = alleleFrequency.getAfFin();
-            if (toReturn != null) {
-                return toReturn.toString();
-            }
-        }
-        return "";
-    }
-
-    private String resolveGnomadAlleleFrequencyNFE(AlleleFrequency alleleFrequency) {
-        if (alleleFrequency != null) {
-            Double toReturn = alleleFrequency.getAfNfe();
-            if (toReturn != null) {
-                return toReturn.toString();
-            }
-        }
-        return "";
-    }
-
-    private String resolveGnomadAlleleFrequencyOTH(AlleleFrequency alleleFrequency) {
-        if (alleleFrequency != null) {
-            Double toReturn = alleleFrequency.getAfOth();
-            if (toReturn != null) {
-                return toReturn.toString();
-            }
-        }
-        return "";
-    }
-
-    private String resolveGnomadAlleleFrequencySAS(AlleleFrequency alleleFrequency) {
-        if (alleleFrequency != null) {
-            Double toReturn = alleleFrequency.getAfSas();
-            if (toReturn != null) {
-                return toReturn.toString();
-            }
-        }
-        return "";
-    }
 
     private AlleleFrequency getGnomadAlleleFrequency(VariantAnnotation gnResponse) {
         MyVariantInfoAnnotation myVariantInfoAnnotation = gnResponse.getMyVariantInfo();
@@ -705,19 +373,6 @@ public class GenomeNexusImpl implements Annotator {
         }
     }
 
-    private String resolveDbSnpRs(VariantAnnotation gnResponse, MutationRecord mRecord) {
-        String dbSnpRs = null;
-        if (gnResponse.getColocatedVariants() != null && !gnResponse.getColocatedVariants().isEmpty()) {
-            for (ColocatedVariant cv : gnResponse.getColocatedVariants()) {
-                Matcher dbSnpRsIdMatcher = DBSNP_RSID_REGIX.matcher(cv.getDbSnpId());
-                if (dbSnpRsIdMatcher.find()) {
-                    dbSnpRs = dbSnpRsIdMatcher.group(0);
-                    break;
-                }
-            }
-        }
-        return dbSnpRs != null ? dbSnpRs : mRecord.getDBSNP_RS();
-    }
 
     private static List<String> initNullClassifications() {
         List<String> hgvspNullClassifications = new ArrayList<>();

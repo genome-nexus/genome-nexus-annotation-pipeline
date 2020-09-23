@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.util.*;
 import org.cbioportal.annotator.mixin.TranscriptConsequenceSummaryMixin;
 import org.cbioportal.annotator.mixin.VariantAnnotationSummaryMixin;
+import org.cbioportal.annotator.util.AnnotationUtil;
 
 import org.genome_nexus.client.AlleleFrequency;
 import org.genome_nexus.client.Gnomad;
@@ -128,6 +129,11 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
     @Override
     public MockGenomeNexusImpl annotator() {
         return this;
+    }
+    
+    @Bean
+    public AnnotationUtil annotationUtil() {
+        return new AnnotationUtil();
     }
 
     public AnnotatedRecord makeMockAnnotatedRecord(MutationRecord record) {

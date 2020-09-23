@@ -31,6 +31,7 @@
 */
 package org.cbioportal.annotation.pipeline;
 
+import org.cbioportal.annotator.util.AnnotationUtil;
 import org.cbioportal.models.AnnotatedRecord;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.*;
@@ -51,25 +52,30 @@ import org.springframework.test.context.TestPropertySource;
 @Import(BatchConfiguration.class)
 @TestPropertySource("classpath:application.properties")
 public class TestConfiguration {
-    
+
     public static final String ANNOTATION_JOB_TEST = "annotationJobTest";
-    
-    @Autowired
-    public JobBuilderFactory jobBuilderFactory;    
 
     @Autowired
-    public StepBuilderFactory stepBuilderFactory;      
-    
+    public JobBuilderFactory jobBuilderFactory;
+
+    @Autowired
+    public StepBuilderFactory stepBuilderFactory;
+
+    @Bean
+    public AnnotationUtil annotationUtil() {
+        return new AnnotationUtil();
+    }
+
     @Bean
     public JobLauncherTestUtils jobLauncherTestUtils() {
         JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
         jobLauncherTestUtils.setJob(annotationJob());
         return new JobLauncherTestUtils();
     }
-    
+
     @Value("${chunk:10}")
     private String chunk;
-    
+
     @Bean
     public Job annotationJob()
     {
@@ -107,5 +113,5 @@ public class TestConfiguration {
     public ItemStreamWriter<String> writer()
     {
         return new MutationRecordWriter();
-    }    
+    }
 }
