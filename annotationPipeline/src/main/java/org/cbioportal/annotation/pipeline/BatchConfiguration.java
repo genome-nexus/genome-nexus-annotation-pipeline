@@ -32,6 +32,7 @@
 
 package org.cbioportal.annotation.pipeline;
 
+import org.cbioportal.annotator.util.AnnotationUtil;
 import org.cbioportal.models.AnnotatedRecord;
 
 import org.springframework.batch.core.*;
@@ -49,17 +50,17 @@ import org.springframework.beans.factory.annotation.Value;
 @EnableBatchProcessing
 @ComponentScan(basePackages="org.cbioportal.annotator")
 public class BatchConfiguration
-{    
+{
     public static final String ANNOTATION_JOB = "annotationJob";
-    
-    @Autowired
-    public JobBuilderFactory jobBuilderFactory;    
 
     @Autowired
-    public StepBuilderFactory stepBuilderFactory;      
-    
+    public JobBuilderFactory jobBuilderFactory;
+
+    @Autowired
+    public StepBuilderFactory stepBuilderFactory;
+
     @Value("${chunk:10}")
-    private String chunk;    
+    private String chunk;
 
     @Bean
     public Job annotationJob()
@@ -68,8 +69,11 @@ public class BatchConfiguration
             .start(step())
             .build();
     }
-    
-    
+
+    @Bean
+    public AnnotationUtil annotationUtil() {
+        return new AnnotationUtil();
+    }
 
     @Bean
     public Step step()
@@ -102,7 +106,7 @@ public class BatchConfiguration
     {
         return new MutationRecordWriter();
     }
-    
+
 }
 
 

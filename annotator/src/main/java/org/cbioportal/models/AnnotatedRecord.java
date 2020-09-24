@@ -169,7 +169,7 @@ public class AnnotatedRecord extends MutationRecord {
         this.proteinPosition = proteinPosition;
         addAnnotatedFieldsToHeader();
     }
-    
+
     public AnnotatedRecord(MutationRecord mRecord) {
         Map<String, String> additionalProperties = mRecord.getAdditionalProperties();
         this.hugoSymbol = mRecord.getHUGO_SYMBOL();
@@ -251,6 +251,28 @@ public class AnnotatedRecord extends MutationRecord {
         this.gnomadAlleleFrequencyNFE = gnomadAlleleFrequencyNFE;
         this.gnomadAlleleFrequencyOTH = gnomadAlleleFrequencyOTH;
         this.gnomadAlleleFrequencySAS = gnomadAlleleFrequencySAS;
+    }
+
+    public void setPolyphenFields(String polyphenPrediction,
+            String polyphenScore) {
+        addAdditionalProperty("Polyphen_Prediction", polyphenPrediction);
+        addAdditionalProperty("Polyphen_Score", polyphenScore);
+    }
+
+    public void setSiftFields(String siftPrediction,
+            String siftScore) {
+        addAdditionalProperty("SIFT_Prediction", siftPrediction);
+        addAdditionalProperty("SIFT_Score", siftScore);
+    }
+    
+    public void setMutationAssessorFields(String maFunctionalImpact,
+            String maFunctionalImpactScore,
+            String maLinkMSA,
+            String maLinkPDB) {
+        addAdditionalProperty("MA:FImpact", maFunctionalImpact);
+        addAdditionalProperty("MA:FIS", maFunctionalImpactScore);
+        addAdditionalProperty("MA:link.MSA", maLinkMSA);
+        addAdditionalProperty("MA:link.PDB", maLinkPDB);
     }
 
     public String getHGVSC() {
