@@ -86,14 +86,14 @@
     </dependency>
     <!-- api client -->
     <dependency>
-      <groupId>com.github.ao508.genome-nexus-java-api-client</groupId>
+      <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
       <artifactId>genomeNexusPublicApiClient</artifactId>
-      <version>4a6e209e9eee43ba69717bf56188faf2331e247e</version>
+      <version>e1494758ad96624ff0171403b21852e1e69b17ae</version>
     </dependency>
     <dependency>
-      <groupId>com.github.ao508.genome-nexus-java-api-client</groupId>
+      <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
       <artifactId>genomeNexusInternalApiClient</artifactId>
-      <version>4a6e209e9eee43ba69717bf56188faf2331e247e</version>
+      <version>e1494758ad96624ff0171403b21852e1e69b17ae</version>
     </dependency>
   </dependencies>
 

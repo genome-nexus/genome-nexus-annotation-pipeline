@@ -290,6 +290,13 @@ public class GenomeNexusImpl implements Annotator {
                     annotationUtil.resolveSiftScore(canonicalTranscript)
             );
         }
+        if (enrichmentFields.contains("mutation_assessor")) {
+            annotatedRecord.setMutationAssessorFields(
+                    annotationUtil.resolveMaFunctionalImpact(gnResponse), 
+                    annotationUtil.resolveMaFunctionalImpactScore(gnResponse), 
+                    annotationUtil.resolveMaLinkMSA(gnResponse), 
+                    annotationUtil.resolveMaLinkPDB(gnResponse));
+        }
 
         return annotatedRecord;
     }

@@ -356,6 +356,38 @@ public class AnnotationUtil {
         }
         return parseDoubleAsString(toReturn);
     }
+    
+    public String resolveMaFunctionalImpact(VariantAnnotation gnResponse) {
+        String maFunctionalImpact = "";
+        if (gnResponse.getMutationAssessor() != null && gnResponse.getMutationAssessor().getAnnotation() != null) {
+            maFunctionalImpact = gnResponse.getMutationAssessor().getAnnotation().getFunctionalImpact();
+        }
+        return maFunctionalImpact != null ? maFunctionalImpact : "";
+    }
+
+    public String resolveMaFunctionalImpactScore(VariantAnnotation gnResponse) {
+        Double toReturn = null;
+        if (gnResponse.getMutationAssessor() != null && gnResponse.getMutationAssessor().getAnnotation() != null) {
+            toReturn = gnResponse.getMutationAssessor().getAnnotation().getFunctionalImpactScore();
+        }
+        return parseDoubleAsString(toReturn);
+    }
+
+    public String resolveMaLinkMSA(VariantAnnotation gnResponse) {
+        String maLinkMSA = "";
+        if (gnResponse.getMutationAssessor() != null && gnResponse.getMutationAssessor().getAnnotation() != null) {
+            maLinkMSA = gnResponse.getMutationAssessor().getAnnotation().getMsaLink();
+        }
+        return maLinkMSA != null ? maLinkMSA : "";
+    }
+
+    public String resolveMaLinkPDB(VariantAnnotation gnResponse) {
+        String maLinkPDB = "";
+        if (gnResponse.getMutationAssessor() != null && gnResponse.getMutationAssessor().getAnnotation() != null) {
+            maLinkPDB = gnResponse.getMutationAssessor().getAnnotation().getPdbLink();
+        }
+        return maLinkPDB != null ? maLinkPDB : "";
+    }
 
     private String parseDoubleAsString(Double value) {
         return value != null ? String.valueOf(value)  : "";
