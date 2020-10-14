@@ -88,12 +88,12 @@
     <dependency>
       <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
       <artifactId>genomeNexusPublicApiClient</artifactId>
-      <version>2e28b399642336e3453ae271a486041a3163b004</version>
+      <version>600501017ef64be14cfb36679babec30da9200ca</version>
     </dependency>
     <dependency>
       <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
       <artifactId>genomeNexusInternalApiClient</artifactId>
-      <version>2e28b399642336e3453ae271a486041a3163b004</version>
+      <version>600501017ef64be14cfb36679babec30da9200ca</version>
     </dependency>
   </dependencies>
 
