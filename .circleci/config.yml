@@ -54,6 +54,14 @@ jobs:
           command: 'java -jar annotationPipeline/target/annotationPipeline-*.jar -r --filename test/data/minimal_example.in.txt  --output-filename test/data/minimal_example.out.uniprot.txt --isoform-override uniprot && git diff -G "^[^#]" --exit-code test/data/minimal_example.out.uniprot.txt || (echo -e "simple MAF uniprot output changed test/data/minimal_example.out.uniprot.txt $(cat test/data/minimal_example.out.uniprot.txt | curl -F c=@- https://ptpb.pw | grep url) (include this file in your PR to fix this test)" && exit 1)'
 
       - run:
+          name: "check if corner cases example maf file still the same when annotating with uniprot transcripts"
+          command: 'java -jar annotationPipeline/target/annotationPipeline-*.jar -r --filename test/data/corner_cases.in.txt  --output-filename test/data/corner_cases.out.uniprot.txt --isoform-override uniprot && git diff -G "^[^#]" --exit-code test/data/corner_cases.out.uniprot.txt || (echo -e "simple MAF uniprot output changed test/data/corner_cases.out.uniprot.txt $(cat test/data/corner_cases.out.uniprot.txt | curl -F c=@- https://ptpb.pw | grep url) (include this file in your PR to fix this test)" && exit 1)'
+
+      - run:
+          name: "check if corner cases example maf file still the same when annotating with mskcc transcripts"
+          command: 'java -jar annotationPipeline/target/annotationPipeline-*.jar -r --filename test/data/corner_cases.in.txt  --output-filename test/data/corner_cases.out.mskcc.txt --isoform-override mskcc && git diff -G "^[^#]" --exit-code test/data/corner_cases.out.mskcc.txt || (echo -e "simple MAF mskcc output changed test/data/corner_cases.out.mskcc.txt $(cat test/data/corner_cases.out.mskcc.txt | curl -F c=@- https://ptpb.pw | grep url) (include this file in your PR to fix this test)" && exit 1)'
+
+      - run:
           name: "Run vcf2maf test cases"
           command: 'sudo apt-get install make && ./test/scripts/vcf2maf_tests.sh'
 
