@@ -435,7 +435,6 @@ public class AnnotatedRecord extends MutationRecord {
         header.add("RefSeq");
         header.add("Protein_position");
         header.add("Codons");
-        header.add("Hotspot");
         header.add(header.indexOf("Variant_Classification"), "Consequence");
     }
 }
