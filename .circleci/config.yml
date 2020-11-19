@@ -78,3 +78,19 @@ jobs:
       - run:
           name: "check if minimal example maf file still the same when annotating with uniprot transcripts and POSTs"
           command: 'java -jar annotationPipeline/target/annotationPipeline-*.jar -r --filename test/data/minimal_example.in.txt  --output-filename test/data/minimal_example.out.post.uniprot.txt --isoform-override uniprot && git diff -G "^[^#]" --exit-code test/data/minimal_example.out.uniprot.txt || (echo -e "simple MAF uniprot output changed test/data/minimal_example.out.uniprot.txt $(cat test/data/minimal_example.out.uniprot.txt | curl -F c=@- https://ptpb.pw | grep url) (include this file in your PR to fix this test)" && exit 1)'
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+      - build
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - build
