@@ -1,0 +1,2 @@
+Chromosome	Start_Position	End_Position	Reference_Allele	Tumor_Seq_Allele1	Tumor_Seq_Allele2
+8	17796382	17796383	AC	AAC	GT
