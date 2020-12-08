@@ -213,6 +213,24 @@ public class GenomeNexusImpl implements Annotator {
         // get the canonical transcript
         TranscriptConsequenceSummary canonicalTranscript = getCanonicalTranscript(gnResponse);
 
+        String resolvedReferenceAllele = annotationUtil.resolveReferenceAllele(gnResponse, mRecord);
+        String resolvedTumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1();
+        String resolvedTumorSeqAllele2 = annotationUtil.resolveTumorSeqAllele(gnResponse, mRecord);
+
+        // Copy over changes to the reference allele or tumor_seq_allele1 if
+        // they were identical in the input
+        if (mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getREFERENCE_ALLELE())) {
+            resolvedTumorSeqAllele1 = resolvedReferenceAllele;
+        } else if (mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getTUMOR_SEQ_ALLELE2())) {
+            resolvedTumorSeqAllele1 = resolvedTumorSeqAllele2;
+        } else {
+            // TODO: it's also possible that the position has changed after
+            // resolving ref+alt. Tumor seq allele1 would have to be updated
+            // then as well. Kind of a corner case, but we might want to handle
+            // that in some way. Discussion point: should we even allow the core
+            // variant attributes (pos,ref,alt1,alt2) to be mutable?
+        }
+
         // annotate the record
         AnnotatedRecord annotatedRecord= new AnnotatedRecord(annotationUtil.resolveHugoSymbol(canonicalTranscript, mRecord, replace),
                 annotationUtil.resolveEntrezGeneId(canonicalTranscript, mRecord, replace),
@@ -224,9 +242,9 @@ public class GenomeNexusImpl implements Annotator {
                 annotationUtil.resolveStrandSign(gnResponse, mRecord),
                 annotationUtil.resolveVariantClassification(canonicalTranscript, mRecord),
                 annotationUtil.resolveVariantType(gnResponse),
-                annotationUtil.resolveReferenceAllele(gnResponse, mRecord),
-                mRecord.getTUMOR_SEQ_ALLELE1(),
-                annotationUtil.resolveTumorSeqAllele(gnResponse, mRecord),
+                resolvedReferenceAllele,
+                resolvedTumorSeqAllele1,
+                resolvedTumorSeqAllele2,
                 annotationUtil.resolveDbSnpRs(gnResponse, mRecord),
                 mRecord.getDBSNP_VAL_STATUS(),
                 mRecord.getTUMOR_SAMPLE_BARCODE(),
