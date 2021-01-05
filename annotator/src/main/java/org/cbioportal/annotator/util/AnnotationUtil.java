@@ -84,6 +84,14 @@ public class AnnotationUtil {
         return parseIntegerAsString(proteinEnd);
     }
 
+    public String resolveExon(TranscriptConsequenceSummary canonicalTranscript) {
+        String exon = "";
+        if (canonicalTranscript != null && canonicalTranscript.getExon() != null) {
+            exon = canonicalTranscript.getExon();
+        }
+        return exon;
+    }
+
     public String resolveEntrezGeneId(TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord, boolean replace) {
         if (!replace || canonicalTranscript == null || canonicalTranscript.getEntrezGeneId() == null) {
             return mRecord.getENTREZ_GENE_ID();
