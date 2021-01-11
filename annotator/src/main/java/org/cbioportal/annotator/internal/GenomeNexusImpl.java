@@ -281,6 +281,7 @@ public class GenomeNexusImpl implements Annotator {
                 annotationUtil.resolveHotspot(),
                 annotationUtil.resolveConsequence(canonicalTranscript),
                 annotationUtil.resolveProteinPosition(canonicalTranscript, mRecord),
+                annotationUtil.resolveExon(canonicalTranscript),
                 mRecord.getAdditionalProperties());
 
         if (enrichmentFields.contains("my_variant_info")) {

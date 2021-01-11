@@ -51,6 +51,7 @@ public class AnnotatedRecord extends MutationRecord {
     protected String hotspot;
     protected String consequence;
     protected String proteinPosition;
+    protected String exon;
     protected String gnomadAlleleFrequency;
     protected String gnomadAlleleFrequencyAFR;
     protected String gnomadAlleleFrequencyAMR;
@@ -115,6 +116,7 @@ public class AnnotatedRecord extends MutationRecord {
         String hotspot,
         String consequence,
         String proteinPosition,
+        String exon,
         Map<String, String> additionalProperties
     ) {
         super(hugoSymbol,
@@ -167,6 +169,7 @@ public class AnnotatedRecord extends MutationRecord {
         this.hotspot = hotspot;
         this.consequence = consequence;
         this.proteinPosition = proteinPosition;
+        this.exon = exon;
         addAnnotatedFieldsToHeader();
     }
 
@@ -221,6 +224,7 @@ public class AnnotatedRecord extends MutationRecord {
         this.hotspot = additionalProperties.get("Hotspot") != null ? additionalProperties.get("Hotspot") : "";
         this.consequence = additionalProperties.get("Consequence") != null ? additionalProperties.get("Consequence") : "";
         this.proteinPosition = additionalProperties.get("Protein_position") != null ? additionalProperties.get("Protein_position") : "";
+        this.exon = additionalProperties.get("exon") != null ? additionalProperties.get("exon") : "";
         this.additionalProperties = additionalProperties;
     }
 
@@ -331,6 +335,14 @@ public class AnnotatedRecord extends MutationRecord {
         this.codonChange = codonChange;
     }
 
+    public String getEXON_NUMBER() {
+        return this.exon;
+    }
+
+    public void setEXON_NUMBER(String exon) {
+        this.exon = exon;
+    }
+
     public String getHOTSPOT() {
         return this.hotspot;
     }
@@ -435,6 +447,7 @@ public class AnnotatedRecord extends MutationRecord {
         header.add("RefSeq");
         header.add("Protein_position");
         header.add("Codons");
+        header.add("Exon_Number");
         header.add(header.indexOf("Variant_Classification"), "Consequence");
     }
 }
