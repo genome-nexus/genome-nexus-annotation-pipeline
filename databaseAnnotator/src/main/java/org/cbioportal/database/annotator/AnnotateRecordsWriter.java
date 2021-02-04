@@ -32,7 +32,6 @@
 
 package org.cbioportal.database.annotator;
 
-import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import static com.querydsl.core.alias.Alias.$;
 import static com.querydsl.core.alias.Alias.alias;
 import com.querydsl.core.types.Projections;
@@ -100,7 +99,7 @@ public class AnnotateRecordsWriter  implements ItemStreamWriter<MutationEvent>{
                 Integer rs = pstmt.executeUpdate();
                 log.info("Updated mutation event. Mutation event id: " + annotatedEvent.getMUTATION_EVENT_ID());
             }
-            catch (MySQLIntegrityConstraintViolationException e) {
+            catch (SQLIntegrityConstraintViolationException e) {
                 List<MutationEvent> mutationEvents = getDuplicatedMutationEvents(annotatedEvent);
                 for (MutationEvent event : mutationEvents) {
                     if (event.getPROTEIN_CHANGE().equals(annotatedEvent.getPROTEIN_CHANGE())) {
