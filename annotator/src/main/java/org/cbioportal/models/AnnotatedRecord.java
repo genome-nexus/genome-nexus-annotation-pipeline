@@ -279,6 +279,11 @@ public class AnnotatedRecord extends MutationRecord {
         addAdditionalProperty("MA:link.PDB", maLinkPDB);
     }
 
+    public void setNucleotideContextFields(String refTri, String varTri) {
+        addAdditionalProperty("Ref_Tri", refTri);
+        addAdditionalProperty("Var_Tri", varTri);
+    }
+
     public String getHGVSC() {
         return this.hgvsc;
     }
