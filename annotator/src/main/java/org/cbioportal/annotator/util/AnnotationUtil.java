@@ -416,6 +416,7 @@ public class AnnotationUtil {
                 Integer indexChange = alleleString.indexOf('/');
 
                 if (indexChange > -1) {
+                    // nucleotide context is only supported for SNV on the server side, so we only need to handle SNV case
                     varTri = "" + refTri.charAt(0) + alleleString.charAt(indexChange+1) + refTri.charAt(2);
                 }
             }
