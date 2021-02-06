@@ -34,31 +34,16 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-batch</artifactId>
-        <exclusions>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>log4j-over-slf4j</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-          </exclusion>
-        </exclusions>
+	  <exclusions>
+		  <exclusion>
+			    <groupId>org.slf4j</groupId>
+				  <artifactId>log4j-over-slf4j</artifactId>
+			  </exclusion>
+		</exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
-    </dependency>
-    <!-- slf4j -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.batch</groupId>
@@ -69,7 +54,7 @@
     <dependency>
       <groupId>com.github.cbioportal.cbioportal</groupId>
 	  <artifactId>core</artifactId>
-      <version>v3.6.2</version>
+      <version>9b403b751b27c98e85d0dcc6a541a8c09d3119cc</version>
     </dependency>
     <!-- allows junit3 or juni4 tests to run in the juni5 environment -->
     <dependency>

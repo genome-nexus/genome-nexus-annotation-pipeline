@@ -61,13 +61,14 @@ public class DataSourceConfiguration {
     @Value("${databaseannotator.connection_string}")
     private String connection_string;
 
-    @Bean
+    // need destroyMethod to avoid InstanceNotFoundException (https://stackoverflow.com/questions/24947717)
     public SQLQueryFactory databaseAnnotatorQueryFactory() throws SQLException {
         MySQLTemplates templates = new MySQLTemplates();
         com.querydsl.sql.Configuration config = new com.querydsl.sql.Configuration(templates);
         return new SQLQueryFactory(config, dataSource());
     }
 
+    @Bean(destroyMethod = "")
     public BasicDataSource dataSource() throws SQLException {
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setUsername(username);

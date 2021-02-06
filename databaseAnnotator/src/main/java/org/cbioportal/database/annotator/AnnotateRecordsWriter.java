@@ -38,8 +38,8 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.sql.SQLQueryFactory;
 import java.sql.*;
 import java.util.List;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.cbioportal.database.annotator.model.*;
 import org.springframework.batch.item.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class AnnotateRecordsWriter  implements ItemStreamWriter<MutationEvent>{
     SQLQueryFactory databaseAnnotatorQueryFactory;
 
     private Connection con;
-    private final Log log = LogFactory.getLog(AnnotateRecordsWriter.class);
+    private final Logger LOG = LoggerFactory.getLogger(AnnotateRecordsWriter.class);
 
     @Override
     public void open(ExecutionContext ec) throws ItemStreamException {
@@ -70,7 +70,7 @@ public class AnnotateRecordsWriter  implements ItemStreamWriter<MutationEvent>{
             con.close();
         }
         catch (SQLException e) {
-            log.error("Failed to close connection!!");
+            LOG.error("Failed to close connection!!");
         }
     }
 
@@ -97,7 +97,7 @@ public class AnnotateRecordsWriter  implements ItemStreamWriter<MutationEvent>{
             pstmt.setInt(11, annotatedEvent.getMUTATION_EVENT_ID());
             try {
                 Integer rs = pstmt.executeUpdate();
-                log.info("Updated mutation event. Mutation event id: " + annotatedEvent.getMUTATION_EVENT_ID());
+                LOG.info("Updated mutation event. Mutation event id: " + annotatedEvent.getMUTATION_EVENT_ID());
             }
             catch (SQLIntegrityConstraintViolationException e) {
                 List<MutationEvent> mutationEvents = getDuplicatedMutationEvents(annotatedEvent);
@@ -110,7 +110,7 @@ public class AnnotateRecordsWriter  implements ItemStreamWriter<MutationEvent>{
             }
         }
         else {
-            log.error("Event " + annotatedEvent.getMUTATION_EVENT_ID() + " unable to be fixed.");
+            LOG.error("Event " + annotatedEvent.getMUTATION_EVENT_ID() + " unable to be fixed.");
         }
     }
 
@@ -147,12 +147,12 @@ public class AnnotateRecordsWriter  implements ItemStreamWriter<MutationEvent>{
         pstmt.setInt(1, properlyAnnotatedEvent.getMUTATION_EVENT_ID());
         pstmt.setInt(2, eventToBeDeleted.getMUTATION_EVENT_ID());
         pstmt.executeUpdate();
-        log.info("Updating mutations - mutations linked to mutation event " + eventToBeDeleted.getMUTATION_EVENT_ID() + " now linked to " + properlyAnnotatedEvent.getMUTATION_EVENT_ID());
+        LOG.info("Updating mutations - mutations linked to mutation event " + eventToBeDeleted.getMUTATION_EVENT_ID() + " now linked to " + properlyAnnotatedEvent.getMUTATION_EVENT_ID());
     }
 
     private void deleteMutationEvent(MutationEvent event) throws Exception{
         PreparedStatement pstmt = con.prepareStatement("delete from mutation_event where mutation_event_id = ?");
         pstmt.setInt(1, event.getMUTATION_EVENT_ID());
-        log.info("Deleting mutation event. Properly annotated event already exists in database: " + event.getMUTATION_EVENT_ID());
+        LOG.info("Deleting mutation event. Properly annotated event already exists in database: " + event.getMUTATION_EVENT_ID());
     }
 }
