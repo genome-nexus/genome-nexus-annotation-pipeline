@@ -38,7 +38,6 @@ import java.sql.SQLException;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
@@ -61,7 +60,7 @@ public class DataSourceConfiguration {
     @Value("${databaseannotator.connection_string}")
     private String connection_string;
 
-    @Bean
+    @Bean(destroyMethod = "")
     public SQLQueryFactory databaseAnnotatorQueryFactory() throws SQLException {
         MySQLTemplates templates = new MySQLTemplates();
         com.querydsl.sql.Configuration config = new com.querydsl.sql.Configuration(templates);

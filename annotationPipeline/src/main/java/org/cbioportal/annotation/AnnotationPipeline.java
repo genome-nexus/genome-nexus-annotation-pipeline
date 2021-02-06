@@ -35,8 +35,8 @@ package org.cbioportal.annotation;
 import org.cbioportal.annotation.pipeline.BatchConfiguration;
 
 import org.apache.commons.cli.*;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
@@ -72,8 +72,7 @@ public class AnnotationPipeline
     private static void launchJob(String[] args, String filename, String outputFilename, String isoformOverride,
             String errorReportLocation, boolean replace, Integer postIntervalSize) throws Exception
     {
-        SpringApplication app = new SpringApplication(AnnotationPipeline.class);
-        ConfigurableApplicationContext ctx = app.run(args);
+        ConfigurableApplicationContext ctx = new SpringApplicationBuilder(AnnotationPipeline.class).web(false).run(args);
         JobLauncher jobLauncher = ctx.getBean(JobLauncher.class);
 
         Job annotationJob = ctx.getBean(BatchConfiguration.ANNOTATION_JOB, Job.class);

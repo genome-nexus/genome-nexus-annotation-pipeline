@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>1.2.7.RELEASE</version>
+    <version>1.4.7.RELEASE</version>
   </parent>
 
   <properties>
@@ -69,7 +69,13 @@
     <dependency>
       <groupId>com.github.cbioportal.cbioportal</groupId>
 	  <artifactId>core</artifactId>
-      <version>v3.6.2</version>
+      <version>24bc8b56d73cacb33a1601e3a60160ceff2fa13d</version>
+      <exclusions>
+          <exclusion>
+              <groupId>org.apache.logging.log4j</groupId>
+              <artifactId>log4j-core</artifactId>
+          </exclusion>
+      </exclusions>
     </dependency>
     <!-- allows junit3 or juni4 tests to run in the juni5 environment -->
     <dependency>
