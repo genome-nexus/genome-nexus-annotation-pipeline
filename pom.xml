@@ -68,8 +68,14 @@
     <!-- cbioportal -->
     <dependency>
       <groupId>com.github.cbioportal.cbioportal</groupId>
-	  <artifactId>core</artifactId>
+      <artifactId>core</artifactId>
       <version>v3.6.2</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- allows junit3 or juni4 tests to run in the juni5 environment -->
     <dependency>
