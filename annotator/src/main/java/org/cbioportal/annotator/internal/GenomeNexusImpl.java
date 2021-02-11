@@ -316,6 +316,11 @@ public class GenomeNexusImpl implements Annotator {
                     annotationUtil.resolveMaLinkMSA(gnResponse), 
                     annotationUtil.resolveMaLinkPDB(gnResponse));
         }
+        if (enrichmentFields.contains("nucleotide_context")) {
+            annotatedRecord.setNucleotideContextFields(
+                    annotationUtil.resolveRefTri(gnResponse),
+                    annotationUtil.resolveVarTri(gnResponse));
+        }
 
         return annotatedRecord;
     }

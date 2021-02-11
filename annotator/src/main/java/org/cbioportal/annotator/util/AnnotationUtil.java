@@ -397,6 +397,34 @@ public class AnnotationUtil {
         return maLinkPDB != null ? maLinkPDB : "";
     }
 
+    public String resolveRefTri(VariantAnnotation gnResponse) {
+        String refTri = "";
+        if (gnResponse.getNucleotideContext() != null && gnResponse.getNucleotideContext().getAnnotation() != null) {
+            refTri = gnResponse.getNucleotideContext().getAnnotation().getSeq();
+        }
+        return refTri != null ? refTri : "";
+    }
+
+    public String resolveVarTri(VariantAnnotation gnResponse) {
+        String refTri = "";
+        String varTri = "";
+        if (gnResponse.getNucleotideContext() != null && gnResponse.getNucleotideContext().getAnnotation() != null) {
+            refTri = gnResponse.getNucleotideContext().getAnnotation().getSeq();
+            String alleleString = gnResponse.getAlleleString();
+
+            if (refTri != null && alleleString != null) {
+                Integer indexChange = alleleString.indexOf('/');
+
+                if (indexChange > -1) {
+                    // nucleotide context is only supported for SNV on the server side, so we only need to handle SNV case
+                    varTri = "" + refTri.charAt(0) + alleleString.charAt(indexChange+1) + refTri.charAt(2);
+                }
+            }
+
+        }
+        return varTri != null ? varTri : "";
+    }
+
     private String parseDoubleAsString(Double value) {
         return value != null ? String.valueOf(value)  : "";
     }

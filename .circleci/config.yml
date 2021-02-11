@@ -90,6 +90,10 @@ jobs:
           name: "check if my_variant_info provides gnomad annotations"
           command: 'java -Dgenomenexus.enrichment_fields=annotation_summary,my_variant_info -jar annotationPipeline/target/annotationPipeline-*.jar -r --filename test/data/my_variant_info_corner_cases.in.txt  --output-filename test/data/my_variant_info_corner_cases.out.uniprot.txt --isoform-override uniprot && git diff -G "^[^#]" --exit-code test/data/my_variant_info_corner_cases.out.uniprot.txt || (echo simple MAF uniprot output changed test/data/my_variant_info_corner_cases.out.uniprot.txt)'
 
+      - run:
+          name: "check if nucleotide_context provides Ref_Tri and Var_Tri columnsj"
+          command: 'java -Dgenomenexus.enrichment_fields=annotation_summary,nucleotide_context -jar annotationPipeline/target/annotationPipeline-*.jar --filename test/data/data_mutations_extended_100.in.txt  --output-filename test/data/data_mutations_extended_100.out.uniprot.nucleotide_context.txt --isoform-override uniprot && git diff -G "^[^#]" --exit-code  test/data/data_mutations_extended_100.out.uniprot.nucleotide_context.txt || (echo simple MAF uniprot output changed  test/data/data_mutations_extended_100.out.uniprot.nucleotide_context.txt)'
+
       - store_artifacts:
           path: test/data
           destination: /test-data-output
