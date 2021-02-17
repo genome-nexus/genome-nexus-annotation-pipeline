@@ -32,16 +32,15 @@
 
 package org.cbioportal.database;
 
-import org.cbioportal.database.annotator.BatchConfiguration;
 import org.apache.commons.cli.*;
-import org.apache.commons.cli.Options;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.cbioportal.database.annotator.BatchConfiguration;
+import org.springframework.batch.core.*;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.batch.core.*;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.apache.log4j.Logger;
-
 /**
  *
  * @author heinsz
@@ -50,7 +49,7 @@ import org.apache.log4j.Logger;
 @SpringBootApplication
 public class DatabaseAnnotator {
 
-    private static Logger log = Logger.getLogger(DatabaseAnnotator.class);
+    private static Log log = LogFactory.getLog(DatabaseAnnotator.class);
 
     private static Options getOptions(String[] args){
         Options gnuOptions = new Options();
