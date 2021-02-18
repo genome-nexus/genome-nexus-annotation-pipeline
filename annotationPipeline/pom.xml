@@ -13,10 +13,6 @@
     <version>1.0.0</version>
   </parent>
 
-  <properties>
-    <start-class>org.cbioportal.annotation.AnnotationPipeline</start-class>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.cbioportal.annotation.pipeline</groupId>
@@ -57,5 +53,16 @@
       <type>jar</type>
     </dependency>
   </dependencies>
-
+  <build>
+    <plugins>
+      <plugin>
+        <!-- required to build an executable jar -->
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>org.cbioportal.annotation.AnnotationPipeline</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

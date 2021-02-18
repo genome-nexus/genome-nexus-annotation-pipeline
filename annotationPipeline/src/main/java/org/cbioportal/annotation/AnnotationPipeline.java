@@ -32,19 +32,19 @@
 
 package org.cbioportal.annotation;
 
-import org.cbioportal.annotation.pipeline.BatchConfiguration;
-
 import org.apache.commons.cli.*;
+import org.cbioportal.annotation.pipeline.BatchConfiguration;
+import org.springframework.batch.core.*;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.batch.core.*;
-import org.springframework.batch.core.launch.JobLauncher;
 
 /**
  * @author Zachary Heins
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "org.cbioportal.annotator")
+//@EntityScan(basePackages = "org.cbioportal.annotator") do we even need this?
 public class AnnotationPipeline
 {
 

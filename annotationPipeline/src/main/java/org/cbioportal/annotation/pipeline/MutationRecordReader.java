@@ -34,11 +34,9 @@ package org.cbioportal.annotation.pipeline;
 
 import java.io.*;
 import java.util.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.cbioportal.annotator.internal.AnnotationSummaryStatistics;
+import org.apache.log4j.Logger;
 import org.cbioportal.annotator.Annotator;
-import org.cbioportal.annotator.GenomeNexusAnnotationFailureException;
+import org.cbioportal.annotator.internal.AnnotationSummaryStatistics;
 import org.cbioportal.models.*;
 import org.springframework.batch.item.*;
 import org.springframework.batch.item.file.*;
@@ -75,7 +73,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
     @Autowired
     Annotator annotator;
 
-    private static final Log LOG = LogFactory.getLog(MutationRecordReader.class);
+    private static final Logger LOG = Logger.getLogger(MutationRecordReader.class);
 
     @Override
     public void open(ExecutionContext ec) throws ItemStreamException {

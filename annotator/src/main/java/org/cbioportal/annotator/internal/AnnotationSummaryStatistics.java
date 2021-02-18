@@ -32,16 +32,14 @@
 
 package org.cbioportal.annotator.internal;
 
+import java.io.*;
+import java.util.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.cbioportal.annotator.Annotator;
 import org.cbioportal.models.AnnotatedRecord;
 import org.cbioportal.models.MutationRecord;
 import org.mskcc.cbio.maf.MafUtil;
-
-import java.io.*;
-import java.util.*;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -63,7 +61,7 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
     private List<MutationRecord> failedAnnotatedRecords;
     private List<String> failedAnnotatedRecordsErrorMessages;
 
-    private static final Log LOG = LogFactory.getLog(AnnotationSummaryStatistics.class);
+    private static final Logger LOG = Logger.getLogger(AnnotationSummaryStatistics.class);
 
     public AnnotationSummaryStatistics(Annotator annotator) {
         this.annotator = annotator;
