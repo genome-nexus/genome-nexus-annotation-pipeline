@@ -35,22 +35,23 @@ package org.cbioportal.annotation;
  *
  * @author heinsz
  */
-import org.cbioportal.annotation.pipeline.*;
-import org.springframework.test.context.junit4.*;
-import org.springframework.batch.core.*;
-import org.springframework.batch.test.*; 
+import org.cbioportal.annotation.pipeline.BatchConfiguration;
+import org.cbioportal.annotation.pipeline.TestConfiguration;
 import org.junit.*;
 import org.junit.runner.*;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.batch.core.*;
+import org.springframework.batch.test.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@IntegrationTest
-@SpringApplicationConfiguration(classes={BatchConfiguration.class, TestConfiguration.class})
-@TestPropertySource("classpath:application-test.properties")
+@SpringBootTest
+@ContextConfiguration(classes = {BatchConfiguration.class, TestConfiguration.class})
+@TestPropertySource("classpath:application.properties")
 public class TestAnnotationPipeline {
     
     @Autowired
