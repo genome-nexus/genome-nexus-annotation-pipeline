@@ -77,6 +77,12 @@ public class MutationRecord {
     protected String tAltCount;
     protected String nRefCount;
     protected String nAltCount;
+    protected String IGNORE_Genome_Nexus_Original_Chromosome;
+    protected String IGNORE_Genome_Nexus_Original_Start_Position;
+    protected String IGNORE_Genome_Nexus_Original_End_Position;
+    protected String IGNORE_Genome_Nexus_Original_Reference_Allele;
+    protected String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1;
+    protected String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2;
     protected Map<String, String> additionalProperties = new LinkedHashMap<>();
     protected List<String> header = new ArrayList<>();
 
@@ -93,7 +99,9 @@ public class MutationRecord {
             String verificationStatus, String validationStatus, String mutationStatus, String sequencingPhase,
             String sequencingSource, String validationMethod, String score, String bamFile, String sequencer,
             String tumorSampleUUID, String matchedNormSampleUUID, String tRefCount, String tAltCount,
-            String nRefCount, String nAltCount, Map<String, String> additionalProperties) {
+            String nRefCount, String nAltCount, String IGNORE_Genome_Nexus_Original_Chromosome, String IGNORE_Genome_Nexus_Original_Start_Position,
+            String IGNORE_Genome_Nexus_Original_End_Position, String IGNORE_Genome_Nexus_Original_Reference_Allele, String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1,
+            String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2, Map<String, String> additionalProperties) {
 
         this.hugoSymbol = hugoSymbol;
         this.entrezGeneId = entrezGeneId;
@@ -133,6 +141,12 @@ public class MutationRecord {
         this.tAltCount = tAltCount;
         this.nRefCount = nRefCount;
         this.nAltCount = nAltCount;
+        this.IGNORE_Genome_Nexus_Original_Chromosome = IGNORE_Genome_Nexus_Original_Chromosome;
+        this.IGNORE_Genome_Nexus_Original_Start_Position = IGNORE_Genome_Nexus_Original_Start_Position;
+        this.IGNORE_Genome_Nexus_Original_End_Position = IGNORE_Genome_Nexus_Original_End_Position;
+        this.IGNORE_Genome_Nexus_Original_Reference_Allele = IGNORE_Genome_Nexus_Original_Reference_Allele;
+        this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1 = IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1;
+        this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2 = IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2;
         this.additionalProperties = additionalProperties;
         initHeader();
     }
@@ -441,6 +455,54 @@ public class MutationRecord {
         this.nAltCount = nAltCount;
     }
 
+    public String getIGNORE_GENOME_NEXUS_ORIGINAL_CHROMOSOME() {
+        return this.IGNORE_Genome_Nexus_Original_Chromosome == null ? "" : this.IGNORE_Genome_Nexus_Original_Chromosome;
+    }
+
+    public void setIGNORE_GENOME_NEXUS_ORIGINAL_CHROMOSOME(String IGNORE_Genome_Nexus_Original_Chromosome) {
+        this.IGNORE_Genome_Nexus_Original_Chromosome = IGNORE_Genome_Nexus_Original_Chromosome;
+    }
+
+    public String getIGNORE_GENOME_NEXUS_ORIGINAL_START_POSITION() {
+        return this.IGNORE_Genome_Nexus_Original_Start_Position == null ? "" : this.IGNORE_Genome_Nexus_Original_Start_Position;
+    }
+
+    public void setIGNORE_GENOME_NEXUS_ORIGINAL_START_POSITION(String IGNORE_Genome_Nexus_Original_Start_Position) {
+        this.IGNORE_Genome_Nexus_Original_Start_Position = IGNORE_Genome_Nexus_Original_Start_Position;
+    }
+
+    public String getIGNORE_GENOME_NEXUS_ORIGINAL_END_POSITION() {
+        return this.IGNORE_Genome_Nexus_Original_End_Position == null ? "" : this.IGNORE_Genome_Nexus_Original_End_Position;
+    }
+
+    public void setIGNORE_GENOME_NEXUS_ORIGINAL_END_POSITION(String IGNORE_Genome_Nexus_Original_End_Position) {
+        this.IGNORE_Genome_Nexus_Original_End_Position = IGNORE_Genome_Nexus_Original_End_Position;
+    }
+
+    public String getIGNORE_GENOME_NEXUS_ORIGINAL_REFERENCE_ALLELE() {
+        return this.IGNORE_Genome_Nexus_Original_Reference_Allele == null ? "" : this.IGNORE_Genome_Nexus_Original_Reference_Allele;
+    }
+
+    public void setIGNORE_GENOME_NEXUS_ORIGINAL_REFERENCE_ALLELE(String IGNORE_Genome_Nexus_Original_Reference_Allele) {
+        this.IGNORE_Genome_Nexus_Original_Reference_Allele = IGNORE_Genome_Nexus_Original_Reference_Allele;
+    }
+
+    public String getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE1() {
+        return this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1 == null ? "" : this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1;
+    }
+
+    public void setIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE1(String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1) {
+        this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1 = IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1;
+    }
+
+    public String getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE2() {
+        return this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2 == null ? "" : this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2;
+    }
+
+    public void setIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE2(String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2) {
+        this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2 = IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2;
+    }
+
     public void addAdditionalProperty(String property, String value) {
         this.additionalProperties.put(property, value);
     }
@@ -523,5 +585,11 @@ public class MutationRecord {
         header.add("t_alt_count");
         header.add("n_ref_count");
         header.add("n_alt_count");
+        header.add("IGNORE_Genome_Nexus_Original_Chromosome");
+        header.add("IGNORE_Genome_Nexus_Original_Start_Position");
+        header.add("IGNORE_Genome_Nexus_Original_End_Position");
+        header.add("IGNORE_Genome_Nexus_Original_Reference_Allele");
+        header.add("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1");
+        header.add("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2");
     }
 }
