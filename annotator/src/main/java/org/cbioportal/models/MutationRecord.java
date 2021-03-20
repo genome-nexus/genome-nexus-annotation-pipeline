@@ -77,6 +77,12 @@ public class MutationRecord {
     protected String tAltCount;
     protected String nRefCount;
     protected String nAltCount;
+    protected String GN_Immutable_Chromosome;
+    protected String GN_Immutable_Start_Position;
+    protected String GN_Immutable_End_Position;
+    protected String GN_Immutable_Reference_Allele;
+    protected String GN_Immutable_Tumor_Seq_Allele1;
+    protected String GN_Immutable_Tumor_Seq_Allele2;
     protected Map<String, String> additionalProperties = new LinkedHashMap<>();
     protected List<String> header = new ArrayList<>();
 
@@ -93,7 +99,9 @@ public class MutationRecord {
             String verificationStatus, String validationStatus, String mutationStatus, String sequencingPhase,
             String sequencingSource, String validationMethod, String score, String bamFile, String sequencer,
             String tumorSampleUUID, String matchedNormSampleUUID, String tRefCount, String tAltCount,
-            String nRefCount, String nAltCount, Map<String, String> additionalProperties) {
+            String nRefCount, String nAltCount, String GN_Immutable_Chromosome, String GN_Immutable_Start_Position,
+            String GN_Immutable_End_Position, String GN_Immutable_Reference_Allele, String GN_Immutable_Tumor_Seq_Allele1,
+            String GN_Immutable_Tumor_Seq_Allele2, Map<String, String> additionalProperties) {
 
         this.hugoSymbol = hugoSymbol;
         this.entrezGeneId = entrezGeneId;
@@ -133,6 +141,12 @@ public class MutationRecord {
         this.tAltCount = tAltCount;
         this.nRefCount = nRefCount;
         this.nAltCount = nAltCount;
+        this.GN_Immutable_Chromosome = GN_Immutable_Chromosome;
+        this.GN_Immutable_Start_Position = GN_Immutable_Start_Position;
+        this.GN_Immutable_End_Position = GN_Immutable_End_Position;
+        this.GN_Immutable_Reference_Allele = GN_Immutable_Reference_Allele;
+        this.GN_Immutable_Tumor_Seq_Allele1 = GN_Immutable_Tumor_Seq_Allele1;
+        this.GN_Immutable_Tumor_Seq_Allele2 = GN_Immutable_Tumor_Seq_Allele2;
         this.additionalProperties = additionalProperties;
         initHeader();
     }
@@ -441,6 +455,54 @@ public class MutationRecord {
         this.nAltCount = nAltCount;
     }
 
+    public String getGN_IMMUTABLE_CHROMOSOME() {
+        return this.GN_Immutable_Chromosome == null ? "" : this.GN_Immutable_Chromosome;
+    }
+
+    public void setGN_IMMUTABLE_CHROMOSOME(String GN_Immutable_Chromosome) {
+        this.GN_Immutable_Chromosome = GN_Immutable_Chromosome;
+    }
+
+    public String getGN_IMMUTABLE_START_POSITION() {
+        return this.GN_Immutable_Start_Position == null ? "" : this.GN_Immutable_Start_Position;
+    }
+
+    public void setGN_IMMUTABLE_START_POSITION(String GN_Immutable_Start_Position) {
+        this.GN_Immutable_Start_Position = GN_Immutable_Start_Position;
+    }
+
+    public String getGN_IMMUTABLE_END_POSITION() {
+        return this.GN_Immutable_End_Position == null ? "" : this.GN_Immutable_End_Position;
+    }
+
+    public void setGN_IMMUTABLE_END_POSITION(String GN_Immutable_End_Position) {
+        this.GN_Immutable_End_Position = GN_Immutable_End_Position;
+    }
+
+    public String getGN_IMMUTABLE_REFERENCE_ALLELE() {
+        return this.GN_Immutable_Reference_Allele == null ? "" : this.GN_Immutable_Reference_Allele;
+    }
+
+    public void setGN_IMMUTABLE_REFERENCE_ALLELE(String GN_Immutable_Reference_Allele) {
+        this.GN_Immutable_Reference_Allele = GN_Immutable_Reference_Allele;
+    }
+
+    public String getGN_IMMUTABLE_TUMOR_SEQ_ALLELE1() {
+        return this.GN_Immutable_Tumor_Seq_Allele1 == null ? "" : this.GN_Immutable_Tumor_Seq_Allele1;
+    }
+
+    public void setGN_IMMUTABLE_TUMOR_SEQ_ALLELE1(String GN_Immutable_Tumor_Seq_Allele1) {
+        this.GN_Immutable_Tumor_Seq_Allele1 = GN_Immutable_Tumor_Seq_Allele1;
+    }
+
+    public String getGN_IMMUTABLE_TUMOR_SEQ_ALLELE2() {
+        return this.GN_Immutable_Tumor_Seq_Allele2 == null ? "" : this.GN_Immutable_Tumor_Seq_Allele2;
+    }
+
+    public void setGN_IMMUTABLE_TUMOR_SEQ_ALLELE2(String GN_Immutable_Tumor_Seq_Allele2) {
+        this.GN_Immutable_Tumor_Seq_Allele2 = GN_Immutable_Tumor_Seq_Allele2;
+    }
+
     public void addAdditionalProperty(String property, String value) {
         this.additionalProperties.put(property, value);
     }
@@ -523,5 +585,11 @@ public class MutationRecord {
         header.add("t_alt_count");
         header.add("n_ref_count");
         header.add("n_alt_count");
+        header.add("GN_Immutable_Chromosome");
+        header.add("GN_Immutable_Start_Position");
+        header.add("GN_Immutable_End_Position");
+        header.add("GN_Immutable_Reference_Allele");
+        header.add("GN_Immutable_Tumor_Seq_Allele1");
+        header.add("GN_Immutable_Tumor_Seq_Allele2");
     }
 }
