@@ -557,4 +557,3 @@ public class GenomeNexusImpl implements Annotator {
         }
     };
 }
- 
