@@ -474,3 +474,4 @@ public class AnnotatedRecord extends MutationRecord {
         header.add(header.indexOf("Variant_Classification"), "Consequence");
     }
 }
+
