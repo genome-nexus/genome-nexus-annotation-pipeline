@@ -245,22 +245,6 @@ public class GenomeNexusImpl implements Annotator {
         GN_Immutable_Tumor_Seq_Allele1_Value = ((GN_Immutable_Tumor_Seq_Allele1_Value = mRecord.getGN_IMMUTABLE_TUMOR_SEQ_ALLELE1()) != "") ? GN_Immutable_Tumor_Seq_Allele1_Value : mRecord.getTUMOR_SEQ_ALLELE1();
         GN_Immutable_Tumor_Seq_Allele2_Value = ((GN_Immutable_Tumor_Seq_Allele2_Value = mRecord.getGN_IMMUTABLE_TUMOR_SEQ_ALLELE2()) != "") ? GN_Immutable_Tumor_Seq_Allele2_Value : mRecord.getTUMOR_SEQ_ALLELE2();
 
-        /*
-        String GN_Immutable_Chromosome_Value = mRecord.getCHROMOSOME();
-        String GN_Immutable_Start_Position_Value = mRecord.getSTART_POSITION();
-        String GN_Immutable_End_Position_Value = mRecord.getEND_POSITION();
-        String GN_Immutable_Reference_Allele_Value = mRecord.getREFERENCE_ALLELE();
-        String GN_Immutable_Tumor_Seq_Allele1_Value = mRecord.getTUMOR_SEQ_ALLELE1();
-        String GN_Immutable_Tumor_Seq_Allele2_Value = mRecord.getTUMOR_SEQ_ALLELE2();
-
-        mRecord.getCHROMOSOME(),
-        mRecord.getSTART_POSITION(),
-        mRecord.getEND_POSITION(),
-        mRecord.getREFERENCE_ALLELE(),
-        mRecord.getTUMOR_SEQ_ALLELE1(),
-        mRecord.getTUMOR_SEQ_ALLELE2(),
-        */
-
         // annotate the record
         AnnotatedRecord annotatedRecord= new AnnotatedRecord(annotationUtil.resolveHugoSymbol(canonicalTranscript, mRecord, replace),
                 annotationUtil.resolveEntrezGeneId(canonicalTranscript, mRecord, replace),
