@@ -593,3 +593,4 @@ public class MutationRecord {
         header.add("GN_Immutable_Tumor_Seq_Allele2");
     }
 }
+
