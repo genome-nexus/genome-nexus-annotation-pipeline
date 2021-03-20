@@ -225,12 +225,12 @@ public class AnnotatedRecord extends MutationRecord {
         this.tAltCount = mRecord.getT_ALT_COUNT();
         this.nRefCount = mRecord.getN_REF_COUNT();
         this.nAltCount = mRecord.getN_ALT_COUNT();
-        this.GN_Immutable_Chromosome = mRecord.getCHROMOSOME();
-        this.GN_Immutable_Start_Position = mRecord.getSTART_POSITION();
-        this.GN_Immutable_End_Position = mRecord.getEND_POSITION();
-        this.GN_Immutable_Reference_Allele = mRecord.getREFERENCE_ALLELE();
-        this.GN_Immutable_Tumor_Seq_Allele1 = mRecord.getTUMOR_SEQ_ALLELE1();
-        this.GN_Immutable_Tumor_Seq_Allele2 = mRecord.getTUMOR_SEQ_ALLELE2();
+        this.GN_Immutable_Chromosome = mRecord.getGN_IMMUTABLE_CHROMOSOME();
+        this.GN_Immutable_Start_Position = mRecord.getGN_IMMUTABLE_START_POSITION();
+        this.GN_Immutable_End_Position = mRecord.getGN_IMMUTABLE_END_POSITION();
+        this.GN_Immutable_Reference_Allele = mRecord.getGN_IMMUTABLE_REFERENCE_ALLELE();
+        this.GN_Immutable_Tumor_Seq_Allele1 = mRecord.getGN_IMMUTABLE_TUMOR_SEQ_ALLELE1();
+        this.GN_Immutable_Tumor_Seq_Allele2 = mRecord.getGN_IMMUTABLE_TUMOR_SEQ_ALLELE2();
         this.hgvsc = additionalProperties.get("HGVSc") != null ? additionalProperties.get("HGVSc") : "";
         this.hgvsp = additionalProperties.get("HGVSp") != null ? additionalProperties.get("HGVSp") : "";
         this.hgvspShort = additionalProperties.get("HGVSp_Short");
