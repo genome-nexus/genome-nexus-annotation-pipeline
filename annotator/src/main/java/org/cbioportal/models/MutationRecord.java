@@ -77,12 +77,12 @@ public class MutationRecord {
     protected String tAltCount;
     protected String nRefCount;
     protected String nAltCount;
-    protected String GN_Immutable_Chromosome;
-    protected String GN_Immutable_Start_Position;
-    protected String GN_Immutable_End_Position;
-    protected String GN_Immutable_Reference_Allele;
-    protected String GN_Immutable_Tumor_Seq_Allele1;
-    protected String GN_Immutable_Tumor_Seq_Allele2;
+    protected String IGNORE_Genome_Nexus_Original_Chromosome;
+    protected String IGNORE_Genome_Nexus_Original_Start_Position;
+    protected String IGNORE_Genome_Nexus_Original_End_Position;
+    protected String IGNORE_Genome_Nexus_Original_Reference_Allele;
+    protected String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1;
+    protected String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2;
     protected Map<String, String> additionalProperties = new LinkedHashMap<>();
     protected List<String> header = new ArrayList<>();
 
@@ -99,9 +99,9 @@ public class MutationRecord {
             String verificationStatus, String validationStatus, String mutationStatus, String sequencingPhase,
             String sequencingSource, String validationMethod, String score, String bamFile, String sequencer,
             String tumorSampleUUID, String matchedNormSampleUUID, String tRefCount, String tAltCount,
-            String nRefCount, String nAltCount, String GN_Immutable_Chromosome, String GN_Immutable_Start_Position,
-            String GN_Immutable_End_Position, String GN_Immutable_Reference_Allele, String GN_Immutable_Tumor_Seq_Allele1,
-            String GN_Immutable_Tumor_Seq_Allele2, Map<String, String> additionalProperties) {
+            String nRefCount, String nAltCount, String IGNORE_Genome_Nexus_Original_Chromosome, String IGNORE_Genome_Nexus_Original_Start_Position,
+            String IGNORE_Genome_Nexus_Original_End_Position, String IGNORE_Genome_Nexus_Original_Reference_Allele, String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1,
+            String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2, Map<String, String> additionalProperties) {
 
         this.hugoSymbol = hugoSymbol;
         this.entrezGeneId = entrezGeneId;
@@ -141,12 +141,12 @@ public class MutationRecord {
         this.tAltCount = tAltCount;
         this.nRefCount = nRefCount;
         this.nAltCount = nAltCount;
-        this.GN_Immutable_Chromosome = GN_Immutable_Chromosome;
-        this.GN_Immutable_Start_Position = GN_Immutable_Start_Position;
-        this.GN_Immutable_End_Position = GN_Immutable_End_Position;
-        this.GN_Immutable_Reference_Allele = GN_Immutable_Reference_Allele;
-        this.GN_Immutable_Tumor_Seq_Allele1 = GN_Immutable_Tumor_Seq_Allele1;
-        this.GN_Immutable_Tumor_Seq_Allele2 = GN_Immutable_Tumor_Seq_Allele2;
+        this.IGNORE_Genome_Nexus_Original_Chromosome = IGNORE_Genome_Nexus_Original_Chromosome;
+        this.IGNORE_Genome_Nexus_Original_Start_Position = IGNORE_Genome_Nexus_Original_Start_Position;
+        this.IGNORE_Genome_Nexus_Original_End_Position = IGNORE_Genome_Nexus_Original_End_Position;
+        this.IGNORE_Genome_Nexus_Original_Reference_Allele = IGNORE_Genome_Nexus_Original_Reference_Allele;
+        this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1 = IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1;
+        this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2 = IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2;
         this.additionalProperties = additionalProperties;
         initHeader();
     }
@@ -455,52 +455,52 @@ public class MutationRecord {
         this.nAltCount = nAltCount;
     }
 
-    public String getGN_IMMUTABLE_CHROMOSOME() {
-        return this.GN_Immutable_Chromosome == null ? "" : this.GN_Immutable_Chromosome;
+    public String getIGNORE_GENOME_NEXUS_ORIGINAL_CHROMOSOME() {
+        return this.IGNORE_Genome_Nexus_Original_Chromosome == null ? "" : this.IGNORE_Genome_Nexus_Original_Chromosome;
     }
 
-    public void setGN_IMMUTABLE_CHROMOSOME(String GN_Immutable_Chromosome) {
-        this.GN_Immutable_Chromosome = GN_Immutable_Chromosome;
+    public void setIGNORE_GENOME_NEXUS_ORIGINAL_CHROMOSOME(String IGNORE_Genome_Nexus_Original_Chromosome) {
+        this.IGNORE_Genome_Nexus_Original_Chromosome = IGNORE_Genome_Nexus_Original_Chromosome;
     }
 
-    public String getGN_IMMUTABLE_START_POSITION() {
-        return this.GN_Immutable_Start_Position == null ? "" : this.GN_Immutable_Start_Position;
+    public String getIGNORE_GENOME_NEXUS_ORIGINAL_START_POSITION() {
+        return this.IGNORE_Genome_Nexus_Original_Start_Position == null ? "" : this.IGNORE_Genome_Nexus_Original_Start_Position;
     }
 
-    public void setGN_IMMUTABLE_START_POSITION(String GN_Immutable_Start_Position) {
-        this.GN_Immutable_Start_Position = GN_Immutable_Start_Position;
+    public void setIGNORE_GENOME_NEXUS_ORIGINAL_START_POSITION(String IGNORE_Genome_Nexus_Original_Start_Position) {
+        this.IGNORE_Genome_Nexus_Original_Start_Position = IGNORE_Genome_Nexus_Original_Start_Position;
     }
 
-    public String getGN_IMMUTABLE_END_POSITION() {
-        return this.GN_Immutable_End_Position == null ? "" : this.GN_Immutable_End_Position;
+    public String getIGNORE_GENOME_NEXUS_ORIGINAL_END_POSITION() {
+        return this.IGNORE_Genome_Nexus_Original_End_Position == null ? "" : this.IGNORE_Genome_Nexus_Original_End_Position;
     }
 
-    public void setGN_IMMUTABLE_END_POSITION(String GN_Immutable_End_Position) {
-        this.GN_Immutable_End_Position = GN_Immutable_End_Position;
+    public void setIGNORE_GENOME_NEXUS_ORIGINAL_END_POSITION(String IGNORE_Genome_Nexus_Original_End_Position) {
+        this.IGNORE_Genome_Nexus_Original_End_Position = IGNORE_Genome_Nexus_Original_End_Position;
     }
 
-    public String getGN_IMMUTABLE_REFERENCE_ALLELE() {
-        return this.GN_Immutable_Reference_Allele == null ? "" : this.GN_Immutable_Reference_Allele;
+    public String getIGNORE_GENOME_NEXUS_ORIGINAL_REFERENCE_ALLELE() {
+        return this.IGNORE_Genome_Nexus_Original_Reference_Allele == null ? "" : this.IGNORE_Genome_Nexus_Original_Reference_Allele;
     }
 
-    public void setGN_IMMUTABLE_REFERENCE_ALLELE(String GN_Immutable_Reference_Allele) {
-        this.GN_Immutable_Reference_Allele = GN_Immutable_Reference_Allele;
+    public void setIGNORE_GENOME_NEXUS_ORIGINAL_REFERENCE_ALLELE(String IGNORE_Genome_Nexus_Original_Reference_Allele) {
+        this.IGNORE_Genome_Nexus_Original_Reference_Allele = IGNORE_Genome_Nexus_Original_Reference_Allele;
     }
 
-    public String getGN_IMMUTABLE_TUMOR_SEQ_ALLELE1() {
-        return this.GN_Immutable_Tumor_Seq_Allele1 == null ? "" : this.GN_Immutable_Tumor_Seq_Allele1;
+    public String getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE1() {
+        return this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1 == null ? "" : this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1;
     }
 
-    public void setGN_IMMUTABLE_TUMOR_SEQ_ALLELE1(String GN_Immutable_Tumor_Seq_Allele1) {
-        this.GN_Immutable_Tumor_Seq_Allele1 = GN_Immutable_Tumor_Seq_Allele1;
+    public void setIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE1(String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1) {
+        this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1 = IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1;
     }
 
-    public String getGN_IMMUTABLE_TUMOR_SEQ_ALLELE2() {
-        return this.GN_Immutable_Tumor_Seq_Allele2 == null ? "" : this.GN_Immutable_Tumor_Seq_Allele2;
+    public String getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE2() {
+        return this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2 == null ? "" : this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2;
     }
 
-    public void setGN_IMMUTABLE_TUMOR_SEQ_ALLELE2(String GN_Immutable_Tumor_Seq_Allele2) {
-        this.GN_Immutable_Tumor_Seq_Allele2 = GN_Immutable_Tumor_Seq_Allele2;
+    public void setIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE2(String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2) {
+        this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2 = IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2;
     }
 
     public void addAdditionalProperty(String property, String value) {
