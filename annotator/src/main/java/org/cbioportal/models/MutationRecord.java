@@ -585,11 +585,11 @@ public class MutationRecord {
         header.add("t_alt_count");
         header.add("n_ref_count");
         header.add("n_alt_count");
-        header.add("GN_Immutable_Chromosome");
-        header.add("GN_Immutable_Start_Position");
-        header.add("GN_Immutable_End_Position");
-        header.add("GN_Immutable_Reference_Allele");
-        header.add("GN_Immutable_Tumor_Seq_Allele1");
-        header.add("GN_Immutable_Tumor_Seq_Allele2");
+        header.add("IGNORE_Genome_Nexus_Original_Chromosome");
+        header.add("IGNORE_Genome_Nexus_Original_Start_Position");
+        header.add("IGNORE_Genome_Nexus_Original_End_Position");
+        header.add("IGNORE_Genome_Nexus_Original_Reference_Allele");
+        header.add("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1");
+        header.add("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2");
     }
 }
