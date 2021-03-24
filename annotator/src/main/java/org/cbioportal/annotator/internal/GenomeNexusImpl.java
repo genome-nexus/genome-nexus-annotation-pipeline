@@ -231,19 +231,19 @@ public class GenomeNexusImpl implements Annotator {
             // variant attributes (pos,ref,alt1,alt2) to be mutable?
         }
 
-        String GN_Immutable_Chromosome_Value;
-        String GN_Immutable_Start_Position_Value;
-        String GN_Immutable_End_Position_Value;
-        String GN_Immutable_Reference_Allele_Value;
-        String GN_Immutable_Tumor_Seq_Allele1_Value;
-        String GN_Immutable_Tumor_Seq_Allele2_Value;
+        String IGNORE_Genome_Nexus_Original_Chromosome_Value;
+        String IGNORE_Genome_Nexus_Original_Start_Position_Value;
+        String IGNORE_Genome_Nexus_Original_End_Position_Value;
+        String IGNORE_Genome_Nexus_Original_Reference_Allele_Value;
+        String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1_Value;
+        String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2_Value;
 
-        GN_Immutable_Chromosome_Value = ((GN_Immutable_Chromosome_Value = mRecord.getGN_IMMUTABLE_CHROMOSOME()) != "") ? GN_Immutable_Chromosome_Value : mRecord.getCHROMOSOME();
-        GN_Immutable_Start_Position_Value = ((GN_Immutable_Start_Position_Value = mRecord.getGN_IMMUTABLE_START_POSITION()) != "") ? GN_Immutable_Start_Position_Value : mRecord.getSTART_POSITION();
-        GN_Immutable_End_Position_Value = ((GN_Immutable_End_Position_Value = mRecord.getGN_IMMUTABLE_END_POSITION()) != "") ? GN_Immutable_End_Position_Value : mRecord.getEND_POSITION();
-        GN_Immutable_Reference_Allele_Value = ((GN_Immutable_Reference_Allele_Value = mRecord.getGN_IMMUTABLE_REFERENCE_ALLELE()) != "") ? GN_Immutable_Reference_Allele_Value : mRecord.getREFERENCE_ALLELE();
-        GN_Immutable_Tumor_Seq_Allele1_Value = ((GN_Immutable_Tumor_Seq_Allele1_Value = mRecord.getGN_IMMUTABLE_TUMOR_SEQ_ALLELE1()) != "") ? GN_Immutable_Tumor_Seq_Allele1_Value : mRecord.getTUMOR_SEQ_ALLELE1();
-        GN_Immutable_Tumor_Seq_Allele2_Value = ((GN_Immutable_Tumor_Seq_Allele2_Value = mRecord.getGN_IMMUTABLE_TUMOR_SEQ_ALLELE2()) != "") ? GN_Immutable_Tumor_Seq_Allele2_Value : mRecord.getTUMOR_SEQ_ALLELE2();
+        IGNORE_Genome_Nexus_Original_Chromosome_Value = ((IGNORE_Genome_Nexus_Original_Chromosome_Value = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_CHROMOSOME()) != "") ? IGNORE_Genome_Nexus_Original_Chromosome_Value : mRecord.getCHROMOSOME();
+        IGNORE_Genome_Nexus_Original_Start_Position_Value = ((IGNORE_Genome_Nexus_Original_Start_Position_Value = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_START_POSITION()) != "") ? IGNORE_Genome_Nexus_Original_Start_Position_Value : mRecord.getSTART_POSITION();
+        IGNORE_Genome_Nexus_Original_End_Position_Value = ((IGNORE_Genome_Nexus_Original_End_Position_Value = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_END_POSITION()) != "") ? IGNORE_Genome_Nexus_Original_End_Position_Value : mRecord.getEND_POSITION();
+        IGNORE_Genome_Nexus_Original_Reference_Allele_Value = ((IGNORE_Genome_Nexus_Original_Reference_Allele_Value = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_REFERENCE_ALLELE()) != "") ? IGNORE_Genome_Nexus_Original_Reference_Allele_Value : mRecord.getREFERENCE_ALLELE();
+        IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1_Value = ((IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1_Value = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE1()) != "") ? IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1_Value : mRecord.getTUMOR_SEQ_ALLELE1();
+        IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2_Value = ((IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2_Value = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE2()) != "") ? IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2_Value : mRecord.getTUMOR_SEQ_ALLELE2();
 
         // annotate the record
         AnnotatedRecord annotatedRecord= new AnnotatedRecord(annotationUtil.resolveHugoSymbol(canonicalTranscript, mRecord, replace),
@@ -284,12 +284,12 @@ public class GenomeNexusImpl implements Annotator {
                 mRecord.getT_ALT_COUNT(),
                 mRecord.getN_REF_COUNT(),
                 mRecord.getN_ALT_COUNT(),
-                GN_Immutable_Chromosome_Value,
-                GN_Immutable_Start_Position_Value,
-                GN_Immutable_End_Position_Value,
-                GN_Immutable_Reference_Allele_Value,
-                GN_Immutable_Tumor_Seq_Allele1_Value,
-                GN_Immutable_Tumor_Seq_Allele2_Value,
+                IGNORE_Genome_Nexus_Original_Chromosome_Value,
+                IGNORE_Genome_Nexus_Original_Start_Position_Value,
+                IGNORE_Genome_Nexus_Original_End_Position_Value,
+                IGNORE_Genome_Nexus_Original_Reference_Allele_Value,
+                IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1_Value,
+                IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2_Value,
                 annotationUtil.resolveHgvsc(canonicalTranscript),
                 annotationUtil.resolveHgvsp(canonicalTranscript),
                 annotationUtil.resolveHgvspShort(canonicalTranscript),
