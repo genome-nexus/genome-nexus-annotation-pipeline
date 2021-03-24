@@ -54,6 +54,10 @@ jobs:
           command: 'java -jar annotationPipeline/target/annotationPipeline-*.jar -r --filename test/data/minimal_example.in.txt  --output-filename test/data/minimal_example.out.uniprot.txt --isoform-override uniprot && git diff -G "^[^#]" --exit-code test/data/minimal_example.out.uniprot.txt || (echo simple MAF uniprot output changed test/data/minimal_example.out.uniprot.txt && exit 1)'
 
       - run:
+          name: "check if columns prefixed by IGNORE_Genome_Nexus_Original are immutable"
+          command: 'java -jar annotationPipeline/target/annotationPipeline-*.jar -r --filename test/data/immutable_columns_test.in.txt  --output-filename test/data/immutable_columns_test.out.uniprot.txt --isoform-override uniprot && git diff -G "^[^#]" --exit-code test/data/immutable_columns_test.out.uniprot.txt || (echo simple MAF uniprot output changed test/data/immutable_columns_test.out.uniprot.txt && exit 1)'
+
+      - run:
           name: "check if corner cases example maf file still the same when annotating with uniprot transcripts"
           command: 'java -jar annotationPipeline/target/annotationPipeline-*.jar -r --filename test/data/corner_cases.two_tumor_seq_allele.in.txt  --output-filename test/data/corner_cases.two_tumor_seq_allele.out.uniprot.txt --isoform-override uniprot && git diff -G "^[^#]" --exit-code test/data/corner_cases.two_tumor_seq_allele.out.uniprot.txt || (echo simple MAF uniprot output changed test/data/corner_cases.two_tumor_seq_allele.out.uniprot.txt && exit 1)'
 
