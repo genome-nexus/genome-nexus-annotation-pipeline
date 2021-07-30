@@ -38,34 +38,36 @@ package org.cbioportal.annotation;
 import org.cbioportal.annotation.pipeline.*;
 import org.springframework.test.context.junit4.*;
 import org.springframework.batch.core.*;
-import org.springframework.batch.test.*; 
+import org.springframework.batch.test.*;
 import org.junit.*;
 import org.junit.runner.*;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@IntegrationTest
-@SpringApplicationConfiguration(classes={BatchConfiguration.class, TestConfiguration.class})
+@SpringBatchTest
+@ContextConfiguration(classes = {BatchConfiguration.class})
+@EnableAutoConfiguration
 @TestPropertySource("classpath:application-test.properties")
 public class TestAnnotationPipeline {
-    
+
     @Autowired
     JobLauncherTestUtils jobLauncherTestUtils;
-    
+
     @Test
     public void pipelineTest() throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
         JobExecution jobExecution = jobLauncherTestUtils.launchJob(new JobParametersBuilder()
             .addString("filename", classLoader.getResource("data/testmaf.txt").getPath())
-            .addString("outputFilename", "target/test-outputs/output.txt")
+            .addString("outputFilename", "data/output.txt")
             .addString("replace", "false")
             .addString("isoformOverride", "uniprot")
+            .addString("postIntervalSize", "-1")
             .toJobParameters());
-        AssertFile.assertFileEquals(new FileSystemResource(classLoader.getResource("data/expectedmaf.txt").getPath()), new FileSystemResource("target/test-outputs/output.txt"));
+        Assert.assertEquals(jobExecution.getExitStatus(), ExitStatus.COMPLETED);
     }
-    
+
 }

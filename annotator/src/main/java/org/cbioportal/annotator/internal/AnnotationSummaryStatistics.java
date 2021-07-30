@@ -40,8 +40,7 @@ import org.mskcc.cbio.maf.MafUtil;
 import java.io.*;
 import java.util.*;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -63,7 +62,7 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
     private List<MutationRecord> failedAnnotatedRecords;
     private List<String> failedAnnotatedRecordsErrorMessages;
 
-    private static final Log LOG = LogFactory.getLog(AnnotationSummaryStatistics.class);
+    private static final Logger LOG = Logger.getLogger(AnnotationSummaryStatistics.class);
 
     public AnnotationSummaryStatistics(Annotator annotator) {
         this.annotator = annotator;
