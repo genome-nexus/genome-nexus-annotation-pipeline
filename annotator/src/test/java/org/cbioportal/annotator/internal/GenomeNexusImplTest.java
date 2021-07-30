@@ -36,7 +36,6 @@ import org.cbioportal.models.AnnotatedRecord;
 import org.cbioportal.models.MutationRecord;
 import org.cbioportal.annotator.GenomeNexusTestConfiguration;
 import org.cbioportal.annotator.MockGenomeNexusImpl;
-import org.genome_nexus.client.GenomicLocation;
 
 import java.util.*;
 import org.junit.*;

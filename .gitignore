@@ -8,3 +8,5 @@ annotationPipeline/src/main/resources/log4j.properties
 databaseAnnotator/src/main/resources/log4j.properties
 *.iml
 swagger-codegen-cli.jar
+*repository.sqlite
+annotationPipeline/data/output.txt

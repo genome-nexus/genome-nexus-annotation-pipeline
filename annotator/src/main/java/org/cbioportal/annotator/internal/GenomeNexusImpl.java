@@ -36,8 +36,7 @@ import java.util.*;
 import org.mskcc.cbio.maf.MafUtil;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.cbioportal.annotator.Annotator;
 import org.cbioportal.annotator.GenomeNexusAnnotationFailureException;
 import org.cbioportal.models.AnnotatedRecord;
@@ -74,7 +73,7 @@ public class GenomeNexusImpl implements Annotator {
 
     private AnnotationControllerApi apiClient;
     private static final String UKNOWN_GENOME_NEXUS_VERSION = "unknown";
-    private final Log LOG = LogFactory.getLog(GenomeNexusImpl.class);
+    private final Logger LOG = Logger.getLogger(GenomeNexusImpl.class);
 
     private static List<String> hgvspNullClassifications = initNullClassifications();
     private final Integer READ_TIMEOUT_OVERRIDE = 300000; // built-in default of 5 seconds is not enough time to read responses
@@ -311,9 +310,9 @@ public class GenomeNexusImpl implements Annotator {
         }
         if (enrichmentFields.contains("mutation_assessor")) {
             annotatedRecord.setMutationAssessorFields(
-                    annotationUtil.resolveMaFunctionalImpact(gnResponse), 
-                    annotationUtil.resolveMaFunctionalImpactScore(gnResponse), 
-                    annotationUtil.resolveMaLinkMSA(gnResponse), 
+                    annotationUtil.resolveMaFunctionalImpact(gnResponse),
+                    annotationUtil.resolveMaFunctionalImpactScore(gnResponse),
+                    annotationUtil.resolveMaLinkMSA(gnResponse),
                     annotationUtil.resolveMaLinkPDB(gnResponse));
         }
         if (enrichmentFields.contains("nucleotide_context")) {

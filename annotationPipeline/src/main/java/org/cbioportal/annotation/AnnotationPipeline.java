@@ -40,6 +40,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.boot.WebApplicationType;
 
 /**
  * @author Zachary Heins
@@ -73,6 +74,8 @@ public class AnnotationPipeline
             String errorReportLocation, boolean replace, Integer postIntervalSize) throws Exception
     {
         SpringApplication app = new SpringApplication(AnnotationPipeline.class);
+        app.setWebApplicationType(WebApplicationType.NONE);
+        app.setAllowBeanDefinitionOverriding(Boolean.TRUE);
         ConfigurableApplicationContext ctx = app.run(args);
         JobLauncher jobLauncher = ctx.getBean(JobLauncher.class);
 

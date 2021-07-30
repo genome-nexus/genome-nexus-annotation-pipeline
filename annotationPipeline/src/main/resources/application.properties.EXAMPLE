@@ -1,3 +1,4 @@
+spring.main.web-application-type=none
 spring.batch.job.enabled=false
 genomenexus.base=https://www.genomenexus.org
 genomenexus.isoform_query_parameter=isoformOverrideSource

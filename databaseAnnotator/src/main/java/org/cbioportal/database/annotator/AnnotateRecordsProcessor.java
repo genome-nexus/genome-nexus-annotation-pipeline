@@ -37,8 +37,7 @@ import com.querydsl.sql.SQLQueryFactory;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.cbioportal.models.*;
 import org.cbioportal.annotator.Annotator;
 import org.cbioportal.annotator.GenomeNexusAnnotationFailureException;
@@ -65,7 +64,7 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
 
     public final static int NA_INT = -1;
 
-    private final Log LOG = LogFactory.getLog(AnnotateRecordsProcessor.class);
+    private final Logger LOG = Logger.getLogger(AnnotateRecordsProcessor.class);
 
     @Override
     public MutationEvent process(MutationEvent i) throws Exception {
