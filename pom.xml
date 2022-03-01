@@ -68,7 +68,7 @@
     <dependency>
       <groupId>com.github.cbioportal.cbioportal</groupId>
       <artifactId>core</artifactId>
-      <version>e7a279de809e2fd3af02afeea2317135ec81ffcf</version>
+      <version>f6485a8ab1ae6418914d9cbbd25fef98b64edde6</version>
       <exclusions>
         <exclusion>
           <groupId>org.apache.logging.log4j</groupId>
