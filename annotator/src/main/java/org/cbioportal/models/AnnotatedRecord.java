@@ -105,6 +105,12 @@ public class AnnotatedRecord extends MutationRecord {
         String tAltCount,
         String nRefCount,
         String nAltCount,
+        String IGNORE_Genome_Nexus_Original_Chromosome,
+        String IGNORE_Genome_Nexus_Original_Start_Position,
+        String IGNORE_Genome_Nexus_Original_End_Position,
+        String IGNORE_Genome_Nexus_Original_Reference_Allele,
+        String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1,
+        String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2,
         String hgvsc,
         String hgvsp,
         String hgvspShort,
@@ -157,6 +163,12 @@ public class AnnotatedRecord extends MutationRecord {
             tAltCount,
             nRefCount,
             nAltCount,
+            IGNORE_Genome_Nexus_Original_Chromosome,
+            IGNORE_Genome_Nexus_Original_Start_Position,
+            IGNORE_Genome_Nexus_Original_End_Position,
+            IGNORE_Genome_Nexus_Original_Reference_Allele,
+            IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1,
+            IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2,
             additionalProperties);
         this.hgvsc = hgvsc;
         this.hgvsp = hgvsp;
@@ -213,6 +225,12 @@ public class AnnotatedRecord extends MutationRecord {
         this.tAltCount = mRecord.getT_ALT_COUNT();
         this.nRefCount = mRecord.getN_REF_COUNT();
         this.nAltCount = mRecord.getN_ALT_COUNT();
+        this.IGNORE_Genome_Nexus_Original_Chromosome = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_CHROMOSOME();
+        this.IGNORE_Genome_Nexus_Original_Start_Position = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_START_POSITION();
+        this.IGNORE_Genome_Nexus_Original_End_Position = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_END_POSITION();
+        this.IGNORE_Genome_Nexus_Original_Reference_Allele = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_REFERENCE_ALLELE();
+        this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1 = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE1();
+        this.IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2 = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE2();
         this.hgvsc = additionalProperties.get("HGVSc") != null ? additionalProperties.get("HGVSc") : "";
         this.hgvsp = additionalProperties.get("HGVSp") != null ? additionalProperties.get("HGVSp") : "";
         this.hgvspShort = additionalProperties.get("HGVSp_Short");
