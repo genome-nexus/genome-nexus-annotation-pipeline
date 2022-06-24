@@ -33,8 +33,6 @@
 package org.cbioportal.annotation.pipeline;
 
 import org.cbioportal.models.MutationRecord;
-import java.util.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
@@ -42,27 +40,36 @@ import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.validation.BindException;
 
 /**
+ * Maps a single line of a MAF file into a {@link MutationRecord}
  *
+ * @author Mete Ozguz
  * @author heinsz
  */
 public class MutationFieldSetMapper implements  FieldSetMapper<MutationRecord> {
     private final Logger LOG = LoggerFactory.getLogger(MutationFieldSetMapper.class);
+
+    /**
+     * Maps a single line of a MAF file into a MutationRecord
+     *
+     * @param fs the {@link FieldSet} to map
+     * @return MutationRecord which represents a single line of a MAF file
+     * @throws BindException Thrown when binding errors are considered fatal.
+     */
     @Override
     public MutationRecord mapFieldSet(FieldSet fs) throws BindException {
         MutationRecord record = new MutationRecord();
-        Set<String> names = new HashSet(Arrays.asList(fs.getNames()));
-        names.addAll(record.getHeader());
-        for (String field : names) {
+        for (String field : fs.getNames()) {
             try {
                 record.getClass().getMethod("set" + field.toUpperCase(), String.class).invoke(record, fs.readRawString(field));
             }
+            catch (NoSuchMethodException e) {
+                record.addAdditionalProperty(field, fs.readRawString(field));
+            }
+            catch (IllegalArgumentException e) {
+                LOG.debug("No such field inside of MutationRecord: " + field);
+            }
             catch (Exception e) {
-                if (e.getClass().equals(NoSuchMethodException.class)) {
-                    record.addAdditionalProperty(field, fs.readRawString(field));
-                }
-                else {
-                    LOG.error("Something went wrong reading field " + field);
-                }
+                LOG.error("Unexpected behavior for the field: " + field + ". Contact devs.");
             }
         }
         return record;
