@@ -46,7 +46,14 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.core.io.FileSystemResource;
 
 /**
+ * <pre>
+ * Reader for <a href="https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/">GDC MAF Format v.1.0.0</a>
  *
+ * Following columns are required:
+ *  Chromosome, Start_Position, End_Position, Reference_Allele, Tumor_Seq_Allele1
+ * </pre>
+ *
+ * @author Mete Ozguz
  * @author Zachary Heins
  */
 public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
@@ -121,12 +128,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
         mapper.setFieldSetMapper(new MutationFieldSetMapper());
         reader.setLineMapper(mapper);
         reader.setLinesToSkip(1);
-        reader.setSkippedLinesCallback(new LineCallbackHandler() {
-                @Override
-                public void handleLine(String line) {
-                    tokenizer.setNames(line.split("\t"));
-                }
-        });
+        reader.setSkippedLinesCallback(new DefaultLineCallbackHandler(tokenizer));
         reader.open(new ExecutionContext());
         LOG.info("Loading records from: " + filename);
         MutationRecord mutationRecord;
