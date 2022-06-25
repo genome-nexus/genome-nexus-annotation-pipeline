@@ -74,6 +74,9 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
     @Value("#{jobParameters[postIntervalSize]}")
     private Integer postIntervalSize;
 
+    @Value("#{jobParameters[outputFormat]}")
+    private String outputFormat;
+
     private AnnotationSummaryStatistics summaryStatistics;
     private List<AnnotatedRecord> allAnnotatedRecords = new ArrayList<>();
     private Set<String> header = new LinkedHashSet<>();
@@ -96,8 +99,16 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
             } else {
                 this.allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, replace, true);
             }
-            for (AnnotatedRecord ar : this.allAnnotatedRecords) {
-                header.addAll(ar.getHeaderWithAdditionalFields());
+            // if output-format option is supplied, we only need to convert its data into header
+            if (outputFormat != null) {
+                String[] tokens = outputFormat.split(",");
+                for (int i = 0; i < tokens.length; i++) {
+                    header.add(tokens[i].trim());
+                }
+            } else {
+                for (AnnotatedRecord ar : this.allAnnotatedRecords) {
+                    header.addAll(ar.getHeaderWithAdditionalFields());
+                }
             }
             // add 'Annotation_Status' to header if not already present
             if (!header.contains("Annotation_Status")) {
