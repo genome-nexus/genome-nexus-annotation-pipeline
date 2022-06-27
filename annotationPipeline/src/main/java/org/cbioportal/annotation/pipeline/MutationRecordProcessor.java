@@ -46,16 +46,23 @@ import org.springframework.beans.factory.annotation.Value;
 public class MutationRecordProcessor implements ItemProcessor<AnnotatedRecord, String>{
     @Value("#{stepExecutionContext['mutation_header']}")
     private List<String> header;
-    
+
+    public MutationRecordProcessor() {
+    }
+
+    public MutationRecordProcessor(List<String> header) {
+        this.header = header;
+    }
+
     @Override
-    public String process(AnnotatedRecord i) throws Exception {
+    public String process(AnnotatedRecord annotatedRecord) throws Exception {
         List<String> record = new ArrayList();
         for (String field : header) {
             try {
-                record.add(i.getClass().getMethod("get" + field.toUpperCase()).invoke(i).toString().trim());
+                record.add(annotatedRecord.getClass().getMethod("get" + field.toUpperCase()).invoke(annotatedRecord).toString().trim());
             }
             catch (Exception e) {
-                record.add(i.getAdditionalProperties().getOrDefault(field,"").trim());
+                record.add(annotatedRecord.getAdditionalProperties().getOrDefault(field,"").trim());
             }
         }        
         return StringUtils.join(record, "\t");
