@@ -1,0 +1,3 @@
+Chromosome	Start_Position	End_Position	Reference_Allele	Tumor_Seq_Allele1
+7	116411872	116411900	TAACAAGCTCTTTCTTTCTCTCTGTTTTA	-
+8	17796382	17796383	AC	GT
