@@ -34,10 +34,11 @@ package org.cbioportal.annotation.pipeline;
 
 import java.io.*;
 import java.util.*;
-import org.apache.log4j.Logger;
 import org.cbioportal.annotator.internal.AnnotationSummaryStatistics;
 import org.cbioportal.annotator.Annotator;
 import org.cbioportal.models.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.*;
 import org.springframework.batch.item.file.*;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
@@ -73,7 +74,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
     @Autowired
     Annotator annotator;
 
-    private static final Logger LOG = Logger.getLogger(MutationRecordReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MutationRecordReader.class);
 
     @Override
     public void open(ExecutionContext ec) throws ItemStreamException {

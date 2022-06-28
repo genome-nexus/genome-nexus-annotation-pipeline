@@ -34,7 +34,9 @@ package org.cbioportal.annotation.pipeline;
 
 import org.cbioportal.models.MutationRecord;
 import java.util.*;
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.validation.BindException;
@@ -44,7 +46,7 @@ import org.springframework.validation.BindException;
  * @author heinsz
  */
 public class MutationFieldSetMapper implements  FieldSetMapper<MutationRecord> {
-    private final Logger LOG = Logger.getLogger(MutationFieldSetMapper.class);
+    private final Logger LOG = LoggerFactory.getLogger(MutationFieldSetMapper.class);
     @Override
     public MutationRecord mapFieldSet(FieldSet fs) throws BindException {
         MutationRecord record = new MutationRecord();
