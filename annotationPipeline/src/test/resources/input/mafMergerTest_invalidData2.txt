@@ -1,0 +1,6 @@
+#genome_nexus_version: 0-unknown-version-SNAPSHOT
+#isoform: uniprot
+Center	NCBI_Build	Chromosome	Start_Position	End_Position	Strand
+TP53	0	.	GRCh37	17	7579312
+TP54	1	a	GRCh37	18	757931
+TP55	2	b		19	75793

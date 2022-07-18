@@ -1,7 +1,5 @@
 package org.cbioportal.annotation.pipeline;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.file.LineCallbackHandler;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 
@@ -14,9 +12,8 @@ import java.util.*;
 public class DefaultLineCallbackHandler implements LineCallbackHandler {
 
     private static final String[] requiredNames = {"Chromosome", "Start_Position", "End_Position", "Reference_Allele"};
-    private final Logger LOG = LoggerFactory.getLogger(DefaultLineCallbackHandler.class);
     private final DelimitedLineTokenizer tokenizer;
-    private final List<String> inputFileHeaders;
+    private static List<String> inputFileHeaders;
 
     /**
      *
@@ -29,30 +26,35 @@ public class DefaultLineCallbackHandler implements LineCallbackHandler {
     }
 
     /**
-     * Parser and validator of tab separated header names
-     * Should be invoked only for the header line!
+     * Header line should include following names: "Chromosome", "Start_Position", "End_Position", "Reference_Allele"
+     * Header line should either include "Tumor_Seq_Allele1" or "Tumor_Seq_Allele2"
      *
-     * @param line
+     * @param line The line which contains tab separated headers. It shouldn't be null.
+     * @param tokenizer It can be null if it won't be used for spring batch file operations later on.
      */
-    @Override
-    public void handleLine(String line) {
+    public static void checkHeader(String line, DelimitedLineTokenizer tokenizer) {
         String[] names = line.split("\t");
         Set<String> nameSet = new HashSet<>();
         nameSet.addAll(Arrays.asList(names));
         for (String requiredName : requiredNames) {
             if (!nameSet.contains(requiredName)) {
-                String errorMessage = "Input file does not contain all the necessary fields. Missing field: " + requiredName;
-                LOG.error(errorMessage);
-                throw new RuntimeException(errorMessage);
+                throw new RuntimeException("Input file does not contain all the necessary fields. Missing field: " + requiredName);
             }
         }
         // Presence of Tumor_Seq_Allele1 or Tumor_Seq_Allele2
         if (!nameSet.contains("Tumor_Seq_Allele1") && !nameSet.contains("Tumor_Seq_Allele2")) {
-            String errorMessage = "Input file needs contain at least one of these fields: Tumor_Seq_Allele1, Tumor_Seq_Allele2";
-            LOG.error(errorMessage);
-            throw new RuntimeException(errorMessage);
+            throw new RuntimeException("Header line should either include \"Tumor_Seq_Allele1\" or \"Tumor_Seq_Allele2\"");
         }
-        Collections.addAll(inputFileHeaders, names);
-        tokenizer.setNames(names); // do not use sorted names here
+        if (inputFileHeaders != null) {
+            Collections.addAll(inputFileHeaders, names);
+        }
+        if (tokenizer != null) {
+            tokenizer.setNames(names); // do not use sorted names here, this will mess the places where tokenizer is used later on.
+        }
+    }
+
+    @Override
+    public void handleLine(String line) {
+        checkHeader(line, tokenizer);
     }
 }

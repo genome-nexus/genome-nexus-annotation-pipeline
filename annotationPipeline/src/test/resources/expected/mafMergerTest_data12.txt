@@ -1,0 +1,6 @@
+Hugo_Symbol	Entrez_Gene_Id	Center	NCBI_Build	Chromosome	Chromosome1	Start_Position	End_Position	Strand
+		TERT	0	.	GRCh37			
+		TERT1	0		GRCh37			
+		TP53	0	.		GRCh37	17	7579312
+		TP54	1	a		GRCh37	18	757931
+		TP55	2	b			19	75793

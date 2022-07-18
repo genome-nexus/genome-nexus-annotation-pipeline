@@ -23,6 +23,27 @@ class DefaultLineCallbackHandlerTest {
     }
 
     @Test
+    void handleLine_success_Allele1_with_null_tokenizer() {
+        String testLine = "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\tTumor_Seq_Allele1";
+        DefaultLineCallbackHandler handler = new DefaultLineCallbackHandler(null, new ArrayList<>());
+        handler.handleLine(testLine);
+    }
+
+    @Test
+    void checkHeader_success_Allele1() {
+        String testLine = "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\tTumor_Seq_Allele1";
+        DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
+        DefaultLineCallbackHandler.checkHeader(testLine, tokenizer);
+        assertEquals(true, tokenizer.hasNames());
+    }
+
+    @Test
+    void checkHeader_success_Allele1_with_null_tokenizer() {
+        String testLine = "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\tTumor_Seq_Allele1";
+        DefaultLineCallbackHandler.checkHeader(testLine, null);
+    }
+
+    @Test
     void handleLine_success_Allele2() {
         String testLine = "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\tTumor_Seq_Allele2";
         DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
@@ -58,7 +79,7 @@ class DefaultLineCallbackHandlerTest {
     @Test
     void handleLine_missing_Tumor_Seq_Allele1_and_Tumor_Seq_Allele2() {
         String testLine = "Chromosome\tStart_Position\tEnd_Position\tReference_Allele";
-        handleLine(testLine, "Input file needs contain at least one of these fields: Tumor_Seq_Allele1, Tumor_Seq_Allele2");
+        handleLine(testLine, "Header line should either include \"Tumor_Seq_Allele1\" or \"Tumor_Seq_Allele2\"");
     }
 
     private void handleLine(String line, String expectedMessage) {

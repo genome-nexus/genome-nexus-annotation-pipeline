@@ -28,58 +28,39 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.annotation;
 
+import org.apache.commons.cli.ParseException;
+import org.cbioportal.annotation.annotationTools.MafMerger;
+import org.cbioportal.annotation.cli.*;
 import org.cbioportal.annotation.pipeline.BatchConfiguration;
-
-import org.apache.commons.cli.*;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- *
  * @author Mete Ozguz
  * @author Zachary Heins
  */
 @SpringBootApplication
-public class AnnotationPipeline
-{
+public class AnnotationPipeline {
 
-    private static Options getOptions(String[] args)
-    {
-        Options gnuOptions = new Options();
-        gnuOptions.addOption("h", "help", false, "shows this help document and quits.")
-            .addOption("f", "filename", true, "Mutation filename")
-            .addOption("o", "output-filename", true, "Output filename (including path)")
-            .addOption("t", "output-format", true, "tcga, minimal or a file path which includes output format (FORMAT EXAMPLE: Chromosome,Hugo_Symbol,Entrez_Gene_Id,Center,NCBI_Build)")
-            .addOption("i", "isoform-override", true, "Isoform Overrides (mskcc or uniprot)")
-            .addOption("e", "error-report-location", true, "Error report filename (including path)")
-            .addOption("r", "replace-symbol-entrez", false, "Replace gene symbols and entrez id with what is provided by annotator" )
-            .addOption("p", "post-interval-size", true, "Number of records to make POST requests to Genome Nexus with at a time");
+    private static final Logger LOG = LoggerFactory.getLogger(AnnotationPipeline.class);
 
-        return gnuOptions;
-    }
-
-    private static void help(Options gnuOptions, int exitStatus)
-    {
-        HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp("GenomeNexusAnnotationPipeline", gnuOptions);
-        System.exit(exitStatus);
-    }
-
-    private static void launchJob(String[] args, String filename, String outputFilename, String outputFormat, String isoformOverride,
-            String errorReportLocation, boolean replace, Integer postIntervalSize) throws Exception
-    {
+    private static void annotateJob(String[] args, String filename, String outputFilename, String outputFormat, String isoformOverride,
+                                    String errorReportLocation, boolean replace, Integer postIntervalSize) throws Exception {
         SpringApplication app = new SpringApplication(AnnotationPipeline.class);
         app.setWebApplicationType(WebApplicationType.NONE);
         app.setAllowBeanDefinitionOverriding(Boolean.TRUE);
@@ -88,49 +69,116 @@ public class AnnotationPipeline
 
         Job annotationJob = ctx.getBean(BatchConfiguration.ANNOTATION_JOB, Job.class);
         JobParameters jobParameters = new JobParametersBuilder()
-            .addString("filename", filename)
-            .addString("outputFilename", outputFilename)
-            .addString("outputFormat", outputFormat)
-            .addString("replace", String.valueOf(replace))
-            .addString("isoformOverride", isoformOverride)
-            .addString("errorReportLocation", errorReportLocation)
-            .addString("postIntervalSize", String.valueOf(postIntervalSize))
-            .toJobParameters();
+                .addString("filename", filename)
+                .addString("outputFilename", outputFilename)
+                .addString("outputFormat", outputFormat)
+                .addString("replace", String.valueOf(replace))
+                .addString("isoformOverride", isoformOverride)
+                .addString("errorReportLocation", errorReportLocation)
+                .addString("postIntervalSize", String.valueOf(postIntervalSize))
+                .toJobParameters();
         JobExecution jobExecution = jobLauncher.run(annotationJob, jobParameters);
         if (!jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
             System.exit(2);
         }
     }
 
-    public static void main(String[] args) throws Exception
-    {
-        Options gnuOptions = AnnotationPipeline.getOptions(args);
-        CommandLineParser parser = new GnuParser();
-        CommandLine commandLine = parser.parse(gnuOptions, args);
-        if (commandLine.hasOption("h") ||
-            !commandLine.hasOption("filename") ||
-            !commandLine.hasOption("output-filename")) {
-            help(gnuOptions, 0);
-        }
-        String outputFormat = null;
-        if (commandLine.hasOption("output-format")) {
-            String outputFormatFile = commandLine.getOptionValue("output-format");
-            if ("tcga".equals(outputFormatFile)) {
-                outputFormat = "tcga";
-            } else if ("minimal".equals(outputFormatFile)) {
-                outputFormat = "minimal";
-            } else {
-                // user supplied a format file instead of pre-defined formats
-                try (BufferedReader br = new BufferedReader(new FileReader(outputFormatFile))) {
-                    outputFormat = br.readLine();
-                } catch (IOException e) {
-                    System.err.println("Error while reading output-format file: " + outputFormatFile);
-                    System.exit(0);
-                }
+    public static void main(String[] args) throws NoSubcommandFoundException, ParseException, AnnotationFailedException, MergeFailedException {
+        Subcommand subcommand = null;
+        try {
+            subcommand = Subcommands.find(args);
+        } catch (ParseException | NoSubcommandFoundException e) {
+            AnnotateSubcommand.help();
+            MergeSubcommand.help();
+            if (args.length <= 1) {
+                throw e;
             }
         }
-        launchJob(args, commandLine.getOptionValue("filename"), commandLine.getOptionValue("output-filename"), outputFormat, commandLine.getOptionValue("isoform-override"),
-                commandLine.hasOption("error-report-location") ? commandLine.getOptionValue("error-report-location") : null,
-                commandLine.hasOption("replace-symbol-entrez"), commandLine.hasOption("post-interval-size") ? Integer.valueOf(commandLine.getOptionValue("post-interval-size")) : -1);
+        if(subcommand == null) {
+            subcommand = new AnnotateSubcommand(args);
+        }
+        if (subcommand instanceof AnnotateSubcommand) {
+            annotate(subcommand, args);
+        } else if (subcommand instanceof MergeSubcommand) {
+            try {
+                merge(subcommand);
+            } catch (MergeFailedException e) {
+                LOG.error(e.getMessage());
+                throw e;
+            }
+        }
+    }
+
+    private static void merge(Subcommand subcommand) throws MergeFailedException {
+        if (subcommand.hasOption("h")) {
+            subcommand.printHelp();
+            return;
+        }
+        if (!subcommand.hasOption("output-maf")) {
+            subcommand.printHelp();
+            throw new MergeFailedException("required option: output-maf");
+        }
+        if (subcommand.hasOption("input-mafs-list") && subcommand.hasOption("input-mafs-directory")) {
+            String error = "Please choose only one of the following options when running script: --input-mafs-list | --input-mafs-directory";
+            LOG.error(error);
+            subcommand.printHelp();
+            throw new MergeFailedException(error);
+        }
+        List<String> inputMafs = new ArrayList<>();
+        if (subcommand.hasOption("input-mafs-list")) {
+            String[] files = subcommand.getOptionValue("input-mafs-list").split(",");
+            for (String file : files) {
+                inputMafs.add(file);
+            }
+        } else if (subcommand.hasOption("input-mafs-directory")) {
+            File inputDirectory = new File(subcommand.getOptionValue("input-mafs-directory"));
+            if (inputDirectory.exists() && inputDirectory.isDirectory()) {
+                File[] files = inputDirectory.listFiles();
+                for (File file : files) {
+                    inputMafs.add(file.getAbsolutePath());
+                }
+            } else {
+                String error = "Supplied input mafs directory is not a directory or it does not exist!";
+                throw new MergeFailedException(error);
+            }
+        }
+        if (inputMafs.size() == 0 || inputMafs.size() == 1) {
+            String error = "There is nothing to merge! Count of input files: " + inputMafs.size();
+            LOG.error(error);
+            throw new MergeFailedException(error);
+        }
+        boolean skipInvalidInput = false;
+        if (subcommand.hasOption("skip-invalid-input")) {
+            skipInvalidInput = true;
+        }
+        try {
+            MafMerger.mergeInputMafs(inputMafs, subcommand.getOptionValue("output-maf"), skipInvalidInput);
+        } catch (IOException e) {
+            throw new MergeFailedException(e);
+        }
+    }
+
+    private static void annotate(Subcommand subcommand, String[] args) throws AnnotationFailedException {
+        if (subcommand.hasOption("h")) {
+            subcommand.printHelp();
+            return;
+        }
+        if (!subcommand.hasOption("filename")) {
+            subcommand.printHelp();
+            throw new AnnotationFailedException("required option: filename");
+        }
+        if (!subcommand.hasOption("output-filename")) {
+            subcommand.printHelp();
+            throw new AnnotationFailedException("required option: output-filename");
+        }
+        try {
+            annotateJob(args, subcommand.getOptionValue("filename"), subcommand.getOptionValue("output-filename"), subcommand.getOptionValue("output-format"),
+                    subcommand.getOptionValue("isoform-override"),
+                    subcommand.hasOption("error-report-location") ? subcommand.getOptionValue("error-report-location") : null,
+                    subcommand.hasOption("replace-symbol-entrez"),
+                    subcommand.hasOption("post-interval-size") ? Integer.parseInt(subcommand.getOptionValue("post-interval-size")) : -1);
+        } catch (Exception e) {
+            throw new AnnotationFailedException(e);
+        }
     }
 }
