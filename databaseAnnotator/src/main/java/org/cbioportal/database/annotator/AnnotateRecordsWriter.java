@@ -38,8 +38,9 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.sql.SQLQueryFactory;
 import java.sql.*;
 import java.util.List;
-import org.apache.log4j.Logger;
 import org.cbioportal.database.annotator.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -53,7 +54,7 @@ public class AnnotateRecordsWriter  implements ItemStreamWriter<MutationEvent>{
     SQLQueryFactory databaseAnnotatorQueryFactory;
 
     private Connection con;
-    private final Logger LOG = Logger.getLogger(AnnotateRecordsWriter.class);
+    private final Logger LOG = LoggerFactory.getLogger(AnnotateRecordsWriter.class);
 
     @Override
     public void open(ExecutionContext ec) throws ItemStreamException {

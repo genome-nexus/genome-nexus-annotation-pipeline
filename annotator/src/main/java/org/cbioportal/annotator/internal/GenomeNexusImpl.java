@@ -36,7 +36,6 @@ import java.util.*;
 import org.mskcc.cbio.maf.MafUtil;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.cbioportal.annotator.Annotator;
 import org.cbioportal.annotator.GenomeNexusAnnotationFailureException;
 import org.cbioportal.models.AnnotatedRecord;
@@ -44,6 +43,8 @@ import org.cbioportal.models.MutationRecord;
 import org.genome_nexus.ApiClient;
 import org.genome_nexus.ApiException;
 import org.genome_nexus.client.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -73,7 +74,7 @@ public class GenomeNexusImpl implements Annotator {
 
     private AnnotationControllerApi apiClient;
     private static final String UKNOWN_GENOME_NEXUS_VERSION = "unknown";
-    private final Logger LOG = Logger.getLogger(GenomeNexusImpl.class);
+    private final Logger LOG = LoggerFactory.getLogger(GenomeNexusImpl.class);
 
     private static List<String> hgvspNullClassifications = initNullClassifications();
     private final Integer READ_TIMEOUT_OVERRIDE = 300000; // built-in default of 5 seconds is not enough time to read responses
