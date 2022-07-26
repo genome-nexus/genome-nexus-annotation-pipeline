@@ -36,6 +36,7 @@ import java.io.*;
 import java.util.*;
 import org.cbioportal.annotator.internal.AnnotationSummaryStatistics;
 import org.cbioportal.annotator.Annotator;
+import org.cbioportal.format.ExtendedMafFormat;
 import org.cbioportal.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,9 +102,25 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
             }
             // if output-format option is supplied, we only need to convert its data into header
             if (outputFormat != null) {
-                String[] tokens = outputFormat.split(",");
-                for (int i = 0; i < tokens.length; i++) {
-                    header.add(tokens[i].trim());
+                if ("tcga".equals(outputFormat)) {
+                    Set<String> sortedAllHeaders = new TreeSet<>();
+                    for (AnnotatedRecord ar : this.allAnnotatedRecords) {
+                        sortedAllHeaders.addAll(ar.getHeaderWithAdditionalFields());
+                    }
+                    for(String token : ExtendedMafFormat.headers) {
+                        header.add(token);
+                    }
+                    // extra headers should go in the back alphabetically
+                    for(String token : sortedAllHeaders) {
+                        if (!header.contains(token)) {
+                            header.add(token);
+                        }
+                    }
+                } else {
+                    String[] tokens = outputFormat.split(",");
+                    for (int i = 0; i < tokens.length; i++) {
+                        header.add(tokens[i].trim());
+                    }
                 }
             } else {
                 for (AnnotatedRecord ar : this.allAnnotatedRecords) {

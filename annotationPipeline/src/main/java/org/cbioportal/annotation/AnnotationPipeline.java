@@ -59,7 +59,7 @@ public class AnnotationPipeline
         gnuOptions.addOption("h", "help", false, "shows this help document and quits.")
             .addOption("f", "filename", true, "Mutation filename")
             .addOption("o", "output-filename", true, "Output filename (including path)")
-            .addOption("t", "output-format", true, "File path which includes output format (FORMAT EXAMPLE: Chromosome,Hugo_Symbol,Entrez_Gene_Id,Center,NCBI_Build)")
+            .addOption("t", "output-format", true, "tcga or a file path which includes output format (FORMAT EXAMPLE: Chromosome,Hugo_Symbol,Entrez_Gene_Id,Center,NCBI_Build)")
             .addOption("i", "isoform-override", true, "Isoform Overrides (mskcc or uniprot)")
             .addOption("e", "error-report-location", true, "Error report filename (including path)")
             .addOption("r", "replace-symbol-entrez", false, "Replace gene symbols and entrez id with what is provided by annotator" )
@@ -113,10 +113,16 @@ public class AnnotationPipeline
         String outputFormat = null;
         if (commandLine.hasOption("output-format")) {
             String outputFormatFile = commandLine.getOptionValue("output-format");
-            try (BufferedReader br = new BufferedReader(new FileReader(outputFormatFile))) {
-                outputFormat = br.readLine();
-            } catch (IOException e) {
-                System.err.println("Error while reading output-format file: " + outputFormatFile);
+            if ("tcga".equals(outputFormatFile)) {
+                outputFormat = "tcga";
+            } else {
+                // user supplied a format file instead of pre-defined formats
+                try (BufferedReader br = new BufferedReader(new FileReader(outputFormatFile))) {
+                    outputFormat = br.readLine();
+                } catch (IOException e) {
+                    System.err.println("Error while reading output-format file: " + outputFormatFile);
+                    System.exit(0);
+                }
             }
         }
         launchJob(args, commandLine.getOptionValue("filename"), commandLine.getOptionValue("output-filename"), outputFormat, commandLine.getOptionValue("isoform-override"),
