@@ -1,6 +1,7 @@
 package org.cbioportal.annotation.pipeline;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.file.LineCallbackHandler;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 
@@ -11,7 +12,7 @@ import java.util.Set;
 public class DefaultLineCallbackHandler implements LineCallbackHandler {
 
     private static final String[] requiredNames = {"Chromosome", "Start_Position", "End_Position", "Reference_Allele"};
-    private final Logger LOG = Logger.getLogger(DefaultLineCallbackHandler.class);
+    private final Logger LOG = LoggerFactory.getLogger(DefaultLineCallbackHandler.class);
     private final DelimitedLineTokenizer tokenizer;
 
     public DefaultLineCallbackHandler(DelimitedLineTokenizer tokenizer) {
