@@ -28,29 +28,38 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.annotation.pipeline;
 
+
 import org.cbioportal.annotator.util.AnnotationUtil;
 import org.cbioportal.models.AnnotatedRecord;
-
-import org.springframework.batch.core.*;
-import org.springframework.batch.item.*;
-import org.springframework.batch.core.configuration.annotation.*;
-import org.springframework.context.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.item.ItemStreamReader;
+import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.batch.item.support.CompositeItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.Arrays;
+
 
 /**
  * @author Zachary Heins
  */
 @Configuration
 @EnableBatchProcessing
-@ComponentScan(basePackages="org.cbioportal.annotator")
-public class BatchConfiguration
-{
+@ComponentScan(basePackages = "org.cbioportal.annotator")
+public class BatchConfiguration {
     public static final String ANNOTATION_JOB = "annotationJob";
 
     @Autowired
@@ -63,11 +72,10 @@ public class BatchConfiguration
     private String chunk;
 
     @Bean
-    public Job annotationJob()
-    {
+    public Job annotationJob() {
         return jobBuilderFactory.get(ANNOTATION_JOB)
-            .start(step())
-            .build();
+                .start(step())
+                .build();
     }
 
     @Bean
@@ -76,35 +84,48 @@ public class BatchConfiguration
     }
 
     @Bean
-    public Step step()
-    {
+    public Step step() {
         return stepBuilderFactory.get("step")
-            .<AnnotatedRecord, String> chunk(Integer.parseInt(chunk))
-            .reader(reader())
-            .processor(processor())
-            .writer(writer())
-            .build();
+                .<AnnotatedRecord, String>chunk(Integer.parseInt(chunk))
+                .reader(reader())
+                .processor(processor())
+                .writer(compositeItemWriter())
+                .build();
     }
 
     @Bean
     @StepScope
-    public ItemStreamReader<AnnotatedRecord> reader()
-    {
+    public ItemStreamReader<AnnotatedRecord> reader() {
         return new MutationRecordReader();
     }
 
     @Bean
     @StepScope
-    public MutationRecordProcessor processor()
-    {
+    public MutationRecordProcessor processor() {
         return new MutationRecordProcessor();
     }
 
     @Bean
     @StepScope
-    public ItemStreamWriter<String> writer()
-    {
+    public ItemStreamWriter<String> mainWriter() {
         return new MutationRecordWriter();
     }
 
+    @Bean
+    @StepScope
+    public ItemStreamWriter<String> failedItemWriter() {
+        return new FailedMutationRecordWriter();
+    }
+
+    @Bean
+    @StepScope
+    public ItemStreamWriter<String> successfulItemWriter() {
+        return new SuccessfulMutationRecordWriter();
+    }
+
+    public CompositeItemWriter<String> compositeItemWriter() {
+        CompositeItemWriter writer = new CompositeItemWriter();
+        writer.setDelegates(Arrays.asList(mainWriter(), successfulItemWriter(), failedItemWriter()));
+        return writer;
+    }
 }

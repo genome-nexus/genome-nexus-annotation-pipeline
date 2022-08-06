@@ -25,7 +25,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import static org.junit.Assert.*;
 
 /**
- * Unit test version of .circleci/config.yml
+ * Unit test version of .circleci/config.yml ( and much more )
  * ReflectionTestUtils.setField used in following tests change other tests' outcomes
  * Tests: check_if_nucleotide_context_provides_Ref_Tri_and_Var_Tri_columns, and
  *        check_if_my_variant_info_provides_gnomad_annotations
@@ -269,7 +269,6 @@ public class SpringBatchIntegrationTest {
                 .addString("replace", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .addString("errorReportLocation", null)
-                .addString("postIntervalSize", String.valueOf(-1))
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
     }
@@ -288,13 +287,12 @@ public class SpringBatchIntegrationTest {
                 .addString("replace", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .addString("errorReportLocation", null)
-                .addString("postIntervalSize", String.valueOf(-1))
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
     }
 
     /**
-     * Valid Output format
+     * Output format should only receive predefined values of a filepath
      * @throws Exception
      */
     @Test
@@ -311,9 +309,42 @@ public class SpringBatchIntegrationTest {
                 .addString("replace", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .addString("errorReportLocation", null)
-                .addString("postIntervalSize", String.valueOf(-1))
+                .toJobParameters();
+        FileSystemResource expectedResult = new FileSystemResource(expectedFile);
+        FileSystemResource actualResult = new FileSystemResource(actualFile);
+
+        JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
+        ExitStatus actualJobExitStatus = jobExecution.getExitStatus();
+        assertEquals("COMPLETED", actualJobExitStatus.getExitCode());
+    }
+
+    @Test
+    @DisplayName("Check if option split-output is working")
+    public void check_if_option_split_output_is_working() throws Exception {
+        ReflectionTestUtils.setField(annotator, "enrichmentFields", "annotation_summary");
+        String inputFile = IN + "data_mutations.txt";
+        String expectedFile = EXPECTED + "data_mutations.txt";
+        String expectedFailedFile = EXPECTED + "data_mutations.txt.FAILED";
+        String expectedSuccessfulFile = EXPECTED + "data_mutations.txt.SUCCESS";
+        String actualFile = ACTUAL + "data_mutations.txt";
+        String actualFailedFile = ACTUAL + "data_mutations.txt.FAILED";
+        String actualSuccessfulFile = ACTUAL + "data_mutations.txt.SUCCESS";
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("filename", inputFile)
+                .addString("outputFilename", actualFile)
+                .addString("failedOutputFilename", actualFailedFile)
+                .addString("successfulOutputFilename", actualSuccessfulFile)
+                .addString("replace", String.valueOf(true))
+                .addString("isoformOverride", "uniprot")
+                .addString("errorReportLocation", null)
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
+        FileSystemResource expectedFailedResult = new FileSystemResource(expectedFailedFile);
+        FileSystemResource actualFailedResult = new FileSystemResource(actualFailedFile);
+        AssertFile.assertFileEquals(expectedFailedResult, actualFailedResult);
+        FileSystemResource expectedSuccessfulResult = new FileSystemResource(expectedSuccessfulFile);
+        FileSystemResource actualSuccessfulResult = new FileSystemResource(actualSuccessfulFile);
+        AssertFile.assertFileEquals(expectedSuccessfulResult, actualSuccessfulResult);
     }
 
     private void testWith(JobParameters jobParameters, String expectedPath, String actualPath) throws Exception {

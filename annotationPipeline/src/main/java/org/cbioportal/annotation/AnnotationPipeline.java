@@ -66,17 +66,24 @@ public class AnnotationPipeline {
     private static final Logger LOG = LoggerFactory.getLogger(AnnotationPipeline.class);
 
     private static void annotateJob(String[] args, String filename, String outputFilename, String outputFormat, String isoformOverride,
-                                    String errorReportLocation, boolean replace, String postIntervalSize) throws Exception {
+                                    String errorReportLocation, boolean replace, String postIntervalSize, boolean splitOutput) throws Exception {
         SpringApplication app = new SpringApplication(AnnotationPipeline.class);
         app.setWebApplicationType(WebApplicationType.NONE);
         app.setAllowBeanDefinitionOverriding(Boolean.TRUE);
         ConfigurableApplicationContext ctx = app.run(args);
         JobLauncher jobLauncher = ctx.getBean(JobLauncher.class);
-
+        String failedOutputFilename = "";
+        String successfulOutputFilename = "";
+        if(splitOutput) {
+            failedOutputFilename = outputFilename + ".FAILED";
+            successfulOutputFilename = outputFilename + ".SUCCESS";
+        }
         Job annotationJob = ctx.getBean(BatchConfiguration.ANNOTATION_JOB, Job.class);
         JobParameters jobParameters = new JobParametersBuilder()
             .addString("filename", filename)
             .addString("outputFilename", outputFilename)
+            .addString("failedOutputFilename", failedOutputFilename)
+            .addString("successfulOutputFilename", successfulOutputFilename)
             .addString("outputFormat", outputFormat)
             .addString("replace", String.valueOf(replace))
             .addString("isoformOverride", isoformOverride)
@@ -217,7 +224,7 @@ public class AnnotationPipeline {
         try {
             annotateJob(args, subcommand.getOptionValue("filename"), subcommand.getOptionValue("output-filename"), outputFormat, subcommand.getOptionValue("isoform-override"),
                     subcommand.getOptionValue("error-report-location", ""),
-                    subcommand.hasOption("replace-symbol-entrez"), subcommand.getOptionValue("post-interval-size", "100"));
+                    subcommand.hasOption("replace-symbol-entrez"), subcommand.getOptionValue("post-interval-size", "100"), subcommand.hasOption("split-output"));
             // When you change the default value of post-interval-size, do not forget to update MutationRecordReader.postIntervalSize accordingly
         } catch (Exception e) {
             throw new AnnotationFailedException(e);
