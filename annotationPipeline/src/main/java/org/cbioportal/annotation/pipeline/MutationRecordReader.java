@@ -36,6 +36,7 @@ import java.io.*;
 import java.util.*;
 import org.cbioportal.annotator.internal.AnnotationSummaryStatistics;
 import org.cbioportal.annotator.Annotator;
+import org.cbioportal.format.ExtendedMafFormat;
 import org.cbioportal.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +60,8 @@ import org.springframework.core.io.FileSystemResource;
  */
 public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
 
+    private List<String> inputFileHeaders = new ArrayList<>();
+
     @Value("#{jobParameters[filename]}")
     private String filename;
 
@@ -74,6 +77,9 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
     @Value("#{jobParameters[postIntervalSize]}")
     private Integer postIntervalSize;
 
+    @Value("#{jobParameters[outputFormat]}")
+    private String outputFormat;
+
     private AnnotationSummaryStatistics summaryStatistics;
     private List<AnnotatedRecord> allAnnotatedRecords = new ArrayList<>();
     private Set<String> header = new LinkedHashSet<>();
@@ -85,19 +91,49 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
 
     @Override
     public void open(ExecutionContext ec) throws ItemStreamException {
-        this.summaryStatistics = new AnnotationSummaryStatistics(annotator);
+        summaryStatistics = new AnnotationSummaryStatistics(annotator);
         String genomeNexusVersion = annotator.getVersion();
 
         processComments(ec, genomeNexusVersion);
         List<MutationRecord> mutationRecords = loadMutationRecordsFromMaf();
         if (!mutationRecords.isEmpty()) {
             if (postIntervalSize > 0) {
-                this.allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize, true);
+                allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize, true);
             } else {
-                this.allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, replace, true);
+                allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, replace, true);
             }
-            for (AnnotatedRecord ar : this.allAnnotatedRecords) {
-                header.addAll(ar.getHeaderWithAdditionalFields());
+            // if output-format option is supplied, we only need to convert its data into header
+            if (outputFormat != null) {
+                if ("tcga".equals(outputFormat)) {
+                    for(String token : ExtendedMafFormat.headers) {
+                        header.add(token);
+                    }
+                } else if ("minimal".equals(outputFormat)) {
+                    for(String token : inputFileHeaders) {
+                        header.add(token);
+                    }
+                } else {
+                    String[] tokens = outputFormat.split(",");
+                    for (int i = 0; i < tokens.length; i++) {
+                        header.add(tokens[i].trim());
+                    }
+                }
+                // extra headers should go in the back alphabetically for these options
+                if ("tcga".equals(outputFormat) || "minimal".equals(outputFormat)) {
+                    Set<String> sortedAllHeaders = new TreeSet<>();
+                    for (AnnotatedRecord ar : allAnnotatedRecords) {
+                        sortedAllHeaders.addAll(ar.getHeaderWithAdditionalFields());
+                    }
+                    for(String token : sortedAllHeaders) {
+                        if (!header.contains(token)) {
+                            header.add(token);
+                        }
+                    }
+                }
+            } else {
+                for (AnnotatedRecord ar : allAnnotatedRecords) {
+                    header.addAll(ar.getHeaderWithAdditionalFields());
+                }
             }
             // add 'Annotation_Status' to header if not already present
             if (!header.contains("Annotation_Status")) {
@@ -129,7 +165,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
         mapper.setFieldSetMapper(new MutationFieldSetMapper());
         reader.setLineMapper(mapper);
         reader.setLinesToSkip(1);
-        reader.setSkippedLinesCallback(new DefaultLineCallbackHandler(tokenizer));
+        reader.setSkippedLinesCallback(new DefaultLineCallbackHandler(tokenizer, inputFileHeaders));
         reader.open(new ExecutionContext());
         LOG.info("Loading records from: " + filename);
         MutationRecord mutationRecord;

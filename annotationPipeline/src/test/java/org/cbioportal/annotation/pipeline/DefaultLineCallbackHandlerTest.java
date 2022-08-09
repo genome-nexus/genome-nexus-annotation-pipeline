@@ -3,6 +3,8 @@ package org.cbioportal.annotation.pipeline;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -15,7 +17,7 @@ class DefaultLineCallbackHandlerTest {
     void handleLine_success_Allele1() {
         String testLine = "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\tTumor_Seq_Allele1";
         DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-        DefaultLineCallbackHandler handler = new DefaultLineCallbackHandler(tokenizer);
+        DefaultLineCallbackHandler handler = new DefaultLineCallbackHandler(tokenizer, new ArrayList<>());
         handler.handleLine(testLine);
         assertEquals(true, tokenizer.hasNames());
     }
@@ -24,7 +26,7 @@ class DefaultLineCallbackHandlerTest {
     void handleLine_success_Allele2() {
         String testLine = "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\tTumor_Seq_Allele2";
         DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-        DefaultLineCallbackHandler handler = new DefaultLineCallbackHandler(tokenizer);
+        DefaultLineCallbackHandler handler = new DefaultLineCallbackHandler(tokenizer, new ArrayList<>());
         handler.handleLine(testLine);
         assertEquals(true, tokenizer.hasNames());
     }
@@ -61,7 +63,7 @@ class DefaultLineCallbackHandlerTest {
 
     private void handleLine(String line, String expectedMessage) {
         DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-        DefaultLineCallbackHandler handler = new DefaultLineCallbackHandler(tokenizer);
+        DefaultLineCallbackHandler handler = new DefaultLineCallbackHandler(tokenizer, new ArrayList<>());
         try {
             handler.handleLine(line);
         } catch (RuntimeException e) {

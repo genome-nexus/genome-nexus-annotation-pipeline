@@ -5,20 +5,35 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.file.LineCallbackHandler;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
+/**
+ *
+ * @author Mete Ozguz
+ */
 public class DefaultLineCallbackHandler implements LineCallbackHandler {
 
     private static final String[] requiredNames = {"Chromosome", "Start_Position", "End_Position", "Reference_Allele"};
     private final Logger LOG = LoggerFactory.getLogger(DefaultLineCallbackHandler.class);
     private final DelimitedLineTokenizer tokenizer;
+    private final List<String> inputFileHeaders;
 
-    public DefaultLineCallbackHandler(DelimitedLineTokenizer tokenizer) {
+    /**
+     *
+     * @param tokenizer Reference for the DefaultLineMapper's LineTokenizer. Non null.
+     * @param inputFileHeaders Reference for the header names which will be used for 'minimal' file format. Non null.
+     */
+    public DefaultLineCallbackHandler(DelimitedLineTokenizer tokenizer, List<String> inputFileHeaders) {
         this.tokenizer = tokenizer;
+        this.inputFileHeaders = inputFileHeaders;
     }
 
+    /**
+     * Parser and validator of tab separated header names
+     * Should be invoked only for the header line!
+     *
+     * @param line
+     */
     @Override
     public void handleLine(String line) {
         String[] names = line.split("\t");
@@ -37,6 +52,7 @@ public class DefaultLineCallbackHandler implements LineCallbackHandler {
             LOG.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }
+        Collections.addAll(inputFileHeaders, names);
         tokenizer.setNames(names); // do not use sorted names here
     }
 }

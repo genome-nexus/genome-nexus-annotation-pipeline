@@ -42,7 +42,13 @@ import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.boot.WebApplicationType;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 /**
+ *
+ * @author Mete Ozguz
  * @author Zachary Heins
  */
 @SpringBootApplication
@@ -55,6 +61,7 @@ public class AnnotationPipeline
         gnuOptions.addOption("h", "help", false, "shows this help document and quits.")
             .addOption("f", "filename", true, "Mutation filename")
             .addOption("o", "output-filename", true, "Output filename (including path)")
+            .addOption("t", "output-format", true, "tcga, minimal or a file path which includes output format (FORMAT EXAMPLE: Chromosome,Hugo_Symbol,Entrez_Gene_Id,Center,NCBI_Build)")
             .addOption("i", "isoform-override", true, "Isoform Overrides (mskcc or uniprot)")
             .addOption("e", "error-report-location", true, "Error report filename (including path)")
             .addOption("r", "replace-symbol-entrez", false, "Replace gene symbols and entrez id with what is provided by annotator" )
@@ -70,7 +77,7 @@ public class AnnotationPipeline
         System.exit(exitStatus);
     }
 
-    private static void launchJob(String[] args, String filename, String outputFilename, String isoformOverride,
+    private static void launchJob(String[] args, String filename, String outputFilename, String outputFormat, String isoformOverride,
             String errorReportLocation, boolean replace, Integer postIntervalSize) throws Exception
     {
         SpringApplication app = new SpringApplication(AnnotationPipeline.class);
@@ -83,6 +90,7 @@ public class AnnotationPipeline
         JobParameters jobParameters = new JobParametersBuilder()
             .addString("filename", filename)
             .addString("outputFilename", outputFilename)
+            .addString("outputFormat", outputFormat)
             .addString("replace", String.valueOf(replace))
             .addString("isoformOverride", isoformOverride)
             .addString("errorReportLocation", errorReportLocation)
@@ -104,7 +112,24 @@ public class AnnotationPipeline
             !commandLine.hasOption("output-filename")) {
             help(gnuOptions, 0);
         }
-        launchJob(args, commandLine.getOptionValue("filename"), commandLine.getOptionValue("output-filename"),commandLine.getOptionValue("isoform-override"),
+        String outputFormat = null;
+        if (commandLine.hasOption("output-format")) {
+            String outputFormatFile = commandLine.getOptionValue("output-format");
+            if ("tcga".equals(outputFormatFile)) {
+                outputFormat = "tcga";
+            } else if ("minimal".equals(outputFormatFile)) {
+                outputFormat = "minimal";
+            } else {
+                // user supplied a format file instead of pre-defined formats
+                try (BufferedReader br = new BufferedReader(new FileReader(outputFormatFile))) {
+                    outputFormat = br.readLine();
+                } catch (IOException e) {
+                    System.err.println("Error while reading output-format file: " + outputFormatFile);
+                    System.exit(0);
+                }
+            }
+        }
+        launchJob(args, commandLine.getOptionValue("filename"), commandLine.getOptionValue("output-filename"), outputFormat, commandLine.getOptionValue("isoform-override"),
                 commandLine.hasOption("error-report-location") ? commandLine.getOptionValue("error-report-location") : null,
                 commandLine.hasOption("replace-symbol-entrez"), commandLine.hasOption("post-interval-size") ? Integer.valueOf(commandLine.getOptionValue("post-interval-size")) : -1);
     }

@@ -76,8 +76,6 @@ public class MutationRecordWriter implements ItemStreamWriter<String> {
             flatFileItemWriter.setHeaderCallback(new FlatFileHeaderCallback() {
                 @Override
                 public void writeHeader(Writer writer) throws IOException {
-                    AnnotatedRecord record = new AnnotatedRecord();
-
                     // first write out the comment lines, then write the actual header
                     for (String comment : commentLines) {
                         writer.write(comment + "\n");
