@@ -100,7 +100,7 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
            return i;
         }
 
-        // If the mutation is a 5' or 3' flank mutation, or any other UTR, it shouldn't be in the database as these are supposed to be filtered.. Remove it.
+        // If the mutation is a 5' or 3' flank mutation, or any other UTR, it shouldn't be in the database as these are supposed to be filtered... Remove it.
         if (annotatedRecord.getVARIANT_CLASSIFICATION().equals("5'Flank") && annotatedRecord.getHUGO_SYMBOL().equals("TERT")) {
             i.setPROTEIN_CHANGE("Promoter");
         }
@@ -111,12 +111,12 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
             annotatedRecord.getVARIANT_CLASSIFICATION().equals("RNA") ||
             annotatedRecord.getVARIANT_CLASSIFICATION().equals("5'UTR") ||
             annotatedRecord.getVARIANT_CLASSIFICATION().equals("3'UTR")) {
-            LOG.info("Mutation event " + String.valueOf(i.getMUTATION_EVENT_ID()) + " classification is in non translated region of genome. Removing from the database.");
+            LOG.info("Mutation event " + i.getMUTATION_EVENT_ID() + " classification is in non translated region of genome. Removing from the database.");
             deleteMutation(i);
             return null;
         }
 
-        // lets do some sanity checking to make sure good values came back from genome nexus
+        // let's do some sanity checking to make sure good values came back from genome nexus
         String chr = !(annotatedRecord.getCHROMOSOME() == null || annotatedRecord.getCHROMOSOME().isEmpty()) ? annotatedRecord.getCHROMOSOME() : i.getCHR();
         Integer start = i.getSTART_POSITION();
         Integer end = i.getEND_POSITION();
@@ -150,7 +150,7 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
         // there is a case where the protein change is "-"
         if (position == NA_INT) {
             // try to extract it from protein change value
-            Pattern p = Pattern.compile(".*[A-Z]([0-9]+)[^0-9]+");
+            Pattern p = Pattern.compile(".*[A-Z](\\d+)\\D+");
             Matcher m = p.matcher(proteinChange);
             if (m.find()) {
                 position = Integer.parseInt(m.group(1));
@@ -175,9 +175,7 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
         try {
             String part = parts[index];
             return (int)(Float.parseFloat(part));
-        } catch (ArrayIndexOutOfBoundsException e) {
-            return NA_INT;
-        } catch (NumberFormatException e) {
+        } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
             return NA_INT;
         }
     }

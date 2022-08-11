@@ -76,7 +76,7 @@ public class AnnotateRecordsReader implements ItemStreamReader<MutationEvent>{
     public void close() throws ItemStreamException {}
 
     @Override
-    public MutationEvent read() throws Exception {
+    public MutationEvent read() {
         if (!mutationEvents.isEmpty()) {
             return mutationEvents.remove(0);
         }
@@ -91,7 +91,7 @@ public class AnnotateRecordsReader implements ItemStreamReader<MutationEvent>{
         Patient qPatient = alias(Patient.class, BatchConfiguration.PATIENT_TABLE);
         CancerStudy qCancerStudy = alias(CancerStudy.class, BatchConfiguration.CANCER_STUDY_TABLE);
 
-        List<MutationEvent> mutationEvents = new ArrayList<>();
+        List<MutationEvent> mutationEvents;
         if (studyList.size() > 0) {
             mutationEvents = databaseAnnotatorQueryFactory.select(
                 Projections.constructor(MutationEvent.class, $(qMutationEvent.getMUTATION_EVENT_ID()),

@@ -53,10 +53,9 @@ public class MutationFieldSetMapper implements  FieldSetMapper<MutationRecord> {
      *
      * @param fs the {@link FieldSet} to map
      * @return MutationRecord which represents a single line of a MAF file
-     * @throws BindException Thrown when binding errors are considered fatal.
      */
     @Override
-    public MutationRecord mapFieldSet(FieldSet fs) throws BindException {
+    public MutationRecord mapFieldSet(FieldSet fs) {
         MutationRecord record = new MutationRecord();
         for (String field : fs.getNames()) {
             try {

@@ -55,7 +55,7 @@ public class MutationRecordProcessor implements ItemProcessor<AnnotatedRecord, S
     }
 
     @Override
-    public String process(AnnotatedRecord annotatedRecord) throws Exception {
+    public String process(AnnotatedRecord annotatedRecord) {
         List<String> record = new ArrayList();
         for (String field : header) {
             try {

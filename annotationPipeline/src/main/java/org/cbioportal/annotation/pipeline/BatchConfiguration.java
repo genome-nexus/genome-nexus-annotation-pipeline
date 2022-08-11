@@ -142,10 +142,9 @@ public class BatchConfiguration
      * Spring Batch datasource initializer.
      * @param dataSource
      * @return DataSourceInitializer
-     * @throws MalformedURLException
      */
     @Bean
-    public DataSourceInitializer dataSourceInitializer(DataSource dataSource) throws MalformedURLException {
+    public DataSourceInitializer dataSourceInitializer(DataSource dataSource) {
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
         databasePopulator.addScript(dropRepositoryTables);
         databasePopulator.addScript(dataRepositorySchema);
@@ -167,7 +166,7 @@ public class BatchConfiguration
         factory.setDataSource(dataSource());
         factory.setTransactionManager(getTransactionManager());
         factory.afterPropertiesSet();
-        return (JobRepository) factory.getObject();
+        return factory.getObject();
     }
 
     /**

@@ -105,13 +105,9 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
             // if output-format option is supplied, we only need to convert its data into header
             if (outputFormat != null) {
                 if ("extended".equals(outputFormat)) {
-                    for(String token : ExtendedMafFormat.headers) {
-                        header.add(token);
-                    }
+                    header.addAll(ExtendedMafFormat.headers);
                 } else if ("minimal".equals(outputFormat)) {
-                    for(String token : inputFileHeaders) {
-                        header.add(token);
-                    }
+                    header.addAll(inputFileHeaders);
                 } else {
                     try (BufferedReader br = new BufferedReader(new FileReader(outputFormat))) {
                         outputFormat = br.readLine();
@@ -120,8 +116,8 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
                         throw new ItemStreamException("Error while reading output-format file: " + outputFormat);
                     }
                     String[] tokens = outputFormat.split(",");
-                    for (int i = 0; i < tokens.length; i++) {
-                        header.add(tokens[i].trim());
+                    for (String token : tokens) {
+                        header.add(token.trim());
                     }
                 }
                 // extra headers should go in the back alphabetically for these options
@@ -131,9 +127,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
                         sortedAllHeaders.addAll(ar.getHeaderWithAdditionalFields());
                     }
                     for(String token : sortedAllHeaders) {
-                        if (!header.contains(token)) {
-                            header.add(token);
-                        }
+                        header.add(token);
                     }
                 }
             } else {
@@ -142,9 +136,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
                 }
             }
             // add 'Annotation_Status' to header if not already present
-            if (!header.contains("Annotation_Status")) {
-                header.add("Annotation_Status");
-            }
+            header.add("Annotation_Status");
             ec.put("mutation_header", new ArrayList(header));
             summaryStatistics.printSummaryStatistics();
             summaryStatistics.saveErrorMessagesToFile(errorReportLocation);
@@ -182,15 +174,15 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
             throw new ItemStreamException(e);
         }
         reader.close();
-        LOG.info("Loaded " + String.valueOf(mutationRecords.size()) + " records from: " + filename);
+        LOG.info("Loaded " + mutationRecords.size() + " records from: " + filename);
         return mutationRecords;
     }
 
 
     private void logAnnotationProgress(Integer annotatedVariantsCount, Integer totalVariantsToAnnotateCount, Integer intervalSize) {
         if (annotatedVariantsCount % intervalSize == 0 || Objects.equals(annotatedVariantsCount, totalVariantsToAnnotateCount)) {
-                LOG.info("\tOn record " + String.valueOf(annotatedVariantsCount) + " out of " + String.valueOf(totalVariantsToAnnotateCount) +
-                        ", annotation " + String.valueOf((int)(((annotatedVariantsCount * 1.0)/totalVariantsToAnnotateCount) * 100)) + "% complete");
+                LOG.info("\tOn record " + annotatedVariantsCount + " out of " + totalVariantsToAnnotateCount +
+                        ", annotation " + (int) (((annotatedVariantsCount * 1.0) / totalVariantsToAnnotateCount) * 100) + "% complete");
         }
     }
 
@@ -201,7 +193,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
     public void close() throws ItemStreamException {}
 
     @Override
-    public AnnotatedRecord read() throws Exception {
+    public AnnotatedRecord read() {
         if (!allAnnotatedRecords.isEmpty()) {
             return allAnnotatedRecords.remove(0);
         }
@@ -212,9 +204,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
         List<String> comments = new ArrayList<>();
         comments.add("#genome_nexus_version: " + genomeNexusVersion);
         comments.add("#isoform: " + isoformOverride);
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(filename));
+        try(BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
             while((line = reader.readLine()) != null) {
                 if (line.startsWith("#")) {
@@ -228,7 +218,6 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
                     break;
                 }
             }
-            reader.close();
         }
         catch (Exception e) {
             throw new ItemStreamException(e);

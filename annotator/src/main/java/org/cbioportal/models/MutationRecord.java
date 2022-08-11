@@ -32,7 +32,6 @@
 package org.cbioportal.models;
 
 import java.util.*;
-import org.springframework.util.StringUtils;
 
 /**
  *

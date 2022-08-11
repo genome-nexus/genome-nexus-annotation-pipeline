@@ -5,8 +5,7 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mete Ozguz
@@ -19,7 +18,7 @@ class DefaultLineCallbackHandlerTest {
         DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
         DefaultLineCallbackHandler handler = new DefaultLineCallbackHandler(tokenizer, new ArrayList<>());
         handler.handleLine(testLine);
-        assertEquals(true, tokenizer.hasNames());
+        assertTrue(tokenizer.hasNames());
     }
 
     @Test
@@ -49,7 +48,7 @@ class DefaultLineCallbackHandlerTest {
         DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
         DefaultLineCallbackHandler handler = new DefaultLineCallbackHandler(tokenizer, new ArrayList<>());
         handler.handleLine(testLine);
-        assertEquals(true, tokenizer.hasNames());
+        assertTrue(tokenizer.hasNames());
     }
 
     @Test
@@ -89,7 +88,7 @@ class DefaultLineCallbackHandlerTest {
             handler.handleLine(line);
         } catch (RuntimeException e) {
             assertEquals(expectedMessage, e.getMessage());
-            assertEquals(false, tokenizer.hasNames());
+            assertFalse(tokenizer.hasNames());
             return;
         }
         fail();

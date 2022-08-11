@@ -34,7 +34,6 @@ package org.cbioportal.database;
 
 import org.cbioportal.database.annotator.BatchConfiguration;
 import org.apache.commons.cli.*;
-import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -84,7 +83,7 @@ public class DatabaseAnnotator {
 
     public static void main(String[] args) throws Exception{
         Options gnuOptions = DatabaseAnnotator.getOptions(args);
-        CommandLineParser parser = new GnuParser();
+        CommandLineParser parser = new DefaultParser();
         CommandLine commandLine = parser.parse(gnuOptions, args);
         if (commandLine.hasOption("h") || !commandLine.hasOption("i")) {
             help(gnuOptions, 0);

@@ -116,7 +116,7 @@ public class AnnotateRecordsWriter  implements ItemStreamWriter<MutationEvent>{
 
     private List<MutationEvent> getDuplicatedMutationEvents(MutationEvent annotatedEvent) {
         MutationEvent qMutationEvent = alias(MutationEvent.class, BatchConfiguration.MUTATION_EVENT_TABLE);
-        List<MutationEvent> mutationEvents = databaseAnnotatorQueryFactory.select(
+        return databaseAnnotatorQueryFactory.select(
             Projections.constructor(MutationEvent.class, $(qMutationEvent.getMUTATION_EVENT_ID()),
                 $(qMutationEvent.getCHR()),
                 $(qMutationEvent.getSTART_POSITION()),
@@ -139,7 +139,6 @@ public class AnnotateRecordsWriter  implements ItemStreamWriter<MutationEvent>{
                 .eq(annotatedEvent.getTUMOR_SEQ_ALLELE()))
             .and($(qMutationEvent.getMUTATION_TYPE()).eq(annotatedEvent.getMUTATION_TYPE())))
             .fetch();
-        return mutationEvents;
     }
 
     private void updateMutationsInDb(MutationEvent eventToBeDeleted, MutationEvent properlyAnnotatedEvent) throws Exception{

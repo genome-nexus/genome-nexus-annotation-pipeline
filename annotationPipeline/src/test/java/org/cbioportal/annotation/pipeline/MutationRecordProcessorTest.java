@@ -2,11 +2,14 @@ package org.cbioportal.annotation.pipeline;
 
 import org.cbioportal.models.AnnotatedRecord;
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Mete Ozguz
@@ -49,7 +52,7 @@ class MutationRecordProcessorTest {
 
         String actual = processor.process(record);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
 }

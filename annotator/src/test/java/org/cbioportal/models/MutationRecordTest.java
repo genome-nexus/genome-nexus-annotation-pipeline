@@ -30,32 +30,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.model;
+package org.cbioportal.models;
+
+import org.cbioportal.annotator.MockGenomeNexusImpl;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import org.cbioportal.models.AnnotatedRecord;
-import org.cbioportal.models.MutationRecord;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.cbioportal.annotator.MockGenomeNexusImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-//import org.springframework.test.util.ReflectionTestUtils;
 
 @ContextConfiguration(classes=MockGenomeNexusImpl.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class MutationRecordTest {
 
     private static final Class[] stringClassArray = { String.class };
-    private List<String> noAdditionalProperties = new ArrayList<String>();
-    private List<String> noAdditionalPropertiesExpected = new ArrayList<String>();
-    private List<String> noAdditionalValuesExpected = new ArrayList<String>();
+    private List<String> noAdditionalProperties = new ArrayList<>();
+    private List<String> noAdditionalPropertiesExpected = new ArrayList<>();
+    private List<String> noAdditionalValuesExpected = new ArrayList<>();
     // distinct sorted properties come out in the same order that they appear
     private List<String> distinctAdditionalProperties = Arrays.asList("distinctTestProperty2", "distinctTestProperty1"); // input order does not matter because these will construct a testing map
-    private List<String> distinctAdditionalPropertiesExpected = Arrays.asList("distinctTestProperty1", "distinctTestProperty2"); // output order does matter .. the list should come sorted from the model functions
+    private List<String> distinctAdditionalPropertiesExpected = Arrays.asList("distinctTestProperty1", "distinctTestProperty2"); // output order does matter... the list should come sorted from the model functions
     private List<String> distinctAdditionalValuesExpected = Arrays.asList("distinctTestProperty1.value", "distinctTestProperty2.value");
     private List<String> redundantAdditionalProperties = Arrays.asList("Chromosome", "distinctTestProperty1", "distinctTestProperty2", "End_Position");
     private List<String> redundantAdditionalPropertiesExpected = Arrays.asList("distinctTestProperty1", "distinctTestProperty2");
@@ -150,7 +148,7 @@ public class MutationRecordTest {
     }
     
     private List<String> findExpectedHeaders(List<String> additionalExpectedHeaders) {
-        List<String> expectedHeaders = new ArrayList<String>(plainMutationRecord.getHeader());
+        List<String> expectedHeaders = new ArrayList<>(plainMutationRecord.getHeader());
         expectedHeaders.addAll(additionalExpectedHeaders);
         return expectedHeaders;
     }
@@ -162,7 +160,7 @@ public class MutationRecordTest {
             String valueForField = fieldName + ".value";
             setMutationRecordField(mutationRecord, fieldName, valueForField);
         }
-        Map<String, String> additionalPropertiesMap = new HashMap<String, String>();
+        Map<String, String> additionalPropertiesMap = new HashMap<>();
         if (additionalProperties != null) {
             for (String additionalFieldName : additionalProperties) {
                 String valueForField = additionalFieldName + ".value";
@@ -178,11 +176,7 @@ public class MutationRecordTest {
         try {
             Method get = mutationRecord.getClass().getMethod("get" + fieldName.toUpperCase(), stringClassArray);
             return get.invoke(mutationRecord).toString();
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -191,11 +185,7 @@ public class MutationRecordTest {
         try {
             Method set = mutationRecord.getClass().getMethod("set" + fieldName.toUpperCase(), stringClassArray);
             set.invoke(mutationRecord, value);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

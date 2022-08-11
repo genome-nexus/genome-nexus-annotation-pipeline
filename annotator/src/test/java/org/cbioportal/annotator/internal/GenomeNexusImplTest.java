@@ -163,7 +163,7 @@ public class GenomeNexusImplTest {
     }
 
     @Test
-    public void testPostVsGetAnnotationResults() throws Exception {
+    public void testPostVsGetAnnotationResults() {
         StringBuilder errorMessage = new StringBuilder("\nFailures:\n");
         int failCount = 0;
 
@@ -187,7 +187,7 @@ public class GenomeNexusImplTest {
     }
 
     @Test
-    public void testGnomadAnnotationResultsExcluded() throws Exception {
+    public void testGnomadAnnotationResultsExcluded() {
         // test records that should not have the gnomad records
         for (AnnotatedRecord record : mockAnnotatedRecordsWithPost) {
             if (record.getGNOMAD_AF() != null) {
@@ -197,7 +197,7 @@ public class GenomeNexusImplTest {
     }
 
     @Test
-    public void testGnomadAnnotationResultsIncluded() throws Exception {
+    public void testGnomadAnnotationResultsIncluded() {
         // annotate now with my_variant_info included in enrichmentFields
         ReflectionTestUtils.setField(annotator, "enrichmentFields", GenomeNexusTestConfiguration.MY_VARIANT_INFO_ENRICHMENT_FIELDS);
 

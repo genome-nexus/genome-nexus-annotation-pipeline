@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
  */
 @Component
 public class AnnotationUtil {
-    private static final Pattern PROTEIN_POSITTION_REGEX = Pattern.compile("p.[A-Za-z]([0-9]*).*$");
+    private static final Pattern PROTEIN_POSITTION_REGEX = Pattern.compile("p.[A-Za-z](\\d*).*$");
     private static final Pattern DBSNP_RSID_REGIX = Pattern.compile("^(rs\\d*)$");
 
     public AnnotationUtil() {}
@@ -267,15 +267,7 @@ public class AnnotationUtil {
     }
 
     public String resolveHotspot() {
-        String hotspot = "0";
-        // TODO this hotspot field is not valid anymore:
-        // we need to redo this part if we want to include hotspot information
-        //        if (canonicalTranscript != null) {
-        //            if (canonicalTranscript.getIsHotspot() != null) {
-        //                hotspot = canonicalTranscript.getIsHotspot().equals("true") ? "1" : "0";
-        //            }
-        //        }
-        return hotspot;
+        return "0";
     }
 
     public String resolveCodonChange(TranscriptConsequenceSummary canonicalTranscript) {
@@ -406,14 +398,14 @@ public class AnnotationUtil {
     }
 
     public String resolveVarTri(VariantAnnotation gnResponse) {
-        String refTri = "";
+        String refTri;
         String varTri = "";
         if (gnResponse.getNucleotideContext() != null && gnResponse.getNucleotideContext().getAnnotation() != null) {
             refTri = gnResponse.getNucleotideContext().getAnnotation().getSeq();
             String alleleString = gnResponse.getAlleleString();
 
             if (refTri != null && alleleString != null) {
-                Integer indexChange = alleleString.indexOf('/');
+                int indexChange = alleleString.indexOf('/');
 
                 if (indexChange > -1) {
                     // nucleotide context is only supported for SNV on the server side, so we only need to handle SNV case
@@ -422,7 +414,7 @@ public class AnnotationUtil {
             }
 
         }
-        return varTri != null ? varTri : "";
+        return varTri;
     }
 
     private String parseDoubleAsString(Double value) {

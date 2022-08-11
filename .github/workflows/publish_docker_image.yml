@@ -16,7 +16,7 @@ jobs:
       - name: Extract branch or tag name
         # The GITHUB_REF variable is like "refs/head/branch_name" or
         # "refs/tag/tag_name". If the tag is prefixed with v, this is a new
-        # version and we want to push it with the tag "latest" as well. One can give 
+        # version, and we want to push it with the tag "latest" as well. One can give
         # the same image multiple tags by using ","
         run: echo "##[set-output name=image_tag_names;]$(echo ${GITHUB_REF##*/} | sed 's/^v/latest,/g')"
         id: extract_tags

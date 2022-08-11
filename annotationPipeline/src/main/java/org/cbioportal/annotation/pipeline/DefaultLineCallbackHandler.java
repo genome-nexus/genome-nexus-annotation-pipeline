@@ -34,8 +34,7 @@ public class DefaultLineCallbackHandler implements LineCallbackHandler {
      */
     public static void checkHeader(String line, DelimitedLineTokenizer tokenizer) {
         String[] names = line.split("\t");
-        Set<String> nameSet = new HashSet<>();
-        nameSet.addAll(Arrays.asList(names));
+        Set<String> nameSet = new HashSet<>(Arrays.asList(names));
         for (String requiredName : requiredNames) {
             if (!nameSet.contains(requiredName)) {
                 throw new RuntimeException("Input file does not contain all the necessary fields. Missing field: " + requiredName);

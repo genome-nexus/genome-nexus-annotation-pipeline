@@ -81,6 +81,6 @@ dependency.
 ## Updating the Genome Nexus Annotation Pipeline
 The annotation pipeline uses models brought in by the auto-generated **genome-nexus-java-api-client** [here](https://github.com/averyniceday/genome-nexus-annotation-pipeline/blob/2356cad06aa602ee423b08d5792c50e903200a1d/pom.xml#L77) and [here](https://github.com/averyniceday/genome-nexus-annotation-pipeline/blob/2356cad06aa602ee423b08d5792c50e903200a1d/pom.xml#L82) . 
 
-In the event of an update to the Genome Nexus server (e.g adding to an existing model), the `genome-nexus-java-api-client` must be regenerated and propagated to this codebase. To generate the newest `genome-nexus-java-api-client`, refer to instructions [here](https://github.com/genome-nexus/genome-nexus-java-api-client/blob/master/README.md). 
+In the event of an update to the Genome Nexus server (e.g. adding to an existing model), the `genome-nexus-java-api-client` must be regenerated and propagated to this codebase. To generate the newest `genome-nexus-java-api-client`, refer to instructions [here](https://github.com/genome-nexus/genome-nexus-java-api-client/blob/master/README.md). 
 
 Once updated, update the pom with the newest commit hash from the `genome-nexus-java-api-client` codebase.

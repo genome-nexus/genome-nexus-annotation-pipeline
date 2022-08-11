@@ -32,16 +32,21 @@
 
 package org.cbioportal.annotation.pipeline;
 
-import java.io.*;
-import java.util.*;
-import java.nio.file.*;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.batch.item.*;
-import org.springframework.batch.item.file.*;
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.ItemStreamException;
+import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.batch.item.file.FlatFileHeaderCallback;
+import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.transform.PassThroughLineAggregator;
-import org.cbioportal.models.AnnotatedRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 /**
  *
@@ -73,15 +78,12 @@ public class MutationRecordWriter implements ItemStreamWriter<String> {
             PassThroughLineAggregator aggr = new PassThroughLineAggregator();
             flatFileItemWriter.setLineAggregator(aggr);
             flatFileItemWriter.setResource( new FileSystemResource(stagingFile.toString()));
-            flatFileItemWriter.setHeaderCallback(new FlatFileHeaderCallback() {
-                @Override
-                public void writeHeader(Writer writer) throws IOException {
-                    // first write out the comment lines, then write the actual header
-                    for (String comment : commentLines) {
-                        writer.write(comment + "\n");
-                    }
-                    writer.write(StringUtils.join(header, "\t"));
+            flatFileItemWriter.setHeaderCallback(writer -> {
+                // first write out the comment lines, then write the actual header
+                for (String comment : commentLines) {
+                    writer.write(comment + "\n");
                 }
+                writer.write(StringUtils.join(header, "\t"));
             });
             flatFileItemWriter.open(ec);
         }

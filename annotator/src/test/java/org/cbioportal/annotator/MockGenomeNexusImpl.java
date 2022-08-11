@@ -137,7 +137,7 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
     }
 
     public AnnotatedRecord makeMockAnnotatedRecord(MutationRecord record) {
-        VariantAnnotation gnResponse = null;
+        VariantAnnotation gnResponse;
         try {
             gnResponse = makeMockGenomeNexusResponse(mockGenomeNexusHgvsResponseMap.get(parseGenomicLocationString(record)));
         }
@@ -149,7 +149,7 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
     }
 
     public AnnotatedRecord makeMockPOSTAnnotatedRecord(MutationRecord record) {
-        VariantAnnotation gnResponse = null;
+        VariantAnnotation gnResponse;
         try {
             gnResponse = makeMockGenomeNexusResponse(mockGenomeNexusHgvsPOSTResponseMap.get(parseGenomicLocationString(record)));
         }
@@ -161,7 +161,7 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
     }
 
     public AnnotatedRecord makeMockMyVariantInfoAnnotatedRecord(MutationRecord record) {
-        VariantAnnotation gnResponse = null;
+        VariantAnnotation gnResponse;
         try {
             gnResponse = makeMockGenomeNexusResponse(mockGenomeNexusMyVariantInfoResponseMap.get(parseGenomicLocationString(record)));
         }
@@ -174,7 +174,7 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
 
     private VariantAnnotation makeMockGenomeNexusResponse(String mockReturnJsonString) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setMixInAnnotations(this.initMixinMap());
+        mapper.setMixIns(this.initMixinMap());
         return mapper.readValue(mockReturnJsonString, VariantAnnotation.class);
     }
 

@@ -123,7 +123,7 @@ public class GenomeNexusImpl implements Annotator {
             return annotatedRecord;
         }
         String genomicLocation = parseGenomicLocationString(mRecord);
-        VariantAnnotation gnResponse = null;
+        VariantAnnotation gnResponse;
         try {
             gnResponse = this.apiClient.fetchVariantAnnotationByGenomicLocationGET(genomicLocation,
                     isoformOverridesSource,
@@ -147,7 +147,7 @@ public class GenomeNexusImpl implements Annotator {
         List<AnnotatedRecord> annotatedRecordsList = new ArrayList<>();
         int totalVariantsToAnnotateCount = mutationRecords.size();
         int annotatedVariantsCount = 0;
-        LOG.info(String.valueOf(totalVariantsToAnnotateCount) + " records to annotate");
+        LOG.info(totalVariantsToAnnotateCount + " records to annotate");
 
         for (MutationRecord record : mutationRecords) {
             logAnnotationProgress(++annotatedVariantsCount, totalVariantsToAnnotateCount, 2000);
@@ -181,7 +181,7 @@ public class GenomeNexusImpl implements Annotator {
                 summaryStatistics.addFailedAnnotatedRecordDueToServer(record, serverErrorMessage, isoformOverridesSource);
                 continue;
             }
-            // dont need to do anything with output, just need to call method
+            // don't need to do anything with output, just need to call method
             summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverridesSource);
         }
         return annotatedRecordsList;
@@ -334,7 +334,7 @@ public class GenomeNexusImpl implements Annotator {
     public MutationRecord createRecord(Map<String, String> mafLine) throws Exception {
         MutationRecord record = new MutationRecord();
         for (String header : record.getHeader()) {
-            if(mafLine.keySet().contains(header)) {
+            if(mafLine.containsKey(header)) {
                 record.getClass().getMethod("set" + header.toUpperCase(), String.class).invoke(record, mafLine.remove(header));
             }
         }
@@ -364,10 +364,7 @@ public class GenomeNexusImpl implements Annotator {
             if (myVariantInfo != null) {
                 Gnomad gnomad = myVariantInfo.getGnomadExome();
                 if (gnomad != null) {
-                    AlleleFrequency alleleFrequency = gnomad.getAlleleFrequency();
-                    if (alleleFrequency != null) {
-                       return alleleFrequency;
-                    }
+                    return gnomad.getAlleleFrequency();
                 }
             }
         }
@@ -487,7 +484,7 @@ public class GenomeNexusImpl implements Annotator {
                 annotatedRecord = convertResponseToAnnotatedRecord(gnResponseVariantKeyMap.get(genomicLocation), record, replace);
                 annotatedRecord.setANNOTATION_STATUS("SUCCESS"); // annotation status indicates if a response was returned from GN, not whether the annotation is considered valid or not
                 if (summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverridesSource)) {
-                    // Log case where annotation comes back from Genome Nexus but still invalid (e.g null variant classification)
+                    // Log case where annotation comes back from Genome Nexus but still invalid (e.g. null variant classification)
                     LOG.warn("Annotated record is invalid for variant " + gnResponseVariantKeyMap.get(genomicLocation).getVariant());
                 }
             }
@@ -499,7 +496,7 @@ public class GenomeNexusImpl implements Annotator {
     private List<List<GenomicLocation>> sortAndPartitionMutationRecordsListForPOST(List<GenomicLocation> genomicLocations, Integer postIntervalSize) {
         // sort
         List<GenomicLocation> sortedGenomicLocations = new ArrayList<>(genomicLocations);
-        Collections.sort(sortedGenomicLocations, GENOMIC_LOCATION_COMPARATOR);
+        sortedGenomicLocations.sort(GENOMIC_LOCATION_COMPARATOR);
         // partition
         int start = 0;
         int end = postIntervalSize;
@@ -517,29 +514,27 @@ public class GenomeNexusImpl implements Annotator {
 
     private void logAnnotationProgress(Integer annotatedVariantsCount, Integer totalVariantsToAnnotateCount, Integer intervalSize) {
         if (annotatedVariantsCount % intervalSize == 0 || Objects.equals(annotatedVariantsCount, totalVariantsToAnnotateCount)) {
-                LOG.info("\tOn record " + String.valueOf(annotatedVariantsCount) + " out of " + String.valueOf(totalVariantsToAnnotateCount) +
-                        ", annotation " + String.valueOf((int)(((annotatedVariantsCount * 1.0)/totalVariantsToAnnotateCount) * 100)) + "% complete");
+                LOG.info("\tOn record " + annotatedVariantsCount + " out of " + totalVariantsToAnnotateCount +
+                        ", annotation " + (int) (((annotatedVariantsCount * 1.0) / totalVariantsToAnnotateCount) * 100) + "% complete");
         }
     }
 
+    // GenomicLocation can't be null, so we do not need to check for null
     static final Comparator<GenomicLocation> GENOMIC_LOCATION_COMPARATOR =
-                                        new Comparator<GenomicLocation>() {
-        // GenomicLocation can't be null, so we do not need to check for null
-        public int compare(GenomicLocation gl1, GenomicLocation gl2) {
-            int chromCmp = gl1.getChromosome().compareTo(gl2.getChromosome());
-            if (chromCmp != 0) {
-                return chromCmp;
-            }
-            int startCmp = gl1.getStart().compareTo(gl2.getStart());
-            if (startCmp != 0) {
-                return startCmp;
-            }
-            int endCmp = gl1.getEnd().compareTo(gl2.getEnd());
-            if (endCmp != 0) {
-                return endCmp;
-            }
-            int referenceAlleleCmp = gl1.getReferenceAllele().compareTo(gl2.getReferenceAllele());
-            return (referenceAlleleCmp != 0 ? referenceAlleleCmp : gl1.getVariantAllele().compareTo(gl2.getVariantAllele()));
-        }
-    };
+            (gl1, gl2) -> {
+                int chromCmp = gl1.getChromosome().compareTo(gl2.getChromosome());
+                if (chromCmp != 0) {
+                    return chromCmp;
+                }
+                int startCmp = gl1.getStart().compareTo(gl2.getStart());
+                if (startCmp != 0) {
+                    return startCmp;
+                }
+                int endCmp = gl1.getEnd().compareTo(gl2.getEnd());
+                if (endCmp != 0) {
+                    return endCmp;
+                }
+                int referenceAlleleCmp = gl1.getReferenceAllele().compareTo(gl2.getReferenceAllele());
+                return (referenceAlleleCmp != 0 ? referenceAlleleCmp : gl1.getVariantAllele().compareTo(gl2.getVariantAllele()));
+            };
 }
