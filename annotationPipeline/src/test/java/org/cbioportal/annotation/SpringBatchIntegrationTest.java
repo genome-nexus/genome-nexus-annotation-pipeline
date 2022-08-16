@@ -266,6 +266,63 @@ public class SpringBatchIntegrationTest {
         testWith(jobParameters, expectedFile, actualFile);
     }
 
+    @Test
+    @DisplayName("Test output-format with tcga")
+    public void test_output_format_tcga() throws Exception {
+        ReflectionTestUtils.setField(annotator, "enrichmentFields", "annotation_summary");
+        String inputFile = IN + "tcga.minimal_example.in.txt";
+        String expectedFile = EXPECTED + "test_output_format_tcga.expected.txt";
+        String actualFile = ACTUAL + "test_output_format_tcga.actual.txt";
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("filename", inputFile)
+                .addString("outputFilename", actualFile)
+                .addString("outputFormat", "tcga")
+                .addString("replace", String.valueOf(true))
+                .addString("isoformOverride", "uniprot")
+                .addString("errorReportLocation", null)
+                .addString("postIntervalSize", String.valueOf(-1))
+                .toJobParameters();
+        testWith(jobParameters, expectedFile, actualFile);
+    }
+
+    @Test
+    @DisplayName("Test output-format with minimal")
+    public void test_output_format_minimal() throws Exception {
+        ReflectionTestUtils.setField(annotator, "enrichmentFields", "annotation_summary");
+        String inputFile = IN + "minimal_example.txt";
+        String expectedFile = EXPECTED + "test_output_format_minimal.expected.txt";
+        String actualFile = ACTUAL + "test_output_format_minimal.actual.txt";
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("filename", inputFile)
+                .addString("outputFilename", actualFile)
+                .addString("outputFormat", "minimal")
+                .addString("replace", String.valueOf(true))
+                .addString("isoformOverride", "uniprot")
+                .addString("errorReportLocation", null)
+                .addString("postIntervalSize", String.valueOf(-1))
+                .toJobParameters();
+        testWith(jobParameters, expectedFile, actualFile);
+    }
+
+    @Test
+    @DisplayName("Test output-format with a format file")
+    public void test_output_format_with_formatFile() throws Exception {
+        ReflectionTestUtils.setField(annotator, "enrichmentFields", "annotation_summary");
+        String inputFile = IN + "data_mutations_extended_100.txt";
+        String expectedFile = EXPECTED + "test_output_format_with_formatFile.expected.txt";
+        String actualFile = ACTUAL + "test_output_format_with_formatFile.actual.txt";
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("filename", inputFile)
+                .addString("outputFilename", actualFile)
+                .addString("outputFormat", "Hugo_Symbol,Entrez_Gene_Id,Center,NCBI_Build,Chromosome,Annotation_Status")
+                .addString("replace", String.valueOf(true))
+                .addString("isoformOverride", "uniprot")
+                .addString("errorReportLocation", null)
+                .addString("postIntervalSize", String.valueOf(-1))
+                .toJobParameters();
+        testWith(jobParameters, expectedFile, actualFile);
+    }
+
     private void testWith(JobParameters jobParameters, String expectedPath, String actualPath) throws Exception {
         FileSystemResource expectedResult = new FileSystemResource(expectedPath);
         FileSystemResource actualResult = new FileSystemResource(actualPath);
