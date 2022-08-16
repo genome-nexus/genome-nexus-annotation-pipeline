@@ -1,0 +1,6 @@
+#genome_nexus_version: 0-unknown-version-SNAPSHOT
+#isoform: mskcc
+#version 2.4
+Center	NCBI_Build	Chromosome	Chromosome1
+TERT	0	.	GRCh37
+TERT1	0		GRCh37

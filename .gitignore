@@ -10,3 +10,4 @@ databaseAnnotator/src/main/resources/log4j.properties
 swagger-codegen-cli.jar
 *repository.sqlite
 annotationPipeline/data/output.txt
+/.idea/

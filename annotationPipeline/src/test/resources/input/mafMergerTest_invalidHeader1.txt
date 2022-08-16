@@ -1,0 +1,5 @@
+#genome_nexus_version: 0-unknown-version-SNAPSHOT
+#isoform: mskcc
+#version 2.4
+Center	NCBI_Build	Chromosome	Chromosome1
+
