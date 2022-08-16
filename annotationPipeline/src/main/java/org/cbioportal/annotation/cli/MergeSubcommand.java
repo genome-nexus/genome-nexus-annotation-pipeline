@@ -53,4 +53,9 @@ public class MergeSubcommand implements Subcommand {
     public String getOptionValue(String opt) {
         return commandLine.getOptionValue(opt);
     }
+
+    @Override
+    public String getOptionValue(String opt, String defaultValue) {
+        return commandLine.getOptionValue(opt, defaultValue);
+    }
 }

@@ -71,10 +71,10 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
     @Value("#{jobParameters[isoformOverride]}")
     private String isoformOverride;
 
-    @Value("#{jobParameters[errorReportLocation]}")
+    @Value("#{jobParameters[errorReportLocation] ?: ''}")
     private String errorReportLocation;
 
-    @Value("#{jobParameters[postIntervalSize]}")
+    @Value("#{jobParameters[postIntervalSize] ?: '100'}")
     private Integer postIntervalSize;
 
     @Value("#{jobParameters[outputFormat]}")
@@ -97,7 +97,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
         processComments(ec, genomeNexusVersion);
         List<MutationRecord> mutationRecords = loadMutationRecordsFromMaf();
         if (!mutationRecords.isEmpty()) {
-            if (postIntervalSize > 0) {
+            if (postIntervalSize > 1) {
                 allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize, true);
             } else {
                 allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, replace, true);
@@ -141,9 +141,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
             }
             ec.put("mutation_header", new ArrayList(header));
             summaryStatistics.printSummaryStatistics();
-            if (errorReportLocation != null) {
-                summaryStatistics.saveErrorMessagesToFile(errorReportLocation);
-            }
+            summaryStatistics.saveErrorMessagesToFile(errorReportLocation);
         } else {
             System.out.println("It seems that the input mutation file does not contain any mutation records. Exiting without writing an output file.");
             LOG.warn("Did not extract any records from the MAF, nothing to process - ending annotation job...");

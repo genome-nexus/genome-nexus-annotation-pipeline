@@ -1,7 +1,7 @@
 package org.cbioportal.annotation;
 
 
-import org.apache.tools.ant.types.Path;
+import org.cbioportal.annotation.cli.AnnotationFailedException;
 import org.cbioportal.annotation.cli.MergeFailedException;
 import org.cbioportal.annotation.cli.NoSubcommandFoundException;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -159,5 +158,59 @@ class AnnotationPipelineTest {
         } catch (Exception ignored) {
         }
         fail("Test didn't produced a MergeFailedException");
+    }
+
+    /**
+     * annotate with no input, should produce AnnotationFailedException
+     */
+    @Test
+    void annotate_test_1() {
+        try (MockedStatic<LoggerFactory> loggerFactory = mockStatic(LoggerFactory.class)) {
+            final Logger logger = mock(Logger.class, RETURNS_DEEP_STUBS);
+            loggerFactory.when(() -> LoggerFactory.getLogger(AnnotationPipeline.class)).thenReturn(logger);
+            String[] args = {"annotate"};
+            AnnotationPipeline.main(args);
+        } catch (AnnotationFailedException e) {
+            assertEquals("required option: filename", e.getMessage());
+            return;
+        } catch (Exception ignored) {
+        }
+        fail("Test didn't produced a AnnotationFailedException");
+    }
+
+    /**
+     * annotate with no output-filename option, should produce AnnotationFailedException
+     */
+    @Test
+    void annotate_test_2() {
+        try (MockedStatic<LoggerFactory> loggerFactory = mockStatic(LoggerFactory.class)) {
+            final Logger logger = mock(Logger.class, RETURNS_DEEP_STUBS);
+            loggerFactory.when(() -> LoggerFactory.getLogger(AnnotationPipeline.class)).thenReturn(logger);
+            String[] args = {"annotate", "--filename", "a"};
+            AnnotationPipeline.main(args);
+        } catch (AnnotationFailedException e) {
+            assertEquals("required option: output-filename", e.getMessage());
+            return;
+        } catch (Exception ignored) {
+        }
+        fail("Test didn't produced a AnnotationFailedException");
+    }
+
+    /**
+     * annotate with invalid output-format option, should produce AnnotationFailedException
+     */
+    @Test
+    void annotate_test_3() {
+        try (MockedStatic<LoggerFactory> loggerFactory = mockStatic(LoggerFactory.class)) {
+            final Logger logger = mock(Logger.class, RETURNS_DEEP_STUBS);
+            loggerFactory.when(() -> LoggerFactory.getLogger(AnnotationPipeline.class)).thenReturn(logger);
+            String[] args = {"annotate", "--filename", "a", "--output-filename", "b" , "--output-format", "c"};
+            AnnotationPipeline.main(args);
+        } catch (AnnotationFailedException e) {
+            assertEquals("Error while reading output-format file: " + "c", e.getMessage());
+            return;
+        } catch (Exception ignored) {
+        }
+        fail("Test didn't produced a AnnotationFailedException");
     }
 }
