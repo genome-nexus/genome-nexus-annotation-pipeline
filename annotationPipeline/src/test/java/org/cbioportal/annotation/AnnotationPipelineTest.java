@@ -27,7 +27,7 @@ class AnnotationPipelineTest {
             final Logger logger = mock(Logger.class, RETURNS_DEEP_STUBS);
             loggerFactory.when(() -> LoggerFactory.getLogger(AnnotationPipeline.class)).thenReturn(logger);
             String[] args = {};
-            AnnotationPipeline.main(args);
+            AnnotationPipeline.subMain(args);
         } catch (NoSubcommandFoundException e) {
             return;
         } catch (Exception ignored) {
@@ -44,7 +44,7 @@ class AnnotationPipelineTest {
             final Logger logger = mock(Logger.class, RETURNS_DEEP_STUBS);
             loggerFactory.when(() -> LoggerFactory.getLogger(AnnotationPipeline.class)).thenReturn(logger);
             String[] args = {"merge"};
-            AnnotationPipeline.main(args);
+            AnnotationPipeline.subMain(args);
         } catch (MergeFailedException e) {
             assertEquals("required option: output-maf", e.getMessage());
             return;
@@ -62,7 +62,7 @@ class AnnotationPipelineTest {
             final Logger logger = mock(Logger.class, RETURNS_DEEP_STUBS);
             loggerFactory.when(() -> LoggerFactory.getLogger(AnnotationPipeline.class)).thenReturn(logger);
             String[] args = {"merge", "--input-mafs-list", "a,b,c", "--input-mafs-directory", "d", "--output-maf", "e"};
-            AnnotationPipeline.main(args);
+            AnnotationPipeline.subMain(args);
         } catch (MergeFailedException e) {
             assertEquals("Please choose only one of the following options when running script: --input-mafs-list | --input-mafs-directory", e.getMessage());
             return;
@@ -80,7 +80,7 @@ class AnnotationPipelineTest {
             final Logger logger = mock(Logger.class, RETURNS_DEEP_STUBS);
             loggerFactory.when(() -> LoggerFactory.getLogger(AnnotationPipeline.class)).thenReturn(logger);
             String[] args = {"merge", "--input-mafs-directory", "d", "--output-maf", "e"};
-            AnnotationPipeline.main(args);
+            AnnotationPipeline.subMain(args);
         } catch (MergeFailedException e) {
             assertEquals("Supplied input mafs directory is not a directory or it does not exist!", e.getMessage());
             return;
@@ -98,7 +98,7 @@ class AnnotationPipelineTest {
             final Logger logger = mock(Logger.class, RETURNS_DEEP_STUBS);
             loggerFactory.when(() -> LoggerFactory.getLogger(AnnotationPipeline.class)).thenReturn(logger);
             String[] args = {"merge", "--input-mafs-list", "d", "--output-maf", "e"};
-            AnnotationPipeline.main(args);
+            AnnotationPipeline.subMain(args);
         } catch (MergeFailedException e) {
             assertEquals("There is nothing to merge! Count of input files: 1", e.getMessage());
             return;
@@ -116,7 +116,7 @@ class AnnotationPipelineTest {
             final Logger logger = mock(Logger.class, RETURNS_DEEP_STUBS);
             loggerFactory.when(() -> LoggerFactory.getLogger(AnnotationPipeline.class)).thenReturn(logger);
             String[] args = {"merge", "--input-mafs-directory", Files.createTempDirectory("emptyDirectory").toAbsolutePath().toString(), "--output-maf", "e"};
-            AnnotationPipeline.main(args);
+            AnnotationPipeline.subMain(args);
         } catch (MergeFailedException e) {
             assertEquals("There is nothing to merge! Count of input files: 0", e.getMessage());
             return;
@@ -134,7 +134,7 @@ class AnnotationPipelineTest {
             final Logger logger = mock(Logger.class, RETURNS_DEEP_STUBS);
             loggerFactory.when(() -> LoggerFactory.getLogger(AnnotationPipeline.class)).thenReturn(logger);
             String[] args = {"merge", "--input-mafs-directory", "src/test/resources/directoryWith1Item", "--output-maf", "e"};
-            AnnotationPipeline.main(args);
+            AnnotationPipeline.subMain(args);
         } catch (MergeFailedException e) {
             assertEquals("There is nothing to merge! Count of input files: 1", e.getMessage());
             return;
@@ -152,7 +152,7 @@ class AnnotationPipelineTest {
             final Logger logger = mock(Logger.class, RETURNS_DEEP_STUBS);
             loggerFactory.when(() -> LoggerFactory.getLogger(AnnotationPipeline.class)).thenReturn(logger);
             String[] args = {"merge", "--input-mafs-list", "a,b", "--output-maf", "e"};
-            AnnotationPipeline.main(args);
+            AnnotationPipeline.subMain(args);
         } catch (MergeFailedException e) {
             assertEquals("java.nio.file.NoSuchFileException: a", e.getMessage());
             return;

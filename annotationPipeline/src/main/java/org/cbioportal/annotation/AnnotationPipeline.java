@@ -83,29 +83,39 @@ public class AnnotationPipeline {
         }
     }
 
-    public static void main(String[] args) throws NoSubcommandFoundException, ParseException, AnnotationFailedException, MergeFailedException {
+    public static void subMain(String[] args) throws NoSubcommandFoundException, ParseException, MergeFailedException, AnnotationFailedException {
+        boolean help = false;
+        for (String arg : args) {
+            if (arg.equals("-h") || arg.equals("--help")) {
+                help = true;
+                break;
+            }
+        }
         Subcommand subcommand = null;
         try {
             subcommand = Subcommands.find(args);
         } catch (ParseException | NoSubcommandFoundException e) {
-            AnnotateSubcommand.help();
-            MergeSubcommand.help();
-            if (args.length <= 1) {
+            if (help || args.length == 0) {
+                AnnotateSubcommand.help();
+                MergeSubcommand.help();
                 throw e;
             }
         }
-        if(subcommand == null) {
+        if (subcommand == null) {
             subcommand = new AnnotateSubcommand(args);
         }
         if (subcommand instanceof AnnotateSubcommand) {
             annotate(subcommand, args);
         } else if (subcommand instanceof MergeSubcommand) {
-            try {
-                merge(subcommand);
-            } catch (MergeFailedException e) {
-                LOG.error(e.getMessage());
-                throw e;
-            }
+            merge(subcommand);
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            subMain(args);
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
         }
     }
 
