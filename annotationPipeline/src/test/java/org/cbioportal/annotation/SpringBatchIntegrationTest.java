@@ -267,16 +267,16 @@ public class SpringBatchIntegrationTest {
     }
 
     @Test
-    @DisplayName("Test output-format with tcga")
-    public void test_output_format_tcga() throws Exception {
+    @DisplayName("Test output-format with extended")
+    public void test_output_format_extended() throws Exception {
         ReflectionTestUtils.setField(annotator, "enrichmentFields", "annotation_summary");
-        String inputFile = IN + "tcga.minimal_example.in.txt";
-        String expectedFile = EXPECTED + "test_output_format_tcga.expected.txt";
-        String actualFile = ACTUAL + "test_output_format_tcga.actual.txt";
+        String inputFile = IN + "extended.minimal_example.in.txt";
+        String expectedFile = EXPECTED + "test_output_format_extended.expected.txt";
+        String actualFile = ACTUAL + "test_output_format_extended.actual.txt";
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("outputFormat", "tcga")
+                .addString("outputFormat", "extended")
                 .addString("replace", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .addString("errorReportLocation", null)

@@ -104,7 +104,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
             }
             // if output-format option is supplied, we only need to convert its data into header
             if (outputFormat != null) {
-                if ("tcga".equals(outputFormat)) {
+                if ("extended".equals(outputFormat)) {
                     for(String token : ExtendedMafFormat.headers) {
                         header.add(token);
                     }
@@ -119,7 +119,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
                     }
                 }
                 // extra headers should go in the back alphabetically for these options
-                if ("tcga".equals(outputFormat) || "minimal".equals(outputFormat)) {
+                if ("extended".equals(outputFormat) || "minimal".equals(outputFormat)) {
                     Set<String> sortedAllHeaders = new TreeSet<>();
                     for (AnnotatedRecord ar : allAnnotatedRecords) {
                         sortedAllHeaders.addAll(ar.getHeaderWithAdditionalFields());
