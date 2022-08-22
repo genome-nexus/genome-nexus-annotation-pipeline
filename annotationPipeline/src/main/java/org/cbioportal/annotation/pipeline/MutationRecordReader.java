@@ -113,6 +113,12 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
                         header.add(token);
                     }
                 } else {
+                    try (BufferedReader br = new BufferedReader(new FileReader(outputFormat))) {
+                        outputFormat = br.readLine();
+                    } catch (IOException e) {
+                        System.err.println("Error while reading output-format file: " + outputFormat);
+                        throw new ItemStreamException("Error while reading output-format file: " + outputFormat);
+                    }
                     String[] tokens = outputFormat.split(",");
                     for (int i = 0; i < tokens.length; i++) {
                         header.add(tokens[i].trim());
