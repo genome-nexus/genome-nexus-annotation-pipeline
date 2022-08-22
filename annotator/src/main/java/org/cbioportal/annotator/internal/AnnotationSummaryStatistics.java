@@ -62,6 +62,7 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
     private Integer otherFailedAnnotatedRecords;
     private List<MutationRecord> failedAnnotatedRecords;
     private List<String> failedAnnotatedRecordsErrorMessages;
+    private final List<Long> durations = new ArrayList<>();
 
     private static final Logger LOG = LoggerFactory.getLogger(AnnotationSummaryStatistics.class);
 
@@ -73,6 +74,25 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
         this.otherFailedAnnotatedRecords = 0;
         this.failedAnnotatedRecords = new ArrayList<>();
         this.failedAnnotatedRecordsErrorMessages = new ArrayList<>();
+    }
+
+    /**
+     * POST and GET are not used together... if this changes, you might want to change this method too
+     * @param duration Duration of the POST/GET operation in seconds
+     */
+    public void addDuration(Long duration) {
+        durations.add(duration);
+    }
+
+    /**
+     *
+     * @return The average response time with 3 digits precision
+     */
+    public String averageResponseTime() {
+        if(durations.size() == 0) {
+            return "0.000";
+        }
+        return String.format("%.3f", durations.stream().mapToLong(Long::longValue).average().getAsDouble());
     }
 
     public void addFailedAnnotatedRecordDueToServer(MutationRecord record, String serverErrorMessage, String isoformOverride) {
@@ -139,6 +159,7 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
         } else {
             builder.append("\n\tAll variants annotated successfully without failures!");
         }
+        builder.append("\n\n\tAverage Response Time:  ").append(averageResponseTime()).append(" sec.");
         builder.append("\n\n");
         System.out.print(builder.toString());
     }

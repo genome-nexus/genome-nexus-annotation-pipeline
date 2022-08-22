@@ -32,6 +32,9 @@
 
 package org.cbioportal.annotator.internal;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.Temporal;
 import java.util.*;
 import org.mskcc.cbio.maf.MafUtil;
 
@@ -152,6 +155,7 @@ public class GenomeNexusImpl implements Annotator {
             // if no error then annotated record will get overwritten anyway with genome nexus response
             String serverErrorMessage = "";
             AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
+            Instant startTime = Instant.now();
             try {
                 annotatedRecord = annotateRecord(record, replace, isoformOverridesSource, reannotate);
                 annotatedRecord.setANNOTATION_STATUS("SUCCESS");
@@ -168,6 +172,7 @@ public class GenomeNexusImpl implements Annotator {
             catch (GenomeNexusAnnotationFailureException ex) {
                 serverErrorMessage = "Failed to annotate variant due to Genome Nexus : " + ex.getMessage();
             }
+            summaryStatistics.addDuration(Duration.between(startTime, Instant.now()).getSeconds());
             annotatedRecordsList.add(annotatedRecord);
 
             // log server failure message if applicable
@@ -442,6 +447,7 @@ public class GenomeNexusImpl implements Annotator {
         int annotatedVariantsCount = 0;
         for (List<GenomicLocation> partitionedList : partitionedGenomicLocationList) {
             List<VariantAnnotation> gnResponseList = null;
+            Instant startTime = Instant.now();
             // Get annotations from Genome Nexus and log if server error (e.g VEP is down)
             try {
                  gnResponseList = apiClient.fetchVariantAnnotationByGenomicLocationPOST(partitionedList,
@@ -449,7 +455,7 @@ public class GenomeNexusImpl implements Annotator {
             } catch (Exception e) {
                 LOG.error("Annotation failed for ALL variants in this partition. " + e.getMessage());
             }
-
+            summaryStatistics.addDuration(Duration.between(startTime, Instant.now()).getSeconds());
             // Verify annotations coming back from Genome Nexus and log annotation failures (e.g used to be 404s)
             if (gnResponseList != null) {
                 for (VariantAnnotation gnResponse : gnResponseList) {
