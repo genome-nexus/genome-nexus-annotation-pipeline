@@ -22,7 +22,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * Unit test version of .circleci/config.yml
@@ -293,9 +293,13 @@ public class SpringBatchIntegrationTest {
         testWith(jobParameters, expectedFile, actualFile);
     }
 
+    /**
+     * Output format should only receive predefined values of a filepath
+     * @throws Exception
+     */
     @Test
-    @DisplayName("Test output-format with a format file")
-    public void test_output_format_with_formatFile() throws Exception {
+    @DisplayName("Test output-format with a format file headers")
+    public void test_output_format_with_formatFileHeaders() throws Exception {
         ReflectionTestUtils.setField(annotator, "enrichmentFields", "annotation_summary");
         String inputFile = IN + "data_mutations_extended_100.txt";
         String expectedFile = EXPECTED + "test_output_format_with_formatFile.expected.txt";
@@ -304,6 +308,32 @@ public class SpringBatchIntegrationTest {
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
                 .addString("outputFormat", "Hugo_Symbol,Entrez_Gene_Id,Center,NCBI_Build,Chromosome,Annotation_Status")
+                .addString("replace", String.valueOf(true))
+                .addString("isoformOverride", "uniprot")
+                .addString("errorReportLocation", null)
+                .addString("postIntervalSize", String.valueOf(-1))
+                .toJobParameters();
+        FileSystemResource expectedResult = new FileSystemResource(expectedFile);
+        FileSystemResource actualResult = new FileSystemResource(actualFile);
+
+        JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
+        JobInstance actualJobInstance = jobExecution.getJobInstance();
+        ExitStatus actualJobExitStatus = jobExecution.getExitStatus();
+        assertEquals("FAILED", actualJobExitStatus.getExitCode());
+    }
+
+    @Test
+    @DisplayName("Test output-format with format file path")
+    public void test_output_format_formatFilePath() throws Exception {
+        ReflectionTestUtils.setField(annotator, "enrichmentFields", "annotation_summary");
+        String inputFile = IN + "minimal_example.txt";
+        String formatFile = IN + "minimal_format.txt";
+        String expectedFile = EXPECTED + "test_output_format_formatFilePath.expected.txt";
+        String actualFile = ACTUAL + "test_output_format_formatFilePath.actual.txt";
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("filename", inputFile)
+                .addString("outputFilename", actualFile)
+                .addString("outputFormat", formatFile)
                 .addString("replace", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .addString("errorReportLocation", null)
