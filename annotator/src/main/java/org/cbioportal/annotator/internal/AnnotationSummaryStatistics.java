@@ -152,6 +152,7 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
     }
 
     public void saveErrorMessagesToFile(String filename) {
+        if(filename == null || filename.isEmpty()) return;
         if (this.failedAnnotatedRecordsErrorMessages.isEmpty()) {
             LOG.info("No errors to write - error report will not be generated.");
         }

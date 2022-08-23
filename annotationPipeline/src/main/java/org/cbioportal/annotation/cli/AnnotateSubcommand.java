@@ -55,4 +55,9 @@ public class AnnotateSubcommand implements Subcommand {
         return commandLine.getOptionValue(opt);
     }
 
+    @Override
+    public String getOptionValue(String opt, String defaultValue) {
+        return commandLine.getOptionValue(opt, defaultValue);
+    }
+
 }

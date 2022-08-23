@@ -71,7 +71,6 @@ public class SpringBatchIntegrationTest {
                 .addString("replace", String.valueOf(false))
                 .addString("isoformOverride", "uniprot")
                 .addString("errorReportLocation", null)
-                .addString("postIntervalSize", String.valueOf(-1))
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
     }
@@ -89,7 +88,6 @@ public class SpringBatchIntegrationTest {
                 .addString("replace", String.valueOf(false))
                 .addString("isoformOverride", "mskcc")
                 .addString("errorReportLocation", null)
-                .addString("postIntervalSize", String.valueOf(-1))
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
     }
@@ -107,7 +105,6 @@ public class SpringBatchIntegrationTest {
                 .addString("replace", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .addString("errorReportLocation", null)
-                .addString("postIntervalSize", String.valueOf(-1))
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
     }
@@ -125,7 +122,6 @@ public class SpringBatchIntegrationTest {
                 .addString("replace", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .addString("errorReportLocation", null)
-                .addString("postIntervalSize", String.valueOf(-1))
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
     }
@@ -143,7 +139,6 @@ public class SpringBatchIntegrationTest {
                 .addString("replace", String.valueOf(true))
                 .addString("isoformOverride", "mskcc")
                 .addString("errorReportLocation", null)
-                .addString("postIntervalSize", String.valueOf(-1))
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
     }
@@ -161,7 +156,6 @@ public class SpringBatchIntegrationTest {
                 .addString("replace", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .addString("errorReportLocation", null)
-                .addString("postIntervalSize", String.valueOf(-1))
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
     }
@@ -179,7 +173,6 @@ public class SpringBatchIntegrationTest {
                 .addString("replace", String.valueOf(true))
                 .addString("isoformOverride", "mskcc")
                 .addString("errorReportLocation", null)
-                .addString("postIntervalSize", String.valueOf(-1))
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
     }
@@ -202,7 +195,6 @@ public class SpringBatchIntegrationTest {
                 .addString("replace", String.valueOf(false))
                 .addString("isoformOverride", "mskcc")
                 .addString("errorReportLocation", null)
-                .addString("postIntervalSize", String.valueOf(-1))
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
     }
@@ -225,7 +217,6 @@ public class SpringBatchIntegrationTest {
                 .addString("replace", String.valueOf(false))
                 .addString("isoformOverride", "uniprot")
                 .addString("errorReportLocation", null)
-                .addString("postIntervalSize", String.valueOf(-1))
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
     }
@@ -243,7 +234,6 @@ public class SpringBatchIntegrationTest {
                 .addString("replace", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .addString("errorReportLocation", null)
-                .addString("postIntervalSize", String.valueOf(-1))
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
     }
@@ -261,7 +251,6 @@ public class SpringBatchIntegrationTest {
                 .addString("replace", String.valueOf(false))
                 .addString("isoformOverride", "uniprot")
                 .addString("errorReportLocation", null)
-                .addString("postIntervalSize", String.valueOf(-1))
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
     }

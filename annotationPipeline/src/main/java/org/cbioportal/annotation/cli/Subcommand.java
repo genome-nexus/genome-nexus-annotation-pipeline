@@ -18,4 +18,6 @@ public interface Subcommand {
     boolean hasOption(String opt);
 
     String getOptionValue(String opt);
+
+    String getOptionValue(String opt, String defaultValue);
 }
