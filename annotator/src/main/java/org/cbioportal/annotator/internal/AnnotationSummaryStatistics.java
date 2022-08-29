@@ -95,6 +95,17 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
         return String.format("%.3f", durations.stream().mapToLong(Long::longValue).average().getAsDouble());
     }
 
+    /**
+     *
+     * @return The total response time
+     */
+    public String totalResponseTime() {
+        if(durations.size() == 0) {
+            return "0";
+        }
+        return String.valueOf(durations.stream().mapToLong(Long::longValue).sum());
+    }
+
     public void addFailedAnnotatedRecordDueToServer(MutationRecord record, String serverErrorMessage, String isoformOverride) {
         failedAnnotatedRecords.add(record);
         failedAnnotatedRecordsErrorMessages.add(constructErrorMessageFromRecord(record,
@@ -160,6 +171,7 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
             builder.append("\n\tAll variants annotated successfully without failures!");
         }
         builder.append("\n\n\tAverage Response Time:  ").append(averageResponseTime()).append(" sec.");
+        builder.append("\n\t  Total Response Time:  ").append(totalResponseTime()).append(" sec.");
         builder.append("\n\n");
         System.out.print(builder.toString());
     }

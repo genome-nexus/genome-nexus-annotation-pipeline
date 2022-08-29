@@ -26,4 +26,26 @@ class AnnotationSummaryStatisticsTest {
         annotationSummaryStatistics.addDuration(4L);
         assertEquals("2.500", annotationSummaryStatistics.averageResponseTime());
     }
+
+    @Test
+    void totalResponseTime0() {
+        AnnotationSummaryStatistics annotationSummaryStatistics = new AnnotationSummaryStatistics(null);
+        assertEquals("0", annotationSummaryStatistics.totalResponseTime());
+    }
+
+    @Test
+    void totalResponseTime1() {
+        AnnotationSummaryStatistics annotationSummaryStatistics = new AnnotationSummaryStatistics(null);
+        annotationSummaryStatistics.addDuration(1L);
+        assertEquals("1", annotationSummaryStatistics.totalResponseTime());
+    }
+
+    @Test
+    void totalResponseTime3() {
+        AnnotationSummaryStatistics annotationSummaryStatistics = new AnnotationSummaryStatistics(null);
+        annotationSummaryStatistics.addDuration(1L);
+        annotationSummaryStatistics.addDuration(4L);
+        annotationSummaryStatistics.addDuration(5L);
+        assertEquals("10", annotationSummaryStatistics.totalResponseTime());
+    }
 }
