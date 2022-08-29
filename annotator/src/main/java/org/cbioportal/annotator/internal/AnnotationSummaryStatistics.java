@@ -38,6 +38,8 @@ import org.cbioportal.models.MutationRecord;
 import org.mskcc.cbio.maf.MafUtil;
 
 import java.io.*;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -54,6 +56,7 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
     private final String AMBIGUOUS_ALLELE_ERROR_MESSAGE = "Record contains ambiguous SNP and INDEL allele change - SNP allele will be used";
     private final String NULL_VAR_CLASSIFICATION_ERROR_MESSGAE = "Record contains null HGVSp variant classification";
     private final String UNKNOWN_ANNOTATION_ERROR_MESSAGE = "Failed to annotate variant";
+    private final Instant initTime = Instant.now();
 
     private Annotator annotator;
     private Integer totalFailedAnnotatedRecords;
@@ -104,6 +107,15 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
             return "0";
         }
         return String.valueOf(durations.stream().mapToLong(Long::longValue).sum());
+    }
+
+    /**
+     * This class used with its object and its initialization is fairly at an early stage soo...
+     * Its initialization used as the start of the runtime.
+     * @return The total run time
+     */
+    public String totalRunTime() {
+        return String.valueOf(Duration.between(initTime, Instant.now()).getSeconds());
     }
 
     public void addFailedAnnotatedRecordDueToServer(MutationRecord record, String serverErrorMessage, String isoformOverride) {
@@ -172,6 +184,7 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
         }
         builder.append("\n\n\tAverage Response Time:  ").append(averageResponseTime()).append(" sec.");
         builder.append("\n\t  Total Response Time:  ").append(totalResponseTime()).append(" sec.");
+        builder.append("\n\t       Total Run Time:  ").append(totalRunTime()).append(" sec.");
         builder.append("\n\n");
         System.out.print(builder.toString());
     }
