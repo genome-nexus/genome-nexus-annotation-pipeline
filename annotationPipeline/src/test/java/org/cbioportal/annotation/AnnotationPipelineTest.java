@@ -169,7 +169,7 @@ class AnnotationPipelineTest {
             final Logger logger = mock(Logger.class, RETURNS_DEEP_STUBS);
             loggerFactory.when(() -> LoggerFactory.getLogger(AnnotationPipeline.class)).thenReturn(logger);
             String[] args = {"annotate"};
-            AnnotationPipeline.main(args);
+            AnnotationPipeline.subMain(args);
         } catch (AnnotationFailedException e) {
             assertEquals("required option: filename", e.getMessage());
             return;
@@ -187,7 +187,7 @@ class AnnotationPipelineTest {
             final Logger logger = mock(Logger.class, RETURNS_DEEP_STUBS);
             loggerFactory.when(() -> LoggerFactory.getLogger(AnnotationPipeline.class)).thenReturn(logger);
             String[] args = {"annotate", "--filename", "a"};
-            AnnotationPipeline.main(args);
+            AnnotationPipeline.subMain(args);
         } catch (AnnotationFailedException e) {
             assertEquals("required option: output-filename", e.getMessage());
             return;
@@ -205,7 +205,7 @@ class AnnotationPipelineTest {
             final Logger logger = mock(Logger.class, RETURNS_DEEP_STUBS);
             loggerFactory.when(() -> LoggerFactory.getLogger(AnnotationPipeline.class)).thenReturn(logger);
             String[] args = {"annotate", "--filename", "a", "--output-filename", "b" , "--output-format", "c"};
-            AnnotationPipeline.main(args);
+            AnnotationPipeline.subMain(args);
         } catch (AnnotationFailedException e) {
             assertEquals("Error while reading output-format file: " + "c", e.getMessage());
             return;

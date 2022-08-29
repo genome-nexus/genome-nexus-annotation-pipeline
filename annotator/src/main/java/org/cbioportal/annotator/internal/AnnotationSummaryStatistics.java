@@ -38,6 +38,8 @@ import org.cbioportal.models.MutationRecord;
 import org.mskcc.cbio.maf.MafUtil;
 
 import java.io.*;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -54,6 +56,7 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
     private final String AMBIGUOUS_ALLELE_ERROR_MESSAGE = "Record contains ambiguous SNP and INDEL allele change - SNP allele will be used";
     private final String NULL_VAR_CLASSIFICATION_ERROR_MESSGAE = "Record contains null HGVSp variant classification";
     private final String UNKNOWN_ANNOTATION_ERROR_MESSAGE = "Failed to annotate variant";
+    private final Instant initTime = Instant.now();
 
     private Annotator annotator;
     private Integer totalFailedAnnotatedRecords;
@@ -62,6 +65,7 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
     private Integer otherFailedAnnotatedRecords;
     private List<MutationRecord> failedAnnotatedRecords;
     private List<String> failedAnnotatedRecordsErrorMessages;
+    private final List<Long> durations = new ArrayList<>();
 
     private static final Logger LOG = LoggerFactory.getLogger(AnnotationSummaryStatistics.class);
 
@@ -73,6 +77,45 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
         this.otherFailedAnnotatedRecords = 0;
         this.failedAnnotatedRecords = new ArrayList<>();
         this.failedAnnotatedRecordsErrorMessages = new ArrayList<>();
+    }
+
+    /**
+     * POST and GET are not used together... if this changes, you might want to change this method too
+     * @param duration Duration of the POST/GET operation in seconds
+     */
+    public void addDuration(Long duration) {
+        durations.add(duration);
+    }
+
+    /**
+     *
+     * @return The average response time with 3 digits precision
+     */
+    public String averageResponseTime() {
+        if(durations.size() == 0) {
+            return "0.000";
+        }
+        return String.format("%.3f", durations.stream().mapToLong(Long::longValue).average().getAsDouble());
+    }
+
+    /**
+     *
+     * @return The total response time
+     */
+    public String totalResponseTime() {
+        if(durations.size() == 0) {
+            return "0";
+        }
+        return String.valueOf(durations.stream().mapToLong(Long::longValue).sum());
+    }
+
+    /**
+     * This class used with its object and its initialization is fairly at an early stage soo...
+     * Its initialization used as the start of the runtime.
+     * @return The total run time
+     */
+    public String totalRunTime() {
+        return String.valueOf(Duration.between(initTime, Instant.now()).getSeconds());
     }
 
     public void addFailedAnnotatedRecordDueToServer(MutationRecord record, String serverErrorMessage, String isoformOverride) {
@@ -139,6 +182,9 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
         } else {
             builder.append("\n\tAll variants annotated successfully without failures!");
         }
+        builder.append("\n\n\tAverage Response Time:  ").append(averageResponseTime()).append(" sec.");
+        builder.append("\n\t  Total Response Time:  ").append(totalResponseTime()).append(" sec.");
+        builder.append("\n\t       Total Run Time:  ").append(totalRunTime()).append(" sec.");
         builder.append("\n\n");
         System.out.print(builder.toString());
     }
