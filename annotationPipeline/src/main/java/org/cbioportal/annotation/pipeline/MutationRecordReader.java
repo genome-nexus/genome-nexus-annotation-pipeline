@@ -33,8 +33,6 @@
 package org.cbioportal.annotation.pipeline;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import org.cbioportal.annotator.internal.AnnotationSummaryStatistics;
 import org.cbioportal.annotator.Annotator;
@@ -107,29 +105,11 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
             // if output-format option is supplied, we only need to convert its data into header
             if (outputFormat != null) {
                 if ("extended".equals(outputFormat)) {
-                    for(String token : ExtendedMafFormat.headers) {
-                        header.add(token);
-                    }
+                    header.addAll(ExtendedMafFormat.headers);
                 } else if ("minimal".equals(outputFormat)) {
-                    for(String token : inputFileHeaders) {
-                        header.add(token);
-                    }
-                } else if (!Files.exists(Paths.get(outputFormat))) {
-                    String error = "Either file is not exist or outputFormat is not 'minimal' or 'extended'. Supplied outputFormat value: " + outputFormat;
-                    System.err.println(error);
-                    throw new ItemStreamException(error);
+                    header.addAll(inputFileHeaders);
                 } else {
-                    try (BufferedReader br = new BufferedReader(new FileReader(outputFormat))) {
-                        outputFormat = br.readLine();
-                    } catch (IOException e) {
-                        String error = "Error while reading output-format file: " + outputFormat;
-                        System.err.println(error);
-                        throw new ItemStreamException(error);
-                    }
-                    String[] tokens = outputFormat.split(",");
-                    for (int i = 0; i < tokens.length; i++) {
-                        header.add(tokens[i].trim());
-                    }
+                    header.addAll(Arrays.asList(outputFormat.split(",")));
                 }
                 // extra headers should go in the back alphabetically for these options
                 if ("extended".equals(outputFormat) || "minimal".equals(outputFormat)) {

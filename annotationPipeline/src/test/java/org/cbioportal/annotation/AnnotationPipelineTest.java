@@ -207,7 +207,43 @@ class AnnotationPipelineTest {
             String[] args = {"annotate", "--filename", "a", "--output-filename", "b" , "--output-format", "c"};
             AnnotationPipeline.subMain(args);
         } catch (AnnotationFailedException e) {
-            assertEquals("Error while reading output-format file: " + "c", e.getMessage());
+            assertEquals("Either file is not exist or outputFormat is not 'minimal' or 'extended'. Supplied outputFormat value: c", e.getMessage());
+            return;
+        } catch (Exception ignored) {
+        }
+        fail("Test didn't produced a AnnotationFailedException");
+    }
+
+    /**
+     * annotate with empty format file, should produce AnnotationFailedException
+     */
+    @Test
+    void annotate_test_4() {
+        try (MockedStatic<LoggerFactory> loggerFactory = mockStatic(LoggerFactory.class)) {
+            final Logger logger = mock(Logger.class, RETURNS_DEEP_STUBS);
+            loggerFactory.when(() -> LoggerFactory.getLogger(AnnotationPipeline.class)).thenReturn(logger);
+            String[] args = {"annotate", "--filename", "a", "--output-filename", "b" , "--output-format", "src/test/resources/input/empty_format.txt"};
+            AnnotationPipeline.subMain(args);
+        } catch (AnnotationFailedException e) {
+            assertEquals("Unexpected formatting found inside of " + "src/test/resources/input/empty_format.txt", e.getMessage());
+            return;
+        } catch (Exception ignored) {
+        }
+        fail("Test didn't produced a AnnotationFailedException");
+    }
+
+    /**
+     * annotate with invalid format file, should produce AnnotationFailedException
+     */
+    @Test
+    void annotate_test_5() {
+        try (MockedStatic<LoggerFactory> loggerFactory = mockStatic(LoggerFactory.class)) {
+            final Logger logger = mock(Logger.class, RETURNS_DEEP_STUBS);
+            loggerFactory.when(() -> LoggerFactory.getLogger(AnnotationPipeline.class)).thenReturn(logger);
+            String[] args = {"annotate", "--filename", "a", "--output-filename", "b" , "--output-format", "src/test/resources/input/invalid_format.txt"};
+            AnnotationPipeline.subMain(args);
+        } catch (AnnotationFailedException e) {
+            assertEquals("Unexpected formatting found inside of " + "src/test/resources/input/invalid_format.txt", e.getMessage());
             return;
         } catch (Exception ignored) {
         }

@@ -49,6 +49,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,12 +109,7 @@ public class AnnotationPipeline {
             subcommand = new AnnotateSubcommand(args);
         }
         if (subcommand instanceof AnnotateSubcommand) {
-            try {
-                annotate(subcommand, args);
-            } catch (AnnotationFailedException e) {
-                LOG.error(e.getMessage());
-                throw e;
-            }
+            annotate(subcommand, args);
         } else if (subcommand instanceof MergeSubcommand) {
             merge(subcommand);
         }
@@ -195,10 +192,19 @@ public class AnnotationPipeline {
                 outputFormat = "extended";
             } else if ("minimal".equals(outputFormatFile)) {
                 outputFormat = "minimal";
+            } else if (!Files.exists(Paths.get(outputFormatFile))) {
+                String error = "Either file is not exist or outputFormat is not 'minimal' or 'extended'. Supplied outputFormat value: " + outputFormatFile;
+                System.err.println(error);
+                throw new AnnotationFailedException(error);
             } else {
                 // user supplied a format file instead of pre-defined formats
                 try (BufferedReader br = new BufferedReader(new FileReader(outputFormatFile))) {
                     outputFormat = br.readLine();
+                    if (outputFormat == null || !outputFormat.contains(",")) {
+                        String error = "Unexpected formatting found inside of " + outputFormatFile;
+                        System.err.println(error);
+                        throw new AnnotationFailedException(error);
+                    }
                 } catch (IOException e) {
                     throw new AnnotationFailedException("Error while reading output-format file: " + outputFormatFile);
                 }
