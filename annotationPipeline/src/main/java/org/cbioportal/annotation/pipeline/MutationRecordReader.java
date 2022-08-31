@@ -33,6 +33,8 @@
 package org.cbioportal.annotation.pipeline;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import org.cbioportal.annotator.internal.AnnotationSummaryStatistics;
 import org.cbioportal.annotator.Annotator;
@@ -112,12 +114,17 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
                     for(String token : inputFileHeaders) {
                         header.add(token);
                     }
+                } else if (!Files.exists(Paths.get(outputFormat))) {
+                    String error = "Either file is not exist or outputFormat is not 'minimal' or 'extended'. Supplied outputFormat value: " + outputFormat;
+                    System.err.println(error);
+                    throw new ItemStreamException(error);
                 } else {
                     try (BufferedReader br = new BufferedReader(new FileReader(outputFormat))) {
                         outputFormat = br.readLine();
                     } catch (IOException e) {
-                        System.err.println("Error while reading output-format file: " + outputFormat);
-                        throw new ItemStreamException("Error while reading output-format file: " + outputFormat);
+                        String error = "Error while reading output-format file: " + outputFormat;
+                        System.err.println(error);
+                        throw new ItemStreamException(error);
                     }
                     String[] tokens = outputFormat.split(",");
                     for (int i = 0; i < tokens.length; i++) {

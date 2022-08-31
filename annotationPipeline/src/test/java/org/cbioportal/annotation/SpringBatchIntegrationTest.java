@@ -293,6 +293,50 @@ public class SpringBatchIntegrationTest {
         testWith(jobParameters, expectedFile, actualFile);
     }
 
+    @Test
+    @DisplayName("Test output-format with invalid value")
+    public void test_output_format_invalid_value() throws Exception {
+        ReflectionTestUtils.setField(annotator, "enrichmentFields", "annotation_summary");
+        String inputFile = IN + "minimal_example.txt";
+        String expectedFile = EXPECTED + "test_output_format_invalid_value.expected.txt";
+        String actualFile = ACTUAL + "test_output_format_invalid_value.actual.txt";
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("filename", inputFile)
+                .addString("outputFilename", actualFile)
+                .addString("outputFormat", "INVALID")
+                .addString("replace", String.valueOf(true))
+                .addString("isoformOverride", "uniprot")
+                .addString("errorReportLocation", null)
+                .addString("postIntervalSize", String.valueOf(-1))
+                .toJobParameters();
+        JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
+        JobInstance actualJobInstance = jobExecution.getJobInstance();
+        ExitStatus actualJobExitStatus = jobExecution.getExitStatus();
+        assertEquals("FAILED", actualJobExitStatus.getExitCode());
+    }
+
+    @Test
+    @DisplayName("Test output-format with nonexistent file")
+    public void test_output_format_nonexistent_file() throws Exception {
+        ReflectionTestUtils.setField(annotator, "enrichmentFields", "annotation_summary");
+        String inputFile = IN + "minimal_example.txt";
+        String expectedFile = EXPECTED + "test_output_format_invalid_value.expected.txt";
+        String actualFile = ACTUAL + "test_output_format_invalid_value.actual.txt";
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("filename", inputFile)
+                .addString("outputFilename", actualFile)
+                .addString("outputFormat", "NONEXISTENT_FILE.txt")
+                .addString("replace", String.valueOf(true))
+                .addString("isoformOverride", "uniprot")
+                .addString("errorReportLocation", null)
+                .addString("postIntervalSize", String.valueOf(-1))
+                .toJobParameters();
+        JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
+        JobInstance actualJobInstance = jobExecution.getJobInstance();
+        ExitStatus actualJobExitStatus = jobExecution.getExitStatus();
+        assertEquals("FAILED", actualJobExitStatus.getExitCode());
+    }
+
     /**
      * Output format should only receive predefined values of a filepath
      * @throws Exception
