@@ -191,8 +191,8 @@ public class AnnotationPipeline {
         String outputFormat = null;
         if (subcommand.hasOption("output-format")) {
             String outputFormatFile = subcommand.getOptionValue("output-format");
-            if ("tcga".equals(outputFormatFile)) {
-                outputFormat = "tcga";
+            if ("extended".equals(outputFormatFile)) {
+                outputFormat = "extended";
             } else if ("minimal".equals(outputFormatFile)) {
                 outputFormat = "minimal";
             } else {
