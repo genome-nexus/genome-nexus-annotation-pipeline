@@ -12,16 +12,13 @@ import java.util.*;
 public class DefaultLineCallbackHandler implements LineCallbackHandler {
 
     private static final String[] requiredNames = {"Chromosome", "Start_Position", "End_Position", "Reference_Allele"};
-    private final DelimitedLineTokenizer tokenizer;
     private static List<String> inputFileHeaders;
 
     /**
      *
-     * @param tokenizer Reference for the DefaultLineMapper's LineTokenizer. Non null.
      * @param inputFileHeaders Reference for the header names which will be used for 'minimal' file format. Non null.
      */
-    public DefaultLineCallbackHandler(DelimitedLineTokenizer tokenizer, List<String> inputFileHeaders) {
-        this.tokenizer = tokenizer;
+    public DefaultLineCallbackHandler(List<String> inputFileHeaders) {
         this.inputFileHeaders = inputFileHeaders;
     }
 
@@ -30,9 +27,8 @@ public class DefaultLineCallbackHandler implements LineCallbackHandler {
      * Header line should either include "Tumor_Seq_Allele1" or "Tumor_Seq_Allele2"
      *
      * @param line The line which contains tab separated headers. It shouldn't be null.
-     * @param tokenizer It can be null if it won't be used for spring batch file operations later on.
      */
-    public static void checkHeader(String line, DelimitedLineTokenizer tokenizer) {
+    public static void checkHeader(String line) {
         String[] names = line.split("\t");
         Set<String> nameSet = new HashSet<>();
         nameSet.addAll(Arrays.asList(names));
@@ -52,13 +48,10 @@ public class DefaultLineCallbackHandler implements LineCallbackHandler {
         if (inputFileHeaders != null) {
             Collections.addAll(inputFileHeaders, names);
         }
-        if (tokenizer != null) {
-            tokenizer.setNames(names); // do not use sorted names here, this will mess the places where tokenizer is used later on.
-        }
     }
 
     @Override
     public void handleLine(String line) {
-        checkHeader(line, tokenizer);
+        checkHeader(line);
     }
 }

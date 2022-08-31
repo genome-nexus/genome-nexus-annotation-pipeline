@@ -28,43 +28,36 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.annotation.pipeline;
 
-import java.util.ArrayList;
+import org.apache.commons.lang.StringUtils;
 import org.cbioportal.models.AnnotatedRecord;
 import org.springframework.batch.item.ItemProcessor;
-import java.util.List;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
+ * @author Mete Ozguz
  * @author Zachary Heins
  */
-public class MutationRecordProcessor implements ItemProcessor<AnnotatedRecord, String>{
+public class MutationRecordProcessor implements ItemProcessor<AnnotatedRecord, String> {
     @Value("#{stepExecutionContext['mutation_header']}")
-    private List<String> header;
+    private List<String> headers;
 
     public MutationRecordProcessor() {
     }
 
-    public MutationRecordProcessor(List<String> header) {
-        this.header = header;
+    public MutationRecordProcessor(List<String> headers) {
+        this.headers = headers;
     }
 
     @Override
     public String process(AnnotatedRecord annotatedRecord) throws Exception {
-        List<String> record = new ArrayList();
-        for (String field : header) {
-            try {
-                record.add(annotatedRecord.getClass().getMethod("get" + field.toUpperCase()).invoke(annotatedRecord).toString().trim());
-            }
-            catch (Exception e) {
-                record.add(annotatedRecord.getAdditionalProperties().getOrDefault(field,"").trim());
-            }
-        }        
-        return StringUtils.join(record, "\t");
-    }   
+        return annotatedRecord.toLine(headers);
+    }
 }

@@ -34,6 +34,7 @@ package org.cbioportal.annotator.internal;
 
 import org.cbioportal.annotator.Annotator;
 import org.cbioportal.models.AnnotatedRecord;
+import org.cbioportal.models.Header;
 import org.cbioportal.models.MutationRecord;
 import org.mskcc.cbio.maf.MafUtil;
 
@@ -45,14 +46,17 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.cbioportal.models.Header.*;
+
 /**
  *
+ * @author Mete Ozguz
  * @author ochoaa
  */
 public class AnnotationSummaryStatistics {
-private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPLE_ID", "CHR", "START",
-                                            "END", "REF", "ALT", "VARIANT_CLASSIFICATION",
-                                            "FAILURE_REASON", "URL"});
+private final List<String> ERROR_FILE_HEADER = Arrays.asList("SAMPLE_ID", "CHR", "START",
+        "END", "REF", "ALT", "VARIANT_CLASSIFICATION",
+        "FAILURE_REASON", "URL");
     private final String AMBIGUOUS_ALLELE_ERROR_MESSAGE = "Record contains ambiguous SNP and INDEL allele change - SNP allele will be used";
     private final String NULL_VAR_CLASSIFICATION_ERROR_MESSGAE = "Record contains null HGVSp variant classification";
     private final String UNKNOWN_ANNOTATION_ERROR_MESSAGE = "Failed to annotate variant";
@@ -121,7 +125,7 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
     public void addFailedAnnotatedRecordDueToServer(MutationRecord record, String serverErrorMessage, String isoformOverride) {
         failedAnnotatedRecords.add(record);
         failedAnnotatedRecordsErrorMessages.add(constructErrorMessageFromRecord(record,
-                record.getVARIANT_CLASSIFICATION(),
+                record.get(Variant_Classification),
                 serverErrorMessage,
                 annotator.getUrlForRecord(record, isoformOverride))
         );
@@ -131,24 +135,24 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
 
     public Boolean isFailedAnnotatedRecord(AnnotatedRecord annotatedRecord, MutationRecord record, String isoformOverride) {
         Boolean failedAnnotation = Boolean.FALSE;
-        if (MafUtil.variantContainsAmbiguousTumorSeqAllele(record.getREFERENCE_ALLELE(),
-                record.getTUMOR_SEQ_ALLELE1(), record.getTUMOR_SEQ_ALLELE2())) {
+        if (MafUtil.variantContainsAmbiguousTumorSeqAllele(record.get(Reference_Allele),
+                record.get(Tumor_Seq_Allele1), record.get(Tumor_Seq_Allele2))) {
             this.ambiguousTumorSeqAlleleRecords++;
             this.failedAnnotatedRecordsErrorMessages.add(
                     constructErrorMessageFromRecord(record,
-                            annotatedRecord.getVARIANT_CLASSIFICATION(),
+                            annotatedRecord.get(Variant_Classification),
                             AMBIGUOUS_ALLELE_ERROR_MESSAGE,
                             annotator.getUrlForRecord(record, isoformOverride))
             );
             failedAnnotation = Boolean.TRUE;
 
         }
-        if (annotatedRecord.getHGVSC().isEmpty() && annotatedRecord.getHGVSP().isEmpty()) {
-            if (annotator.isHgvspNullClassifications(annotatedRecord.getVARIANT_CLASSIFICATION())) {
+        if (annotatedRecord.get(HGVSc).isEmpty() && annotatedRecord.get(HGVSp).isEmpty()) {
+            if (annotator.isHgvspNullClassifications(annotatedRecord.get(Variant_Classification))) {
                 this.nullVariantClassificationRecords++;
                 this.failedAnnotatedRecordsErrorMessages.add(
                         constructErrorMessageFromRecord(record,
-                                annotatedRecord.getVARIANT_CLASSIFICATION(),
+                                annotatedRecord.get(Variant_Classification),
                                 NULL_VAR_CLASSIFICATION_ERROR_MESSGAE,
                                 annotator.getUrlForRecord(record, isoformOverride))
                 );
@@ -157,7 +161,7 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
                 this.otherFailedAnnotatedRecords++;
                 this.failedAnnotatedRecordsErrorMessages.add(
                         constructErrorMessageFromRecord(record,
-                                record.getVARIANT_CLASSIFICATION(),
+                                record.get(Variant_Classification),
                                 UNKNOWN_ANNOTATION_ERROR_MESSAGE,
                                 annotator.getUrlForRecord(record, isoformOverride))
                 );
@@ -190,10 +194,10 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
     }
 
     private String constructErrorMessageFromRecord(MutationRecord record, String variantClassification, String errorMessage, String url) {
-        List<String> msg = Arrays.asList(new String[]{record.getTUMOR_SAMPLE_BARCODE(), record.getCHROMOSOME(),
-                                record.getSTART_POSITION(), record.getEND_POSITION(), record.getREFERENCE_ALLELE(),
-                                record.getTUMOR_SEQ_ALLELE1(), record.getTUMOR_SEQ_ALLELE2(), variantClassification,
-                                errorMessage, url});
+        List<String> msg = Arrays.asList(record.get(Tumor_Sample_Barcode), record.get(Chromosome),
+                record.get(Start_Position), record.get(End_Position), record.get(Reference_Allele),
+                record.get(Tumor_Seq_Allele1), record.get(Tumor_Seq_Allele2), variantClassification,
+                errorMessage, url);
         return StringUtils.join(msg, "\t");
     }
 

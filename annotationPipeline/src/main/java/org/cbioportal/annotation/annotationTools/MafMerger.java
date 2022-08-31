@@ -124,7 +124,7 @@ public class MafMerger {
                 if (line != null) {
                     if (skipInvalidInput) {
                         try {
-                            DefaultLineCallbackHandler.checkHeader(line, null);
+                            DefaultLineCallbackHandler.checkHeader(line);
                         } catch (Exception e) {
                             continue; // invalid input found
                         }

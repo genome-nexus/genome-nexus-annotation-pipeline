@@ -28,22 +28,28 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.annotator.util;
 
-import org.mskcc.cbio.maf.MafUtil;
-import org.cbioportal.models.MutationRecord;
-import org.springframework.stereotype.Component;
-import org.genome_nexus.client.*;
-
 import com.google.common.base.Strings;
+import org.cbioportal.models.MutationRecord;
+import org.genome_nexus.client.AlleleFrequency;
+import org.genome_nexus.client.ColocatedVariant;
+import org.genome_nexus.client.TranscriptConsequenceSummary;
+import org.genome_nexus.client.VariantAnnotation;
+import org.mskcc.cbio.maf.MafUtil;
+import org.springframework.stereotype.Component;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.cbioportal.models.Header.*;
 
 /**
  * Utility class for resolving values from the Genome Nexus annotation JSON.
  *
+ * @author Mete Ozguz
  * @author ochoaa
  */
 @Component
@@ -51,32 +57,33 @@ public class AnnotationUtil {
     private static final Pattern PROTEIN_POSITTION_REGEX = Pattern.compile("p.[A-Za-z]([0-9]*).*$");
     private static final Pattern DBSNP_RSID_REGIX = Pattern.compile("^(rs\\d*)$");
 
-    public AnnotationUtil() {}
+    public AnnotationUtil() {
+    }
 
-    public String resolveReferenceAllele(VariantAnnotation gnResponse, MutationRecord mRecord) {
+    public static String resolveReferenceAllele(VariantAnnotation gnResponse, MutationRecord mRecord) {
         if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getReferenceAllele() != null) {
             return gnResponse.getAnnotationSummary().getGenomicLocation().getReferenceAllele();
         }
-        return mRecord.getREFERENCE_ALLELE();
+        return mRecord.get(Reference_Allele);
     }
 
-    public String resolveStart(VariantAnnotation gnResponse, MutationRecord mRecord) {
+    public static String resolveStart(VariantAnnotation gnResponse, MutationRecord mRecord) {
         if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getStart() != null) {
             return gnResponse.getAnnotationSummary().getGenomicLocation().getStart().toString();
         } else {
-            return mRecord.getSTART_POSITION();
+            return mRecord.get(Start_Position);
         }
     }
 
-    public String resolveChromosome(VariantAnnotation gnResponse, MutationRecord mRecord) {
+    public static String resolveChromosome(VariantAnnotation gnResponse, MutationRecord mRecord) {
         if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getChromosome() != null) {
             return gnResponse.getAnnotationSummary().getGenomicLocation().getChromosome();
         } else {
-            return mRecord.getCHROMOSOME();
+            return mRecord.get(Chromosome);
         }
     }
 
-    public String resolveProteinPosEnd(TranscriptConsequenceSummary canonicalTranscript) {
+    public static String resolveProteinPosEnd(TranscriptConsequenceSummary canonicalTranscript) {
         Integer proteinEnd = null;
         if (canonicalTranscript != null && canonicalTranscript.getProteinPosition() != null) {
             proteinEnd = canonicalTranscript.getProteinPosition().getEnd();
@@ -84,7 +91,7 @@ public class AnnotationUtil {
         return parseIntegerAsString(proteinEnd);
     }
 
-    public String resolveExon(TranscriptConsequenceSummary canonicalTranscript) {
+    public static String resolveExon(TranscriptConsequenceSummary canonicalTranscript) {
         String exon = "";
         if (canonicalTranscript != null && canonicalTranscript.getExon() != null) {
             exon = canonicalTranscript.getExon();
@@ -92,15 +99,15 @@ public class AnnotationUtil {
         return exon;
     }
 
-    public String resolveEntrezGeneId(TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord, boolean replace) {
+    public static String resolveEntrezGeneId(TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord, boolean replace) {
         if (!replace || canonicalTranscript == null || canonicalTranscript.getEntrezGeneId() == null) {
-            return mRecord.getENTREZ_GENE_ID();
+            return mRecord.get(Entrez_Gene_Id);
         } else {
             return canonicalTranscript.getEntrezGeneId();
         }
     }
 
-    public String resolveVariantType(VariantAnnotation gnResponse) {
+    public static String resolveVariantType(VariantAnnotation gnResponse) {
         String variantType = "";
         if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getVariantType() != null) {
             variantType = gnResponse.getAnnotationSummary().getVariantType();
@@ -108,17 +115,17 @@ public class AnnotationUtil {
         return variantType;
     }
 
-    public String resolveStrandSign(VariantAnnotation gnResponse, MutationRecord mRecord) {
+    public static String resolveStrandSign(VariantAnnotation gnResponse, MutationRecord mRecord) {
         String strand;
         if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getStrandSign() != null) {
             strand = gnResponse.getAnnotationSummary().getStrandSign();
         } else {
-            strand = mRecord.getSTRAND();
+            strand = mRecord.get(Strand);
         }
         return strand;
     }
 
-    public String resolveDbSnpRs(VariantAnnotation gnResponse, MutationRecord mRecord) {
+    public static String resolveDbSnpRs(VariantAnnotation gnResponse, MutationRecord mRecord) {
         String dbSnpRs = null;
         if (gnResponse.getColocatedVariants() != null && !gnResponse.getColocatedVariants().isEmpty()) {
             for (ColocatedVariant cv : gnResponse.getColocatedVariants()) {
@@ -129,10 +136,10 @@ public class AnnotationUtil {
                 }
             }
         }
-        return dbSnpRs != null ? dbSnpRs : mRecord.getDBSNP_RS();
+        return dbSnpRs != null ? dbSnpRs : mRecord.get(dbSNP_RS);
     }
 
-    public String resolveGnomadAlleleFrequencyASJ(AlleleFrequency alleleFrequency) {
+    public static String resolveGnomadAlleleFrequencyASJ(AlleleFrequency alleleFrequency) {
         Double toReturn = null;
         if (alleleFrequency != null) {
             toReturn = alleleFrequency.getAfAsj();
@@ -140,7 +147,7 @@ public class AnnotationUtil {
         return parseDoubleAsString(toReturn);
     }
 
-    public String resolveGnomadAlleleFrequencyNFE(AlleleFrequency alleleFrequency) {
+    public static String resolveGnomadAlleleFrequencyNFE(AlleleFrequency alleleFrequency) {
         Double toReturn = null;
         if (alleleFrequency != null) {
             toReturn = alleleFrequency.getAfNfe();
@@ -148,7 +155,7 @@ public class AnnotationUtil {
         return parseDoubleAsString(toReturn);
     }
 
-    public String resolveGnomadAlleleFrequencyAMR(AlleleFrequency alleleFrequency) {
+    public static String resolveGnomadAlleleFrequencyAMR(AlleleFrequency alleleFrequency) {
         Double toReturn = null;
         if (alleleFrequency != null) {
             toReturn = alleleFrequency.getAfAmr();
@@ -156,7 +163,7 @@ public class AnnotationUtil {
         return parseDoubleAsString(toReturn);
     }
 
-    public String resolveRefSeq(TranscriptConsequenceSummary canonicalTranscript) {
+    public static String resolveRefSeq(TranscriptConsequenceSummary canonicalTranscript) {
         String refSeq = "";
         if (canonicalTranscript != null) {
             refSeq = canonicalTranscript.getRefSeq();
@@ -164,7 +171,7 @@ public class AnnotationUtil {
         return refSeq != null ? refSeq : "";
     }
 
-    public String resolveHgvsc(TranscriptConsequenceSummary canonicalTranscript) {
+    public static String resolveHgvsc(TranscriptConsequenceSummary canonicalTranscript) {
         String hgvsc = "";
         if (canonicalTranscript != null && canonicalTranscript.getHgvsc() != null) {
             hgvsc = canonicalTranscript.getHgvsc();
@@ -172,7 +179,7 @@ public class AnnotationUtil {
         return hgvsc;
     }
 
-    public String resolveHgvsp(TranscriptConsequenceSummary canonicalTranscript) {
+    public static String resolveHgvsp(TranscriptConsequenceSummary canonicalTranscript) {
         String hgvsp = "";
         if (canonicalTranscript != null && canonicalTranscript.getHgvsp() != null) {
             hgvsp = canonicalTranscript.getHgvsp();
@@ -180,19 +187,19 @@ public class AnnotationUtil {
         return hgvsp;
     }
 
-    public String resolveHugoSymbol(TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord, boolean replace) {
+    public static String resolveHugoSymbol(TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord, boolean replace) {
         if (replace && canonicalTranscript != null && canonicalTranscript.getHugoGeneSymbol() != null) {
             return canonicalTranscript.getHugoGeneSymbol();
         } else {
-            return mRecord.getHUGO_SYMBOL();
+            return mRecord.get(Hugo_Symbol);
         }
     }
 
-    public String resolveAssemblyName(VariantAnnotation gnResponse, MutationRecord mRecord) {
-        return (gnResponse.getAssemblyName() == null) ? mRecord.getNCBI_BUILD() : gnResponse.getAssemblyName();
+    public static String resolveAssemblyName(VariantAnnotation gnResponse, MutationRecord mRecord) {
+        return (gnResponse.getAssemblyName() == null) ? mRecord.get(NCBI_Build) : gnResponse.getAssemblyName();
     }
 
-    public String resolveProteinPosition(TranscriptConsequenceSummary canonicalTranscript, MutationRecord record) {
+    public static String resolveProteinPosition(TranscriptConsequenceSummary canonicalTranscript, MutationRecord record) {
         String proteinPosition = null;
         if (canonicalTranscript != null) {
             String proteinPosStart = resolveProteinPosStart(canonicalTranscript);
@@ -207,10 +214,10 @@ public class AnnotationUtil {
                 }
             }
         }
-        return !Strings.isNullOrEmpty(proteinPosition) ? proteinPosition : record.getAdditionalProperties().getOrDefault("Protein_position", "");
+        return !Strings.isNullOrEmpty(proteinPosition) ? proteinPosition : record.get(Protein_position);
     }
 
-    public String resolveGnomadAlleleFrequencyOTH(AlleleFrequency alleleFrequency) {
+    public static String resolveGnomadAlleleFrequencyOTH(AlleleFrequency alleleFrequency) {
         Double toReturn = null;
         if (alleleFrequency != null) {
             toReturn = alleleFrequency.getAfOth();
@@ -218,7 +225,7 @@ public class AnnotationUtil {
         return parseDoubleAsString(toReturn);
     }
 
-    public String resolveGnomadAlleleFrequencySAS(AlleleFrequency alleleFrequency) {
+    public static String resolveGnomadAlleleFrequencySAS(AlleleFrequency alleleFrequency) {
         Double toReturn = null;
         if (alleleFrequency != null) {
             toReturn = alleleFrequency.getAfSas();
@@ -226,7 +233,7 @@ public class AnnotationUtil {
         return parseDoubleAsString(toReturn);
     }
 
-    public String resolveGnomadAlleleFrequency(AlleleFrequency alleleFrequency) {
+    public static String resolveGnomadAlleleFrequency(AlleleFrequency alleleFrequency) {
         Double toReturn = null;
         if (alleleFrequency != null) {
             toReturn = alleleFrequency.getAf();
@@ -234,7 +241,7 @@ public class AnnotationUtil {
         return parseDoubleAsString(toReturn);
     }
 
-    public String resolveGnomadAlleleFrequencyEAS(AlleleFrequency alleleFrequency) {
+    public static String resolveGnomadAlleleFrequencyEAS(AlleleFrequency alleleFrequency) {
         Double toReturn = null;
         if (alleleFrequency != null) {
             toReturn = alleleFrequency.getAfEas();
@@ -242,7 +249,7 @@ public class AnnotationUtil {
         return parseDoubleAsString(toReturn);
     }
 
-    public String resolveProteinPosStart(TranscriptConsequenceSummary canonicalTranscript) {
+    public static String resolveProteinPosStart(TranscriptConsequenceSummary canonicalTranscript) {
         Integer proteinStart = null;
         if (canonicalTranscript != null && canonicalTranscript.getProteinPosition() != null) {
             proteinStart = canonicalTranscript.getProteinPosition().getStart();
@@ -250,7 +257,7 @@ public class AnnotationUtil {
         return parseIntegerAsString(proteinStart);
     }
 
-    public String resolveGnomadAlleleFrequencyAFR(AlleleFrequency alleleFrequency) {
+    public static String resolveGnomadAlleleFrequencyAFR(AlleleFrequency alleleFrequency) {
         Double toReturn = null;
         if (alleleFrequency != null) {
             toReturn = alleleFrequency.getAfAfr();
@@ -258,7 +265,7 @@ public class AnnotationUtil {
         return parseDoubleAsString(toReturn);
     }
 
-    public String resolveTranscriptId(TranscriptConsequenceSummary canonicalTranscript) {
+    public static String resolveTranscriptId(TranscriptConsequenceSummary canonicalTranscript) {
         String transcriptId = "";
         if (canonicalTranscript != null && canonicalTranscript.getTranscriptId() != null) {
             transcriptId = canonicalTranscript.getTranscriptId();
@@ -266,19 +273,7 @@ public class AnnotationUtil {
         return transcriptId;
     }
 
-    public String resolveHotspot() {
-        String hotspot = "0";
-        // TODO this hotspot field is not valid anymore:
-        // we need to redo this part if we want to include hotspot information
-        //        if (canonicalTranscript != null) {
-        //            if (canonicalTranscript.getIsHotspot() != null) {
-        //                hotspot = canonicalTranscript.getIsHotspot().equals("true") ? "1" : "0";
-        //            }
-        //        }
-        return hotspot;
-    }
-
-    public String resolveCodonChange(TranscriptConsequenceSummary canonicalTranscript) {
+    public static String resolveCodonChange(TranscriptConsequenceSummary canonicalTranscript) {
         String codonChange = "";
         if (canonicalTranscript != null && canonicalTranscript.getCodonChange() != null) {
             codonChange = canonicalTranscript.getCodonChange();
@@ -286,14 +281,14 @@ public class AnnotationUtil {
         return codonChange;
     }
 
-    public String resolveTumorSeqAllele(VariantAnnotation gnResponse, MutationRecord mRecord) {
+    public static String resolveTumorSeqAllele(VariantAnnotation gnResponse, MutationRecord mRecord) {
         if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getVariantAllele() != null) {
             return gnResponse.getAnnotationSummary().getGenomicLocation().getVariantAllele();
         }
-        return MafUtil.resolveTumorSeqAllele(mRecord.getREFERENCE_ALLELE(), mRecord.getTUMOR_SEQ_ALLELE1(), mRecord.getTUMOR_SEQ_ALLELE2());
+        return MafUtil.resolveTumorSeqAllele(mRecord.get(Reference_Allele), mRecord.get(Tumor_Seq_Allele1), mRecord.get(Tumor_Seq_Allele2));
     }
 
-    public String resolveHgvspShort(TranscriptConsequenceSummary canonicalTranscript) {
+    public static String resolveHgvspShort(TranscriptConsequenceSummary canonicalTranscript) {
         String hgvsp = "";
         if (canonicalTranscript != null && canonicalTranscript.getHgvspShort() != null) {
             hgvsp = canonicalTranscript.getHgvspShort();
@@ -301,7 +296,7 @@ public class AnnotationUtil {
         return hgvsp;
     }
 
-    public String resolveConsequence(TranscriptConsequenceSummary canonicalTranscript) {
+    public static String resolveConsequence(TranscriptConsequenceSummary canonicalTranscript) {
         if (canonicalTranscript == null || canonicalTranscript.getConsequenceTerms() == null) {
             return "";
         } else {
@@ -309,7 +304,7 @@ public class AnnotationUtil {
         }
     }
 
-    public String resolveGnomadAlleleFrequencyFIN(AlleleFrequency alleleFrequency) {
+    public static String resolveGnomadAlleleFrequencyFIN(AlleleFrequency alleleFrequency) {
         Double toReturn = null;
         if (alleleFrequency != null) {
             toReturn = alleleFrequency.getAfFin();
@@ -317,23 +312,23 @@ public class AnnotationUtil {
         return parseDoubleAsString(toReturn);
     }
 
-    public String resolveEnd(VariantAnnotation gnResponse, MutationRecord mRecord) {
+    public static String resolveEnd(VariantAnnotation gnResponse, MutationRecord mRecord) {
         if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getEnd() != null) {
             return gnResponse.getAnnotationSummary().getGenomicLocation().getEnd().toString();
         } else {
-            return mRecord.getEND_POSITION();
+            return mRecord.get(End_Position);
         }
     }
 
-    public String resolveVariantClassification(TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord) {
+    public static String resolveVariantClassification(TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord) {
         String variantClassification = null;
         if (canonicalTranscript != null) {
             variantClassification = canonicalTranscript.getVariantClassification();
         }
-        return variantClassification != null ? variantClassification : mRecord.getVARIANT_CLASSIFICATION();
+        return variantClassification != null ? variantClassification : mRecord.get(Variant_Classification);
     }
 
-    public String resolveSiftPrediction(TranscriptConsequenceSummary canonicalTranscript) {
+    public static String resolveSiftPrediction(TranscriptConsequenceSummary canonicalTranscript) {
         String siftPrediction = "";
         if (canonicalTranscript != null && canonicalTranscript.getSiftPrediction() != null) {
             siftPrediction = canonicalTranscript.getSiftPrediction();
@@ -341,7 +336,7 @@ public class AnnotationUtil {
         return siftPrediction;
     }
 
-    public String resolveSiftScore(TranscriptConsequenceSummary canonicalTranscript) {
+    public static String resolveSiftScore(TranscriptConsequenceSummary canonicalTranscript) {
         Double toReturn = null;
         if (canonicalTranscript != null && canonicalTranscript.getSiftScore() != null) {
             toReturn = canonicalTranscript.getSiftScore();
@@ -349,7 +344,7 @@ public class AnnotationUtil {
         return parseDoubleAsString(toReturn);
     }
 
-    public String resolvePolyphenPrediction(TranscriptConsequenceSummary canonicalTranscript) {
+    public static String resolvePolyphenPrediction(TranscriptConsequenceSummary canonicalTranscript) {
         String polyphenPrediction = "";
         if (canonicalTranscript != null && canonicalTranscript.getPolyphenPrediction() != null) {
             polyphenPrediction = canonicalTranscript.getPolyphenPrediction();
@@ -357,15 +352,15 @@ public class AnnotationUtil {
         return polyphenPrediction;
     }
 
-    public String resolvePolyphenScore(TranscriptConsequenceSummary canonicalTranscript) {
+    public static String resolvePolyphenScore(TranscriptConsequenceSummary canonicalTranscript) {
         Double toReturn = null;
         if (canonicalTranscript != null && canonicalTranscript.getPolyphenScore() != null) {
             toReturn = canonicalTranscript.getPolyphenScore();
         }
         return parseDoubleAsString(toReturn);
     }
-    
-    public String resolveMaFunctionalImpact(VariantAnnotation gnResponse) {
+
+    public static String resolveMaFunctionalImpact(VariantAnnotation gnResponse) {
         String maFunctionalImpact = "";
         if (gnResponse.getMutationAssessor() != null && gnResponse.getMutationAssessor().getAnnotation() != null) {
             maFunctionalImpact = gnResponse.getMutationAssessor().getAnnotation().getFunctionalImpact();
@@ -373,7 +368,7 @@ public class AnnotationUtil {
         return maFunctionalImpact != null ? maFunctionalImpact : "";
     }
 
-    public String resolveMaFunctionalImpactScore(VariantAnnotation gnResponse) {
+    public static String resolveMaFunctionalImpactScore(VariantAnnotation gnResponse) {
         Double toReturn = null;
         if (gnResponse.getMutationAssessor() != null && gnResponse.getMutationAssessor().getAnnotation() != null) {
             toReturn = gnResponse.getMutationAssessor().getAnnotation().getFunctionalImpactScore();
@@ -381,7 +376,7 @@ public class AnnotationUtil {
         return parseDoubleAsString(toReturn);
     }
 
-    public String resolveMaLinkMSA(VariantAnnotation gnResponse) {
+    public static String resolveMaLinkMSA(VariantAnnotation gnResponse) {
         String maLinkMSA = "";
         if (gnResponse.getMutationAssessor() != null && gnResponse.getMutationAssessor().getAnnotation() != null) {
             maLinkMSA = gnResponse.getMutationAssessor().getAnnotation().getMsaLink();
@@ -389,7 +384,7 @@ public class AnnotationUtil {
         return maLinkMSA != null ? maLinkMSA : "";
     }
 
-    public String resolveMaLinkPDB(VariantAnnotation gnResponse) {
+    public static String resolveMaLinkPDB(VariantAnnotation gnResponse) {
         String maLinkPDB = "";
         if (gnResponse.getMutationAssessor() != null && gnResponse.getMutationAssessor().getAnnotation() != null) {
             maLinkPDB = gnResponse.getMutationAssessor().getAnnotation().getPdbLink();
@@ -397,7 +392,7 @@ public class AnnotationUtil {
         return maLinkPDB != null ? maLinkPDB : "";
     }
 
-    public String resolveRefTri(VariantAnnotation gnResponse) {
+    public static String resolveRefTri(VariantAnnotation gnResponse) {
         String refTri = "";
         if (gnResponse.getNucleotideContext() != null && gnResponse.getNucleotideContext().getAnnotation() != null) {
             refTri = gnResponse.getNucleotideContext().getAnnotation().getSeq();
@@ -405,7 +400,7 @@ public class AnnotationUtil {
         return refTri != null ? refTri : "";
     }
 
-    public String resolveVarTri(VariantAnnotation gnResponse) {
+    public static String resolveVarTri(VariantAnnotation gnResponse) {
         String refTri = "";
         String varTri = "";
         if (gnResponse.getNucleotideContext() != null && gnResponse.getNucleotideContext().getAnnotation() != null) {
@@ -417,7 +412,7 @@ public class AnnotationUtil {
 
                 if (indexChange > -1) {
                     // nucleotide context is only supported for SNV on the server side, so we only need to handle SNV case
-                    varTri = "" + refTri.charAt(0) + alleleString.charAt(indexChange+1) + refTri.charAt(2);
+                    varTri = "" + refTri.charAt(0) + alleleString.charAt(indexChange + 1) + refTri.charAt(2);
                 }
             }
 
@@ -425,11 +420,11 @@ public class AnnotationUtil {
         return varTri != null ? varTri : "";
     }
 
-    private String parseDoubleAsString(Double value) {
-        return value != null ? String.valueOf(value)  : "";
+    private static String parseDoubleAsString(Double value) {
+        return value != null ? String.valueOf(value) : "";
     }
 
-    private String parseIntegerAsString(Integer value) {
+    private static String parseIntegerAsString(Integer value) {
         return value != null ? String.valueOf(value) : "";
     }
 }

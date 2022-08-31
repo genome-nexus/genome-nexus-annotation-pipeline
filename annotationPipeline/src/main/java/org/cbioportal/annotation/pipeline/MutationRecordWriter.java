@@ -58,6 +58,9 @@ public class MutationRecordWriter implements ItemStreamWriter<String> {
     @Value("#{stepExecutionContext['mutation_header']}")
     private List<String> header;
 
+    // this is used to determine whether an output file should be generated or not
+    // to prevent writing a file without any annotated records
+    // it acts as a boolean
     @Value("#{stepExecutionContext['records_to_write_count']}")
     private Integer recordsToWriteCount;
 
@@ -73,15 +76,12 @@ public class MutationRecordWriter implements ItemStreamWriter<String> {
             PassThroughLineAggregator aggr = new PassThroughLineAggregator();
             flatFileItemWriter.setLineAggregator(aggr);
             flatFileItemWriter.setResource( new FileSystemResource(stagingFile.toString()));
-            flatFileItemWriter.setHeaderCallback(new FlatFileHeaderCallback() {
-                @Override
-                public void writeHeader(Writer writer) throws IOException {
-                    // first write out the comment lines, then write the actual header
-                    for (String comment : commentLines) {
-                        writer.write(comment + "\n");
-                    }
-                    writer.write(StringUtils.join(header, "\t"));
+            flatFileItemWriter.setHeaderCallback(writer -> {
+                // first write out the comment lines, then write the actual header
+                for (String comment : commentLines) {
+                    writer.write(comment + "\n");
                 }
+                writer.write(StringUtils.join(header, "\t"));
             });
             flatFileItemWriter.open(ec);
         }
@@ -102,6 +102,5 @@ public class MutationRecordWriter implements ItemStreamWriter<String> {
         if (recordsToWriteCount > 0) {
             flatFileItemWriter.write(items);
         }
-
     }
 }

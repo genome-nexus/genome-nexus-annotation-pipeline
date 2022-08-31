@@ -12,7 +12,6 @@
   <modules>
     <module>annotationPipeline</module>
     <module>annotator</module>
-    <module>databaseAnnotator</module>
   </modules>
 
   <!-- inherit defaults from spring boot -->

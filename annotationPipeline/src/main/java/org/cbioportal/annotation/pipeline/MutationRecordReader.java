@@ -28,24 +28,31 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.annotation.pipeline;
 
-import java.io.*;
-import java.util.*;
-import org.cbioportal.annotator.internal.AnnotationSummaryStatistics;
 import org.cbioportal.annotator.Annotator;
+import org.cbioportal.annotator.internal.AnnotationSummaryStatistics;
 import org.cbioportal.format.ExtendedMafFormat;
-import org.cbioportal.models.*;
+import org.cbioportal.models.AnnotatedRecord;
+import org.cbioportal.models.MutationRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.item.*;
-import org.springframework.batch.item.file.*;
-import org.springframework.batch.item.file.mapping.DefaultLineMapper;
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.beans.factory.annotation.*;
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.ItemStreamException;
+import org.springframework.batch.item.ItemStreamReader;
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.mapping.PassThroughLineMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
 
 /**
  * <pre>
@@ -60,42 +67,34 @@ import org.springframework.core.io.FileSystemResource;
  */
 public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
 
-    private List<String> inputFileHeaders = new ArrayList<>();
-
-    @Value("#{jobParameters[filename]}")
-    private String filename;
-
-    @Value("#{jobParameters[replace]}")
-    private boolean replace;
-
-    @Value("#{jobParameters[isoformOverride]}")
-    private String isoformOverride;
-
-    @Value("#{jobParameters[errorReportLocation] ?: ''}")
-    private String errorReportLocation;
-
-    @Value("#{jobParameters[postIntervalSize] ?: '100'}")
-    private Integer postIntervalSize;
-
-    @Value("#{jobParameters[outputFormat]}")
-    private String outputFormat;
-
-    private AnnotationSummaryStatistics summaryStatistics;
-    private List<AnnotatedRecord> allAnnotatedRecords = new ArrayList<>();
-    private Set<String> header = new LinkedHashSet<>();
-
+    private static final Logger LOG = LoggerFactory.getLogger(MutationRecordReader.class);
     @Autowired
     Annotator annotator;
-
-    private static final Logger LOG = LoggerFactory.getLogger(MutationRecordReader.class);
+    private List<String> inputHeaders = new ArrayList<>();
+    @Value("#{jobParameters[filename]}")
+    private String filename;
+    @Value("#{jobParameters[replace]}")
+    private boolean replace;
+    @Value("#{jobParameters[isoformOverride]}")
+    private String isoformOverride;
+    @Value("#{jobParameters[errorReportLocation] ?: ''}")
+    private String errorReportLocation;
+    @Value("#{jobParameters[postIntervalSize] ?: '100'}")
+    private Integer postIntervalSize;
+    @Value("#{jobParameters[outputFormat]}")
+    private String outputFormat;
+    private AnnotationSummaryStatistics summaryStatistics;
+    private List<AnnotatedRecord> allAnnotatedRecords = new ArrayList<>();
 
     @Override
     public void open(ExecutionContext ec) throws ItemStreamException {
         summaryStatistics = new AnnotationSummaryStatistics(annotator);
         String genomeNexusVersion = annotator.getVersion();
-
+        Set<String> outputHeaders = new LinkedHashSet<>();
         processComments(ec, genomeNexusVersion);
+        Instant start = Instant.now();
         List<MutationRecord> mutationRecords = loadMutationRecordsFromMaf();
+        System.out.println("loadMutationRecordsFromMaf: " + Duration.between(start, Instant.now()).getSeconds() + "sec");
         if (!mutationRecords.isEmpty()) {
             if (postIntervalSize > 1) {
                 allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize, true);
@@ -105,34 +104,25 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
             // if output-format option is supplied, we only need to convert its data into header
             if (outputFormat != null) {
                 if ("extended".equals(outputFormat)) {
-                    header.addAll(ExtendedMafFormat.headers);
+                    outputHeaders.addAll(ExtendedMafFormat.headers);
                 } else if ("minimal".equals(outputFormat)) {
-                    header.addAll(inputFileHeaders);
+                    outputHeaders.addAll(inputHeaders);
                 } else {
-                    header.addAll(Arrays.asList(outputFormat.split(",")));
+                    outputHeaders.addAll(Arrays.asList(outputFormat.split(",")));
                 }
                 // extra headers should go in the back alphabetically for these options
                 if ("extended".equals(outputFormat) || "minimal".equals(outputFormat)) {
                     Set<String> sortedAllHeaders = new TreeSet<>();
-                    for (AnnotatedRecord ar : allAnnotatedRecords) {
-                        sortedAllHeaders.addAll(ar.getHeaderWithAdditionalFields());
-                    }
-                    for(String token : sortedAllHeaders) {
-                        if (!header.contains(token)) {
-                            header.add(token);
-                        }
-                    }
+                    sortedAllHeaders.addAll(AnnotatedRecord.CLASS_WIDE_HEADERS);
+                    outputHeaders.addAll(sortedAllHeaders);
                 }
             } else {
-                for (AnnotatedRecord ar : allAnnotatedRecords) {
-                    header.addAll(ar.getHeaderWithAdditionalFields());
-                }
+                outputHeaders.addAll(AnnotatedRecord.CLASS_WIDE_HEADERS);
             }
-            // add 'Annotation_Status' to header if not already present
-            if (!header.contains("Annotation_Status")) {
-                header.add("Annotation_Status");
-            }
-            ec.put("mutation_header", new ArrayList(header));
+            // we want to put Annotation_Status to the end
+            outputHeaders.remove("Annotation_Status");
+            outputHeaders.add("Annotation_Status");
+            ec.put("mutation_header", new ArrayList(outputHeaders));
             summaryStatistics.printSummaryStatistics();
             summaryStatistics.saveErrorMessagesToFile(errorReportLocation);
         } else {
@@ -147,45 +137,43 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
 
     private List<MutationRecord> loadMutationRecordsFromMaf() {
         List<MutationRecord> mutationRecords = new ArrayList<>();
-        FlatFileItemReader<MutationRecord> reader = new FlatFileItemReader<>();
+        FlatFileItemReader<String> reader = new FlatFileItemReader<>();
         reader.setResource(new FileSystemResource(filename));
-        DefaultLineMapper<MutationRecord> mapper = new DefaultLineMapper<>();
-        final DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-        tokenizer.setDelimiter("\t");
-        mapper.setLineTokenizer(tokenizer);
-        mapper.setFieldSetMapper(new MutationFieldSetMapper());
+        PassThroughLineMapper mapper = new PassThroughLineMapper();
         reader.setLineMapper(mapper);
         reader.setLinesToSkip(1);
-        reader.setSkippedLinesCallback(new DefaultLineCallbackHandler(tokenizer, inputFileHeaders));
+        reader.setSkippedLinesCallback(new DefaultLineCallbackHandler(inputHeaders));
         reader.open(new ExecutionContext());
         LOG.info("Loading records from: " + filename);
-        MutationRecord mutationRecord;
+        MutationRecord.init(inputHeaders); // inputFileHeaders gets populated when DefaultLineCallbackHandler invoked
+        String line;
         try {
-            while((mutationRecord = reader.read()) != null) {
-                mutationRecords.add(mutationRecord);
+            while ((line = reader.read()) != null) {
+                mutationRecords.add(new MutationRecord(line));
             }
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             throw new ItemStreamException(e);
         }
         reader.close();
-        LOG.info("Loaded " + String.valueOf(mutationRecords.size()) + " records from: " + filename);
+        LOG.info("Loaded " + mutationRecords.size() + " records from: " + filename);
         return mutationRecords;
     }
 
 
     private void logAnnotationProgress(Integer annotatedVariantsCount, Integer totalVariantsToAnnotateCount, Integer intervalSize) {
         if (annotatedVariantsCount % intervalSize == 0 || Objects.equals(annotatedVariantsCount, totalVariantsToAnnotateCount)) {
-                LOG.info("\tOn record " + String.valueOf(annotatedVariantsCount) + " out of " + String.valueOf(totalVariantsToAnnotateCount) +
-                        ", annotation " + String.valueOf((int)(((annotatedVariantsCount * 1.0)/totalVariantsToAnnotateCount) * 100)) + "% complete");
+            LOG.info("\tOn record " + String.valueOf(annotatedVariantsCount) + " out of " + String.valueOf(totalVariantsToAnnotateCount) +
+                    ", annotation " + String.valueOf((int) (((annotatedVariantsCount * 1.0) / totalVariantsToAnnotateCount) * 100)) + "% complete");
         }
     }
 
     @Override
-    public void update(ExecutionContext ec) throws ItemStreamException {}
+    public void update(ExecutionContext ec) throws ItemStreamException {
+    }
 
     @Override
-    public void close() throws ItemStreamException {}
+    public void close() throws ItemStreamException {
+    }
 
     @Override
     public AnnotatedRecord read() throws Exception {
@@ -203,21 +191,19 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
         try {
             reader = new BufferedReader(new FileReader(filename));
             String line;
-            while((line = reader.readLine()) != null) {
+            while ((line = reader.readLine()) != null) {
                 if (line.startsWith("#")) {
                     // do not duplicate comments in header for version or isoform used
                     if (!line.startsWith("#genome_nexus_version") && !line.startsWith("#isoform")) {
                         comments.add(line);
                     }
-                }
-                else {
+                } else {
                     // no more comments, go on processing
                     break;
                 }
             }
             reader.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ItemStreamException(e);
         }
 
