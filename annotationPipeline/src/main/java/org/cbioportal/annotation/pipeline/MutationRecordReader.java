@@ -105,24 +105,11 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
             // if output-format option is supplied, we only need to convert its data into header
             if (outputFormat != null) {
                 if ("extended".equals(outputFormat)) {
-                    for(String token : ExtendedMafFormat.headers) {
-                        header.add(token);
-                    }
+                    header.addAll(ExtendedMafFormat.headers);
                 } else if ("minimal".equals(outputFormat)) {
-                    for(String token : inputFileHeaders) {
-                        header.add(token);
-                    }
+                    header.addAll(inputFileHeaders);
                 } else {
-                    try (BufferedReader br = new BufferedReader(new FileReader(outputFormat))) {
-                        outputFormat = br.readLine();
-                    } catch (IOException e) {
-                        System.err.println("Error while reading output-format file: " + outputFormat);
-                        throw new ItemStreamException("Error while reading output-format file: " + outputFormat);
-                    }
-                    String[] tokens = outputFormat.split(",");
-                    for (int i = 0; i < tokens.length; i++) {
-                        header.add(tokens[i].trim());
-                    }
+                    header.addAll(Arrays.asList(outputFormat.split(",")));
                 }
                 // extra headers should go in the back alphabetically for these options
                 if ("extended".equals(outputFormat) || "minimal".equals(outputFormat)) {

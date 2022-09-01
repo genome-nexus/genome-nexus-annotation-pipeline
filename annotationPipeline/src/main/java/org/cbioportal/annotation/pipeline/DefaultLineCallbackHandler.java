@@ -38,12 +38,16 @@ public class DefaultLineCallbackHandler implements LineCallbackHandler {
         nameSet.addAll(Arrays.asList(names));
         for (String requiredName : requiredNames) {
             if (!nameSet.contains(requiredName)) {
-                throw new RuntimeException("Input file does not contain all the necessary fields. Missing field: " + requiredName);
+                String error = "Input file does not contain all the necessary fields. Missing field: " + requiredName;
+                System.err.println(error);
+                throw new RuntimeException(error);
             }
         }
         // Presence of Tumor_Seq_Allele1 or Tumor_Seq_Allele2
         if (!nameSet.contains("Tumor_Seq_Allele1") && !nameSet.contains("Tumor_Seq_Allele2")) {
-            throw new RuntimeException("Header line should either include \"Tumor_Seq_Allele1\" or \"Tumor_Seq_Allele2\"");
+            String error = "Header line should either include \"Tumor_Seq_Allele1\" or \"Tumor_Seq_Allele2\"";
+            System.err.println(error);
+            throw new RuntimeException(error);
         }
         if (inputFileHeaders != null) {
             Collections.addAll(inputFileHeaders, names);
