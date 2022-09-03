@@ -71,7 +71,7 @@ public class BatchConfiguration
     @Autowired
     public StepBuilderFactory stepBuilderFactory;
 
-    @Value("${chunk:10}")
+    @Value("${chunk:100000}")
     private String chunk;
 
     @Bean
