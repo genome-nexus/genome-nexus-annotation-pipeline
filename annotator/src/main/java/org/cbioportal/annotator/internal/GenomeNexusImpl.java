@@ -154,7 +154,7 @@ public class GenomeNexusImpl implements Annotator {
         List<AnnotatedRecord> annotatedRecordsList = new ArrayList<>();
         int totalVariantsToAnnotateCount = mutationRecords.size();
         int annotatedVariantsCount = 0;
-        LOG.info(String.valueOf(totalVariantsToAnnotateCount) + " records to annotate");
+        LOG.info(totalVariantsToAnnotateCount + " records to annotate");
 
         for (MutationRecord mutationRecord : mutationRecords) {
             logAnnotationProgress(++annotatedVariantsCount, totalVariantsToAnnotateCount, 2000);
@@ -227,10 +227,9 @@ public class GenomeNexusImpl implements Annotator {
 
         // Copy over changes to the reference allele or tumor_seq_allele1 if
         // they were identical in the input
-        String allele1 = mutationRecord.get(Tumor_Seq_Allele1);
-        if (allele1.equals(mutationRecord.get(Reference_Allele))) {
+        if (resolvedTumorSeqAllele1.equals(mutationRecord.get(Reference_Allele))) {
             resolvedTumorSeqAllele1 = resolvedReferenceAllele;
-        } else if (allele1.equals(mutationRecord.get(Tumor_Seq_Allele2))) {
+        } else if (resolvedTumorSeqAllele1.equals(mutationRecord.get(Tumor_Seq_Allele2))) {
             resolvedTumorSeqAllele1 = resolvedTumorSeqAllele2;
         } else {
             // TODO: it's also possible that the position has changed after
