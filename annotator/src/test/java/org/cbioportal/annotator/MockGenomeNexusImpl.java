@@ -130,11 +130,6 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
     public MockGenomeNexusImpl annotator() {
         return this;
     }
-    
-    @Bean
-    public AnnotationUtil annotationUtil() {
-        return new AnnotationUtil();
-    }
 
     public AnnotatedRecord makeMockAnnotatedRecord(MutationRecord record) {
         VariantAnnotation gnResponse = null;

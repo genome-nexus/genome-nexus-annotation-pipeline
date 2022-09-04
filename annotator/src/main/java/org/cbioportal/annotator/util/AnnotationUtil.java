@@ -52,12 +52,11 @@ import static org.cbioportal.models.Header.*;
  * @author Mete Ozguz
  * @author ochoaa
  */
-@Component
 public class AnnotationUtil {
     private static final Pattern PROTEIN_POSITTION_REGEX = Pattern.compile("p.[A-Za-z]([0-9]*).*$");
     private static final Pattern DBSNP_RSID_REGIX = Pattern.compile("^(rs\\d*)$");
 
-    public AnnotationUtil() {
+    private AnnotationUtil() {
     }
 
     public static String resolveReferenceAllele(VariantAnnotation gnResponse, MutationRecord mRecord) {
