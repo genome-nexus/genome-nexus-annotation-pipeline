@@ -107,10 +107,6 @@ public class MutationRecord {
         return genomicLocation;
     }
 
-    public String toLine() {
-        return line;
-    }
-
     public Collection<String> getHeaders() {
         return headers.keySet();
     }

@@ -68,10 +68,7 @@ public class AnnotatedRecord {
     public String toLine(List<String> headers) {
         StringBuilder result = new StringBuilder("");
         for (String header : headers) {
-            String candidate = headersValues.get(header);
-            if (candidate == null) {
-                candidate = mutationRecord.get(header);
-            }
+            String candidate = get(header);
             result.append(candidate).append("\t");
         }
         result.setLength(result.length() - 1);
