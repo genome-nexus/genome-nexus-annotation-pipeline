@@ -33,6 +33,7 @@
 package org.cbioportal.annotator.internal;
 
 import org.cbioportal.models.AnnotatedRecord;
+import org.cbioportal.models.Header;
 import org.cbioportal.models.MutationRecord;
 import org.cbioportal.annotator.GenomeNexusTestConfiguration;
 import org.cbioportal.annotator.MockGenomeNexusImpl;
@@ -47,14 +48,16 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import static org.cbioportal.models.Header.*;
+
+//@TODO FIX/UPDATE THE CLASS
 /**
  *
  * @author ochoaa
  */
-@ContextConfiguration(classes=MockGenomeNexusImpl.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+//@ContextConfiguration(classes=MockGenomeNexusImpl.class)
+//@RunWith(SpringJUnit4ClassRunner.class)
 public class GenomeNexusImplTest {
-//@TODO FIX TESTS
 //    @Autowired
 //    MockGenomeNexusImpl annotator;
 //
@@ -93,13 +96,13 @@ public class GenomeNexusImplTest {
 //
 //        Map<String, String> expectedMutationTypes = makeMockExpectedMutationType();
 //        for (AnnotatedRecord record : mockAnnotatedRecords) {
-//            if (!record.getVARIANT_CLASSIFICATION().equals(expectedMutationTypes.get(record.getTUMOR_SAMPLE_BARCODE()))) {
+//            if (!record.get(Variant_Classification).equals(expectedMutationTypes.get(record.get(Tumor_Sample_Barcode)))) {
 //                errorMessage.append("testResolveVariantClassification(), annotated record variant classification '")
-//                        .append(record.getVARIANT_CLASSIFICATION())
+//                        .append(record.get(Variant_Classification))
 //                        .append("' does not match expected type '")
-//                        .append(expectedMutationTypes.get(record.getTUMOR_SAMPLE_BARCODE()))
+//                        .append(expectedMutationTypes.get(record.get(Tumor_Sample_Barcode)))
 //                        .append(" for record '")
-//                        .append(record.getTUMOR_SAMPLE_BARCODE())
+//                        .append(record.get(Tumor_Sample_Barcode))
 //                        .append("'\n");
 //                failCount += 1;
 //            }
@@ -120,13 +123,13 @@ public class GenomeNexusImplTest {
 //
 //        Map<String, String> expectedProteinChanges = makeMockExpectedProteinChange();
 //        for (AnnotatedRecord record : mockAnnotatedRecords) {
-//            if (!record.getHGVSP_SHORT().equals(expectedProteinChanges.get(record.getTUMOR_SAMPLE_BARCODE()))) {
+//            if (!record.get(HGVSp_Short).equals(expectedProteinChanges.get(record.get(Tumor_Sample_Barcode)))) {
 //                errorMessage.append("testResolveProteinChange(), annotated record protein change '")
-//                        .append(record.getHGVSP_SHORT())
+//                        .append(record.get(HGVSp_Short))
 //                        .append("' does not match expected protein change '")
-//                        .append(expectedProteinChanges.get(record.getTUMOR_SAMPLE_BARCODE()))
+//                        .append(expectedProteinChanges.get(record.get(Tumor_Sample_Barcode)))
 //                        .append(" for record '")
-//                        .append(record.getTUMOR_SAMPLE_BARCODE())
+//                        .append(record.get(Tumor_Sample_Barcode))
 //                        .append("'\n");
 //                failCount += 1;
 //            }
@@ -145,13 +148,13 @@ public class GenomeNexusImplTest {
 //        Map<String, String> expectedGenomicLocations = makeMockExpectedGenomicLocations();
 //        for (AnnotatedRecord record : mockAnnotatedRecords) {
 //            String genomicLocation = annotator.parseGenomicLocationString(record);
-//            if (!genomicLocation.equals(expectedGenomicLocations.get(record.getTUMOR_SAMPLE_BARCODE()))) {
+//            if (!genomicLocation.equals(expectedGenomicLocations.get(record.get(Tumor_Sample_Barcode)))) {
 //                errorMessage.append("testConvertToHgvs(), record genomicLocation '")
 //                        .append(genomicLocation)
 //                        .append("' does not match expected genomicLocation '")
-//                        .append(expectedGenomicLocations.get(record.getTUMOR_SAMPLE_BARCODE()))
+//                        .append(expectedGenomicLocations.get(record.get(Tumor_Sample_Barcode)))
 //                        .append(" for record '")
-//                        .append(record.getTUMOR_SAMPLE_BARCODE())
+//                        .append(record.get(Tumor_Sample_Barcode))
 //                        .append("'\n");
 //                failCount += 1;
 //            }
@@ -169,13 +172,13 @@ public class GenomeNexusImplTest {
 //
 //        Map<String, String> expectedProteinChanges = makeMockExpectedProteinChange();
 //        for (AnnotatedRecord record : mockAnnotatedRecordsWithPost) {
-//            if (!record.getHGVSP_SHORT().equals(expectedProteinChanges.get(record.getTUMOR_SAMPLE_BARCODE()))) {
+//            if (!record.get(HGVSp_Short).equals(expectedProteinChanges.get(record.get(Tumor_Sample_Barcode)))) {
 //                errorMessage.append("testResolveProteinChange(), annotated record protein change '")
-//                        .append(record.getHGVSP_SHORT())
+//                        .append(record.get(HGVSp_Short))
 //                        .append("' does not match expected protein change '")
-//                        .append(expectedProteinChanges.get(record.getTUMOR_SAMPLE_BARCODE()))
+//                        .append(expectedProteinChanges.get(record.get(Tumor_Sample_Barcode)))
 //                        .append(" for record '")
-//                        .append(record.getTUMOR_SAMPLE_BARCODE())
+//                        .append(record.get(Tumor_Sample_Barcode))
 //                        .append("'\n");
 //                failCount += 1;
 //            }
@@ -236,7 +239,6 @@ public class GenomeNexusImplTest {
 //
 //    private List<MutationRecord> makeMockMutationRecords() {
 //        List<MutationRecord> mockMutationRecords = new ArrayList();
-//
 //        MutationRecord record = new MutationRecord();
 //        record.setTUMOR_SAMPLE_BARCODE("SAMPLE-VARIANT-1");
 //        record.setCHROMOSOME("4");

@@ -16,40 +16,21 @@ class DefaultLineCallbackHandlerTest {
     @Test
     void handleLine_success_Allele1() {
         String testLine = "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\tTumor_Seq_Allele1";
-        DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-        DefaultLineCallbackHandler handler = new DefaultLineCallbackHandler(tokenizer, new ArrayList<>());
-        handler.handleLine(testLine);
-        assertEquals(true, tokenizer.hasNames());
-    }
-
-    @Test
-    void handleLine_success_Allele1_with_null_tokenizer() {
-        String testLine = "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\tTumor_Seq_Allele1";
-        DefaultLineCallbackHandler handler = new DefaultLineCallbackHandler(null, new ArrayList<>());
+        DefaultLineCallbackHandler handler = new DefaultLineCallbackHandler(new ArrayList<>());
         handler.handleLine(testLine);
     }
 
     @Test
     void checkHeader_success_Allele1() {
         String testLine = "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\tTumor_Seq_Allele1";
-        DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-        DefaultLineCallbackHandler.checkHeader(testLine, tokenizer);
-        assertEquals(true, tokenizer.hasNames());
-    }
-
-    @Test
-    void checkHeader_success_Allele1_with_null_tokenizer() {
-        String testLine = "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\tTumor_Seq_Allele1";
-        DefaultLineCallbackHandler.checkHeader(testLine, null);
+        DefaultLineCallbackHandler.checkHeader(testLine);
     }
 
     @Test
     void handleLine_success_Allele2() {
         String testLine = "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\tTumor_Seq_Allele2";
-        DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-        DefaultLineCallbackHandler handler = new DefaultLineCallbackHandler(tokenizer, new ArrayList<>());
+        DefaultLineCallbackHandler handler = new DefaultLineCallbackHandler(new ArrayList<>());
         handler.handleLine(testLine);
-        assertEquals(true, tokenizer.hasNames());
     }
 
     @Test
@@ -83,13 +64,11 @@ class DefaultLineCallbackHandlerTest {
     }
 
     private void handleLine(String line, String expectedMessage) {
-        DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-        DefaultLineCallbackHandler handler = new DefaultLineCallbackHandler(tokenizer, new ArrayList<>());
+        DefaultLineCallbackHandler handler = new DefaultLineCallbackHandler(new ArrayList<>());
         try {
             handler.handleLine(line);
         } catch (RuntimeException e) {
             assertEquals(expectedMessage, e.getMessage());
-            assertEquals(false, tokenizer.hasNames());
             return;
         }
         fail();
