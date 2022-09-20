@@ -38,8 +38,6 @@ import org.cbioportal.models.MutationRecord;
 import org.mskcc.cbio.maf.MafUtil;
 
 import java.io.*;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -50,13 +48,12 @@ import org.slf4j.LoggerFactory;
  * @author ochoaa
  */
 public class AnnotationSummaryStatistics {
-private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPLE_ID", "CHR", "START",
-                                            "END", "REF", "ALT", "VARIANT_CLASSIFICATION",
-                                            "FAILURE_REASON", "URL"});
+private final List<String> ERROR_FILE_HEADER = Arrays.asList("SAMPLE_ID", "CHR", "START",
+        "END", "REF", "ALT", "VARIANT_CLASSIFICATION",
+        "FAILURE_REASON", "URL");
     private final String AMBIGUOUS_ALLELE_ERROR_MESSAGE = "Record contains ambiguous SNP and INDEL allele change - SNP allele will be used";
     private final String NULL_VAR_CLASSIFICATION_ERROR_MESSGAE = "Record contains null HGVSp variant classification";
     private final String UNKNOWN_ANNOTATION_ERROR_MESSAGE = "Failed to annotate variant";
-    private final Instant initTime = Instant.now();
 
     private Annotator annotator;
     private Integer totalFailedAnnotatedRecords;
@@ -107,15 +104,6 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
             return "0";
         }
         return String.valueOf(durations.stream().mapToLong(Long::longValue).sum());
-    }
-
-    /**
-     * This class used with its object and its initialization is fairly at an early stage soo...
-     * Its initialization used as the start of the runtime.
-     * @return The total run time
-     */
-    public String totalRunTime() {
-        return String.valueOf(Duration.between(initTime, Instant.now()).getSeconds());
     }
 
     public void addFailedAnnotatedRecordDueToServer(MutationRecord record, String serverErrorMessage, String isoformOverride) {
@@ -184,16 +172,15 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList(new String[]{"SAMPL
         }
         builder.append("\n\n\tAverage Response Time:  ").append(averageResponseTime()).append(" sec.");
         builder.append("\n\t  Total Response Time:  ").append(totalResponseTime()).append(" sec.");
-        builder.append("\n\t       Total Run Time:  ").append(totalRunTime()).append(" sec.");
         builder.append("\n\n");
         System.out.print(builder.toString());
     }
 
     private String constructErrorMessageFromRecord(MutationRecord record, String variantClassification, String errorMessage, String url) {
-        List<String> msg = Arrays.asList(new String[]{record.getTUMOR_SAMPLE_BARCODE(), record.getCHROMOSOME(),
-                                record.getSTART_POSITION(), record.getEND_POSITION(), record.getREFERENCE_ALLELE(),
-                                record.getTUMOR_SEQ_ALLELE1(), record.getTUMOR_SEQ_ALLELE2(), variantClassification,
-                                errorMessage, url});
+        List<String> msg = Arrays.asList(record.getTUMOR_SAMPLE_BARCODE(), record.getCHROMOSOME(),
+                record.getSTART_POSITION(), record.getEND_POSITION(), record.getREFERENCE_ALLELE(),
+                record.getTUMOR_SEQ_ALLELE1(), record.getTUMOR_SEQ_ALLELE2(), variantClassification,
+                errorMessage, url);
         return StringUtils.join(msg, "\t");
     }
 

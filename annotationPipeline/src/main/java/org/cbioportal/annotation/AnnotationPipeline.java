@@ -51,6 +51,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,11 +118,13 @@ public class AnnotationPipeline {
     }
 
     public static void main(String[] args) {
+        Instant start = Instant.now();
         try {
             subMain(args);
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
+        System.out.println(" RUNTIME: " + Duration.between(start, Instant.now()).getSeconds() + " secs.");
     }
 
     private static void merge(Subcommand subcommand) throws MergeFailedException {
