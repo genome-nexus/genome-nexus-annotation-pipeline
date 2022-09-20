@@ -117,11 +117,10 @@ java -jar gnap.jar annotate --filename in.txt --output-filename out.txt --replac
       2. any additional headers (sorted alphabetically) 
       3. the header named Annotation_Status
   * **extended** 
-    * It will produce an output file with the headers of the extended MAF format: 
+    * It will produce an output file with the headers of the extended MAF format (a-c) plus additional headers (d-e): 
       1. 32 columns from the TCGA MAF format
       2. 1 column with the amino acid change
       3. 4 columns with information on reference and variant allele counts in tumor and normal samples
-    * plus the following headers:
       4. any additional headers (sorted alphabetically)
       5. the header named Annotation_Status. 
   * **custom format file** 
