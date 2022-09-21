@@ -28,27 +28,30 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.annotation.pipeline;
 
-import java.util.*;
-import java.nio.file.*;
-import org.springframework.batch.item.*;
-import org.springframework.batch.item.file.*;
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.ItemStreamException;
+import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.transform.PassThroughLineAggregator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 
-/**
- *
- * @author Mete Ozguz
- * @author Zachary Heins
- */
-public class MutationRecordWriter implements ItemStreamWriter<String> {
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
-    @Value("#{jobParameters[outputFilename]}")
-    private String outputFilename;
+/**
+ * @author Mete Ozguz
+ */
+public class FailedMutationRecordWriter implements ItemStreamWriter<String> {
+
+    @Value("#{jobParameters[failedOutputFilename]}")
+    private String failedOutputFilename;
 
     @Value("#{stepExecutionContext['commentLines']}")
     private List<String> commentLines;
@@ -56,39 +59,45 @@ public class MutationRecordWriter implements ItemStreamWriter<String> {
     @Value("#{stepExecutionContext['mutation_header']}")
     private List<String> header;
 
-    @Value("#{stepExecutionContext['records_to_write_count']}")
-    private Integer recordsToWriteCount;
+    @Value("#{stepExecutionContext['failedRecordsCount']}")
+    private Integer failedRecordsCount;
 
     private FlatFileItemWriter<String> flatFileItemWriter = new FlatFileItemWriter<>();
 
     // Set up the writer and print the json from CVR to a file
     @Override
     public void open(ExecutionContext ec) throws ItemStreamException {
-        if (recordsToWriteCount > 0) {
-            Path stagingFile = Paths.get(outputFilename);
+        if (failedOutputFilename != null && !failedOutputFilename.isEmpty() && failedRecordsCount > 0) {
+            Path stagingFile = Paths.get(failedOutputFilename);
             PassThroughLineAggregator aggr = new PassThroughLineAggregator();
             flatFileItemWriter.setLineAggregator(aggr);
-            flatFileItemWriter.setResource( new FileSystemResource(stagingFile.toString()));
+            flatFileItemWriter.setResource(new FileSystemResource(stagingFile.toString()));
             flatFileItemWriter.setHeaderCallback(new DefaultFlatFileHeaderCallback(header, commentLines));
             flatFileItemWriter.open(ec);
         }
     }
 
     @Override
-    public void update(ExecutionContext ec) throws ItemStreamException {}
+    public void update(ExecutionContext ec) throws ItemStreamException {
+    }
 
     @Override
     public void close() throws ItemStreamException {
-        if (recordsToWriteCount > 0) {
+        if (failedOutputFilename != null && !failedOutputFilename.isEmpty() && failedRecordsCount > 0) {
             flatFileItemWriter.close();
         }
     }
 
     @Override
     public void write(List<? extends String> items) throws Exception {
-        if (recordsToWriteCount > 0) {
-            flatFileItemWriter.write(items);
+        if (failedOutputFilename != null && !failedOutputFilename.isEmpty() && failedRecordsCount > 0) {
+            List<String> failedItems = new ArrayList<>();
+            for (String item : items) {
+                if (item.contains("\tFAILED")) {
+                    failedItems.add(item);
+                }
+            }
+            flatFileItemWriter.write(failedItems);
         }
-
     }
 }

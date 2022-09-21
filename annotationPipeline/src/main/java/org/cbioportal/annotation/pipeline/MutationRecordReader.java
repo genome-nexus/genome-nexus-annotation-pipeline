@@ -124,9 +124,18 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
                     }
                 }
             } else {
-                for (AnnotatedRecord ar : allAnnotatedRecords) {
+                int failedRecordCount = 0;
+                int successfulRecordCount = 0;
+                for (AnnotatedRecord ar : this.allAnnotatedRecords) {
                     header.addAll(ar.getHeaderWithAdditionalFields());
+                    if(ar.getANNOTATION_STATUS().equals("SUCCESS")) {
+                        successfulRecordCount++;
+                    } else {
+                        failedRecordCount++;
+                    }
                 }
+                ec.put("failedRecordsCount", failedRecordCount);
+                ec.put("successfulRecordsCount", successfulRecordCount);
             }
             // add 'Annotation_Status' to header if not already present
             if (!header.contains("Annotation_Status")) {
