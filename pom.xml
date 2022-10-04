@@ -66,15 +66,19 @@
 
     <!-- cbioportal -->
     <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.11</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>29.0-jre</version>
+    </dependency>
+    <dependency>
       <groupId>com.github.cbioportal.cbioportal</groupId>
-      <artifactId>core</artifactId>
-      <version>21158438558c24e0dae06fc090485218f78e8e30</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.logging.log4j</groupId>
-          <artifactId>log4j-core</artifactId>
-        </exclusion>
-      </exclusions>
+      <artifactId>maf</artifactId>
+      <version>58d4eacadf96eb5486ea73e94e97e636fd1ae1cd</version>
     </dependency>
     <!-- spring embedded datasource for testing -->
     <dependency>
