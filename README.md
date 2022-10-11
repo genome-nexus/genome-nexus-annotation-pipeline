@@ -77,6 +77,89 @@ Make sure to adjust the file paths according to your specific requirements. Once
 | `-a` | `--add-original-genomic-location` | Add original genomic location data columns into the output, name columns with prefix 'IGNORE_Genome_Nexus_Original_'). This would be useful if saving a reference of original input is needed and won't be changed in any condition|
 | `-d` | `--ignore-original-location` | Genome-nexus-annotation-pipeline reads original genomic location info as input by default, if not existing, reading from normal genomic location info columns. Adding `-d` ignores original genomic location info columns (columns with prefix 'IGNORE_Genome_Nexus_Original_') and only use whatever in normal genomic location info columns. This would be helpful if you'd like to stick with current genomic location info columns.|
 
+### Annotation fields
+| Field | Source | Note |
+| --| -- | -- |
+| Hugo_Symbol |||
+|Entrez_Gene_Id|||
+|Center|||
+|NCBI_Build|||
+|Chromosome|GN response / Input||
+|Start_Position|GN response / Input||
+|End_Position|GN response / Input||
+|Strand|||
+|Consequence|||
+|Variant_Classification|||
+|Variant_Type|||
+|Reference_Allele|GN response / Input||
+|Tumor_Seq_Allele1|||
+|Tumor_Seq_Allele2|GN response / Input||
+|dbSNP_RS|||
+|dbSNP_Val_Status|||
+|Tumor_Sample_Barcode|||
+|Matched_Norm_Sample_Barcode|||
+|Match_Norm_Seq_Allele1|||
+|Match_Norm_Seq_Allele2|||
+|Tumor_Validation_Allele1|||
+|Tumor_Validation_Allele2|||
+|Match_Norm_Validation_Allele1|||
+|Match_Norm_Validation_Allele2|||
+|Verification_Status|||
+|Validation_Status|||
+|Mutation_Status|||
+|Sequencing_Phase|||
+|Sequence_Source|||
+|Validation_Method|||
+|Score|||
+|BAM_File|||
+|Sequencer|||
+|t_ref_count|||
+|t_alt_count|||
+|n_ref_count|||
+|n_alt_count|||
+|HGVSc|||
+|HGVSp|||
+|HGVSp_Short|||
+|Transcript_ID|||
+|RefSeq|VEP||
+|Protein_position|VEP||
+|Codons|VEP||
+|Exon_Number|VEP||
+|gnomAD_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
+|gnomAD_AFR_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
+|gnomAD_AMR_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
+|gnomAD_ASJ_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
+|gnomAD_EAS_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
+|gnomAD_FIN_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
+|gnomAD_NFE_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
+|gnomAD_OTH_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
+|gnomAD_SAS_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
+|MA:FIS|Mutation Assessor|Need to add "mutation_assessor" in "enrichment_fields"|
+|MA:FImpact|Mutation Assessor|Need to add "mutation_assessor" in "enrichment_fields"|
+|MA:link.MSA|Mutation Assessor|Need to add "mutation_assessor" in "enrichment_fields"|
+|MA:link.PDB|Mutation Assessor|Need to add "mutation_assessor" in "enrichment_fields"|
+|Polyphen_Prediction|Polyphen|Need to add "polyphen" in "enrichment_fields|
+|Polyphen_Score|Polyphen|Need to add "polyphen" in "enrichment_fields|
+|SIFT_Prediction|SIFT|Need to add "sift" in "enrichment_fields|
+|SIFT_Score|SIFT|Need to add "sift" in "enrichment_fields|
+|Ref_Tri||Need to add "nucleotide_context" in "enrichment_field|
+|Var_Tri||Need to add "nucleotide_context" in "enrichment_field|
+|Annotation_Status|||
+
+### Enrichment fields
+Genome Nexus supports additional enrichment fields to add more annotation columns. Enrichment fields setting is in `application.properties`, please refer to `Pre-build steps` section.
+To set enrichment fields, add fields name from the list below to `genomenexus.enrichment_fields=` and separete with `,`, `annotation_summary` is hightly recommended to add as default since it's crucial for lots of annotation fields.
+Available enrichment fields:
+- annotation_summary:
+    - 'annotation_summary' is required for most annotation fields
+- my_variant_info
+    - 'my_variant_info' provides gnomAD information. Genome Nexus cached static myvariant.info annotation into database. If you add 'my_variant_info' in enrichment_fields, Genome Nexus search myvariant.info cache from databas for existing variants. For new variants, Genome Nexus fetch from myvariant.info and save into database.
+- polyphen
+- sift
+- mutation_assessor
+    - 'mutation_assessor' provides V3 version annotation from Mutation Assessor, which is currently stored in Genome Nexus database
+- nucleotide_context
+
 ### Minimal MAF Example
 
 For an example minimal input file see
