@@ -57,6 +57,9 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
     @Value("#{jobParameters[isoform]}")
     private String isoform;
 
+    @Value("#{jobParameters[stripMatchingBases]}")
+    private String stripMatchingBases;
+
     @Autowired
     Annotator annotator;
 
@@ -89,7 +92,7 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
         MutationRecord record = annotator.createRecord(mafLine);
         AnnotatedRecord annotatedRecord;
         try {
-            annotatedRecord = annotator.annotateRecord(record, true, isoform, true);
+            annotatedRecord = annotator.annotateRecord(record, true, isoform, true, stripMatchingBases);
         }
         catch (GenomeNexusAnnotationFailureException ex1) {
             LOG.warn("Failed to annotate record: " + ex1.getMessage());

@@ -114,7 +114,7 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     @Override
-    public AnnotatedRecord annotateRecord(MutationRecord mRecord, boolean replace, String isoformOverridesSource, boolean reannotate)
+    public AnnotatedRecord annotateRecord(MutationRecord mRecord, boolean replace, String isoformOverridesSource, boolean reannotate, String stripMatchingBases)
             throws GenomeNexusAnnotationFailureException
     {
         AnnotatedRecord annotatedRecord = new AnnotatedRecord(mRecord);
@@ -140,10 +140,10 @@ public class GenomeNexusImpl implements Annotator {
             LOG.warn("Annotation failed for variant " + gnResponse.getVariant());
             throw new GenomeNexusAnnotationFailureException("Genome Nexus failed to annotate: " + gnResponse.getVariant());
         }
-        return convertResponseToAnnotatedRecord(gnResponse, mRecord, replace);
+        return convertResponseToAnnotatedRecord(gnResponse, mRecord, replace, stripMatchingBases);
     }
 
-    public List<AnnotatedRecord> annotateRecordsUsingGET(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, boolean reannotate) {
+    public List<AnnotatedRecord> annotateRecordsUsingGET(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, boolean reannotate, String stripMatchingBases) {
         List<AnnotatedRecord> annotatedRecordsList = new ArrayList<>();
         int totalVariantsToAnnotateCount = mutationRecords.size();
         int annotatedVariantsCount = 0;
@@ -157,7 +157,7 @@ public class GenomeNexusImpl implements Annotator {
             AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
             Instant startTime = Instant.now();
             try {
-                annotatedRecord = annotateRecord(record, replace, isoformOverridesSource, reannotate);
+                annotatedRecord = annotateRecord(record, replace, isoformOverridesSource, reannotate, stripMatchingBases);
                 annotatedRecord.setANNOTATION_STATUS("SUCCESS");
             }
             catch (HttpServerErrorException ex) {
@@ -214,14 +214,24 @@ public class GenomeNexusImpl implements Annotator {
         return apiClient;
     }
 
-    public AnnotatedRecord convertResponseToAnnotatedRecord(VariantAnnotation gnResponse, MutationRecord mRecord, boolean replace) {
+    public AnnotatedRecord convertResponseToAnnotatedRecord(VariantAnnotation gnResponse, MutationRecord mRecord, boolean replace, String stripMatchingBases) {
         // get the canonical transcript
         TranscriptConsequenceSummary canonicalTranscript = getCanonicalTranscript(gnResponse);
-
         String resolvedReferenceAllele = annotationUtil.resolveReferenceAllele(gnResponse, mRecord);
         String resolvedTumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1();
         String resolvedTumorSeqAllele2 = annotationUtil.resolveTumorSeqAllele(gnResponse, mRecord);
-
+        
+        // strip matching allele bases 
+        if (stripMatchingBases.equals("none")) {
+            resolvedReferenceAllele = mRecord.getREFERENCE_ALLELE();
+            resolvedTumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1();
+            resolvedTumorSeqAllele2 = mRecord.getTUMOR_SEQ_ALLELE2();
+        }
+        else if (stripMatchingBases.equals("first")) {
+            resolvedReferenceAllele = mRecord.getREFERENCE_ALLELE().substring(1);
+            resolvedTumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1().substring(1);
+            resolvedTumorSeqAllele2 = mRecord.getTUMOR_SEQ_ALLELE2().substring(1);
+        }
         // Copy over changes to the reference allele or tumor_seq_allele1 if
         // they were identical in the input
         if (mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getREFERENCE_ALLELE())) {
@@ -256,7 +266,7 @@ public class GenomeNexusImpl implements Annotator {
                 mRecord.getCENTER(),
                 annotationUtil.resolveAssemblyName(gnResponse, mRecord),
                 annotationUtil.resolveChromosome(gnResponse, mRecord),
-                annotationUtil.resolveStart(gnResponse, mRecord),
+                annotationUtil.resolveStart(gnResponse, mRecord, stripMatchingBases),
                 annotationUtil.resolveEnd(gnResponse, mRecord),
                 annotationUtil.resolveStrandSign(gnResponse, mRecord),
                 annotationUtil.resolveVariantClassification(canonicalTranscript, mRecord),
@@ -443,13 +453,13 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     @Override
-    public List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, boolean reannotate) {
+    public List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, boolean reannotate, String stripMatchingBases) {
         // this will send everything at once
-        return getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverridesSource, replace, mutationRecords.size(), reannotate);
+        return getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverridesSource, replace, mutationRecords.size(), reannotate, stripMatchingBases);
     }
 
     @Override
-    public List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, Integer postIntervalSize, boolean reannotate) {
+    public List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, Integer postIntervalSize, boolean reannotate, String stripMatchingBases) {
         // construct list of genomic location objects to pass to api client
         // TODO use SortedSet (or at least Set) instead?  Do we anticipate a lot of redundancy? Probably quite a bit.
         // Maybe test which is faster with a large study
@@ -504,7 +514,7 @@ public class GenomeNexusImpl implements Annotator {
                     summaryStatistics.addFailedAnnotatedRecordDueToServer(record, "Genome Nexus failed to annotate", isoformOverridesSource);
                 }
             } else {
-                annotatedRecord = convertResponseToAnnotatedRecord(gnResponseVariantKeyMap.get(genomicLocation), record, replace);
+                annotatedRecord = convertResponseToAnnotatedRecord(gnResponseVariantKeyMap.get(genomicLocation), record, replace, stripMatchingBases);
                 annotatedRecord.setANNOTATION_STATUS("SUCCESS"); // annotation status indicates if a response was returned from GN, not whether the annotation is considered valid or not
                 if (summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverridesSource)) {
                     // Log case where annotation comes back from Genome Nexus but still invalid (e.g null variant classification)

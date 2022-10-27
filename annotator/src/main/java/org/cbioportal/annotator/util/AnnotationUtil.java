@@ -60,11 +60,19 @@ public class AnnotationUtil {
         return mRecord.getREFERENCE_ALLELE();
     }
 
-    public String resolveStart(VariantAnnotation gnResponse, MutationRecord mRecord) {
-        if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getStart() != null) {
-            return gnResponse.getAnnotationSummary().getGenomicLocation().getStart().toString();
-        } else {
+    public String resolveStart(VariantAnnotation gnResponse, MutationRecord mRecord, String stripMatchingBases) {
+        if (stripMatchingBases.equals("none")) {
             return mRecord.getSTART_POSITION();
+        }
+        else if (stripMatchingBases.equals("first")) {
+            return String.valueOf(Integer.parseInt(mRecord.getSTART_POSITION()) + 1);
+        }
+        else { // all
+            if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getStart() != null) {
+                return gnResponse.getAnnotationSummary().getGenomicLocation().getStart().toString();
+            } else {
+                return mRecord.getSTART_POSITION();
+            }
         }
     }
 
@@ -318,11 +326,12 @@ public class AnnotationUtil {
     }
 
     public String resolveEnd(VariantAnnotation gnResponse, MutationRecord mRecord) {
-        if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getEnd() != null) {
-            return gnResponse.getAnnotationSummary().getGenomicLocation().getEnd().toString();
-        } else {
-            return mRecord.getEND_POSITION();
-        }
+            if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getEnd() != null) {
+                return gnResponse.getAnnotationSummary().getGenomicLocation().getEnd().toString();
+            } else {
+                return mRecord.getEND_POSITION();
+            }
+
     }
 
     public String resolveVariantClassification(TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord) {

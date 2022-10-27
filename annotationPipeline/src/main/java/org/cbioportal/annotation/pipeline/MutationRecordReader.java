@@ -74,6 +74,9 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
     @Value("#{jobParameters[errorReportLocation] ?: ''}")
     private String errorReportLocation;
 
+    @Value("#{jobParameters[stripMatchingBases] ?: 'all'}")
+    private String stripMatchingBases;
+
     @Value("#{jobParameters[postIntervalSize] ?: '100'}")
     private Integer postIntervalSize;
 
@@ -98,9 +101,9 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
         List<MutationRecord> mutationRecords = loadMutationRecordsFromMaf();
         if (!mutationRecords.isEmpty()) {
             if (postIntervalSize > 1) {
-                allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize, true);
+                allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize, true, stripMatchingBases);
             } else {
-                allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, replace, true);
+                allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, replace, true, stripMatchingBases);
             }
             // if output-format option is supplied, we only need to convert its data into header
             if (outputFormat != null) {

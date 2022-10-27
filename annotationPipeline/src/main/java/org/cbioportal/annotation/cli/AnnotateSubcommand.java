@@ -36,7 +36,8 @@ public class AnnotateSubcommand implements Subcommand {
                 .addOption("i", "isoform-override", true, "Isoform Overrides (mskcc or uniprot)")
                 .addOption("e", "error-report-location", true, "Error report filename (including path)")
                 .addOption("r", "replace-symbol-entrez", false, "Replace gene symbols and entrez id with what is provided by annotator")
-                .addOption("p", "post-interval-size", true, "Number of records to make POST requests to Genome Nexus with at a time");
+                .addOption("p", "post-interval-size", true, "Number of records to make POST requests to Genome Nexus with at a time")
+                .addOption("s", "strip-matching-bases", true, "Strip matching allele bases, options are: first,all,none");
         return gnuOptions;
     }
 
