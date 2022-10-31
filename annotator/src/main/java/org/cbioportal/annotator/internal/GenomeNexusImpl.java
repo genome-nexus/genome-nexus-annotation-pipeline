@@ -228,9 +228,9 @@ public class GenomeNexusImpl implements Annotator {
             resolvedTumorSeqAllele2 = mRecord.getTUMOR_SEQ_ALLELE2();
         }
         else if (stripMatchingBases.equals("first")) {
-            resolvedReferenceAllele = mRecord.getREFERENCE_ALLELE().substring(1);
-            resolvedTumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1().substring(1);
-            resolvedTumorSeqAllele2 = mRecord.getTUMOR_SEQ_ALLELE2().substring(1);
+            resolvedReferenceAllele = mRecord.getREFERENCE_ALLELE().length() > 1 ? mRecord.getREFERENCE_ALLELE().substring(1) : mRecord.getREFERENCE_ALLELE();
+            resolvedTumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1().length() > 1 ? mRecord.getTUMOR_SEQ_ALLELE1().substring(1) : mRecord.getTUMOR_SEQ_ALLELE1();
+            resolvedTumorSeqAllele2 = mRecord.getTUMOR_SEQ_ALLELE2().length() > 1 ? mRecord.getTUMOR_SEQ_ALLELE2().substring(1) : mRecord.getTUMOR_SEQ_ALLELE2();
         }
         // Copy over changes to the reference allele or tumor_seq_allele1 if
         // they were identical in the input
