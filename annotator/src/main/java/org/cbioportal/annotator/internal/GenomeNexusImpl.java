@@ -222,8 +222,6 @@ public class GenomeNexusImpl implements Annotator {
         String ignoreGenomeNexusOriginalReferenceAllele;
         String ignoreGenomeNexusOriginalTumorSeqAllele1;
         String ignoreGenomeNexusOriginalTumorSeqAllele2;
-        System.out.println("m recods: " + mRecord.getCHROMOSOME() + " , " + mRecord.getSTART_POSITION() + " , " + mRecord.getEND_POSITION() + " , " + mRecord.getREFERENCE_ALLELE() + " , " + mRecord.getTUMOR_SEQ_ALLELE1() + " , " + mRecord.getTUMOR_SEQ_ALLELE2());
-        System.out.println("gn recods: " + gnResponse.getAnnotationSummary().getGenomicLocation().getChromosome() + " , " + gnResponse.getAnnotationSummary().getGenomicLocation().getStart().toString() + " , " + gnResponse.getAnnotationSummary().getGenomicLocation().getEnd().toString() + " , " + gnResponse.getAnnotationSummary().getGenomicLocation().getReferenceAllele() + " , " + gnResponse.getAnnotationSummary().getGenomicLocation().getVariantAllele());
 
         ignoreGenomeNexusOriginalChromosome = (mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_CHROMOSOME() != null && mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_CHROMOSOME().length() > 0) ? mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_CHROMOSOME() : mRecord.getCHROMOSOME();
         ignoreGenomeNexusOriginalStartPosition = (mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_START_POSITION() != null && mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_START_POSITION().length() > 0) ? mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_START_POSITION() : mRecord.getSTART_POSITION();
@@ -247,17 +245,6 @@ public class GenomeNexusImpl implements Annotator {
                 resolvedTumorSeqAllele2 = resolvedTumorSeqAlleleFromInput;
             }
             else if (stripMatchingBases.equals("first")) {
-                // // ReferenceAllele
-                // resolvedReferenceAllele = mRecord.getREFERENCE_ALLELE().length() > 0 && !mRecord.getREFERENCE_ALLELE().equals(resolvedReferenceAllele)? mRecord.getREFERENCE_ALLELE().substring(1) : mRecord.getREFERENCE_ALLELE();
-                // // TumorSeqAllele2
-                // if (Strings.isNullOrEmpty(mRecord.getTUMOR_SEQ_ALLELE1()) || mRecord.getTUMOR_SEQ_ALLELE1().equals("NA") || mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getREFERENCE_ALLELE())) {
-                //     resolvedTumorSeqAllele2 = mRecord.getTUMOR_SEQ_ALLELE2().length() > 1 ? mRecord.getTUMOR_SEQ_ALLELE2().substring(1) : mRecord.getTUMOR_SEQ_ALLELE2();
-                // } 
-                // // TumorSeqAllele2
-                // else if (Strings.isNullOrEmpty(mRecord.getTUMOR_SEQ_ALLELE2()) || mRecord.getTUMOR_SEQ_ALLELE2().equals("NA") || mRecord.getTUMOR_SEQ_ALLELE2().equals(mRecord.getREFERENCE_ALLELE())) {
-                //     resolvedTumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1().length() > 1 ? mRecord.getTUMOR_SEQ_ALLELE1().substring(1) : mRecord.getTUMOR_SEQ_ALLELE1();
-                // }
-
                 // ReferenceAllele
                 resolvedReferenceAllele = mRecord.getREFERENCE_ALLELE().length() > 1 && !mRecord.getREFERENCE_ALLELE().equals(resolvedReferenceAllele)? mRecord.getREFERENCE_ALLELE().substring(1) : mRecord.getREFERENCE_ALLELE();
                 // TumorSeqAllele2
@@ -282,13 +269,6 @@ public class GenomeNexusImpl implements Annotator {
                 resolvedTumorSeqAllele2 = resolvedTumorSeqAlleleFromInput;
             }
             else if (stripMatchingBases.equals("first")) {
-                // resolvedReferenceAllele = ignoreGenomeNexusOriginalReferenceAllele.length() > 1 && !ignoreGenomeNexusOriginalReferenceAllele.equals(resolvedReferenceAllele) ? ignoreGenomeNexusOriginalReferenceAllele.substring(1) : ignoreGenomeNexusOriginalReferenceAllele;
-                // if (Strings.isNullOrEmpty(ignoreGenomeNexusOriginalTumorSeqAllele1) || ignoreGenomeNexusOriginalTumorSeqAllele1.equals("NA") || ignoreGenomeNexusOriginalTumorSeqAllele1.equals(ignoreGenomeNexusOriginalReferenceAllele)) {
-                //     resolvedTumorSeqAllele2 = ignoreGenomeNexusOriginalTumorSeqAllele2.length() > 1 ? ignoreGenomeNexusOriginalTumorSeqAllele2.substring(1) : ignoreGenomeNexusOriginalTumorSeqAllele2;
-                // } else if (Strings.isNullOrEmpty(ignoreGenomeNexusOriginalTumorSeqAllele2) || ignoreGenomeNexusOriginalTumorSeqAllele2.equals("NA") || ignoreGenomeNexusOriginalTumorSeqAllele2.equals(ignoreGenomeNexusOriginalReferenceAllele)) {
-                //     resolvedTumorSeqAllele1 = ignoreGenomeNexusOriginalTumorSeqAllele1.length() > 1 ? ignoreGenomeNexusOriginalTumorSeqAllele1.substring(1) : ignoreGenomeNexusOriginalTumorSeqAllele1;
-                // }
-
                 // ReferenceAllele
                 resolvedReferenceAllele = ignoreGenomeNexusOriginalReferenceAllele.length() > 1 && !ignoreGenomeNexusOriginalReferenceAllele.equals(resolvedReferenceAllele) ? ignoreGenomeNexusOriginalReferenceAllele.substring(1) : ignoreGenomeNexusOriginalReferenceAllele;
                 // TumorSeqAllele2
@@ -304,8 +284,8 @@ public class GenomeNexusImpl implements Annotator {
             resolvedTumorSeqAllele1 = ignoreGenomeNexusOriginalTumorSeqAllele1;
         }
 
-         // Copy over changes to the reference allele or tumor_seq_allele1 if
-         // they were identical in the input
+        // Copy over changes to the reference allele or tumor_seq_allele1 if
+        // they were identical in the input
         //  if (mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getREFERENCE_ALLELE())) {
         //      resolvedTumorSeqAllele1 = resolvedReferenceAllele;
         //  } else if (mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getTUMOR_SEQ_ALLELE2())) {
@@ -437,7 +417,6 @@ public class GenomeNexusImpl implements Annotator {
     @Override
     public String getUrlForRecord(MutationRecord record, String isoformOverridesSource) {
         String genomicLocation = parseGenomicLocationString(record);
-        System.out.println(genomicLocation);
         // TODO this is now handled by the API client, we don't really need this (keeping for logging purposes only)
         return genomeNexusBaseUrl + "annotation/genomic/" + genomicLocation + "?" +
                 isoformQueryParameter + "=" + isoformOverridesSource + "&fields=" + enrichmentFields;
