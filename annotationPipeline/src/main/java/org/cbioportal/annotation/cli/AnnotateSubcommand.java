@@ -37,7 +37,9 @@ public class AnnotateSubcommand implements Subcommand {
                 .addOption("e", "error-report-location", true, "Error report filename (including path)")
                 .addOption("r", "replace-symbol-entrez", false, "Replace gene symbols and entrez id with what is provided by annotator")
                 .addOption("p", "post-interval-size", true, "Number of records to make POST requests to Genome Nexus with at a time")
-                .addOption("s", "strip-matching-bases", true, "Strip matching allele bases, options are: first,all,none");
+                .addOption("s", "strip-matching-bases", true, "Strip matching allele bases, options are: first,all,none")
+                .addOption("d", "ignore-original-data", false, "Ignore original data in input file (columns with prefix 'IGNORE_Genome_Nexus_Original_').");
+
         return gnuOptions;
     }
 

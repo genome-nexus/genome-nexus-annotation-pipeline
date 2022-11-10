@@ -60,20 +60,38 @@ public class AnnotationUtil {
         return mRecord.getREFERENCE_ALLELE();
     }
 
-    public String resolveStart(VariantAnnotation gnResponse, MutationRecord mRecord, String stripMatchingBases) {
-        if (stripMatchingBases.equals("none")) {
-            return mRecord.getSTART_POSITION();
-        }
-        else if (stripMatchingBases.equals("first")) {
-            return String.valueOf(Integer.parseInt(mRecord.getSTART_POSITION()) + 1);
-        }
-        else { // all
-            if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getStart() != null) {
-                return gnResponse.getAnnotationSummary().getGenomicLocation().getStart().toString();
-            } else {
+    public String resolveStart(VariantAnnotation gnResponse, MutationRecord mRecord, String stripMatchingBases, Boolean ignoreOriginalData, String originalStart) {
+        if (ignoreOriginalData) {
+            if (stripMatchingBases.equals("none")) {
                 return mRecord.getSTART_POSITION();
             }
+            else if (stripMatchingBases.equals("first")) {
+                return String.valueOf(Integer.parseInt(mRecord.getSTART_POSITION()) + 1);
+            }
+            else { // all
+                if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getStart() != null) {
+                    return gnResponse.getAnnotationSummary().getGenomicLocation().getStart().toString();
+                } else {
+                    return mRecord.getSTART_POSITION();
+                }
+            }
         }
+        else {
+            if (stripMatchingBases.equals("none")) {
+                return originalStart;
+            }
+            else if (stripMatchingBases.equals("first")) {
+                return String.valueOf(Integer.parseInt(originalStart) + 1);
+            }
+            else { // all
+                if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getStart() != null) {
+                    return gnResponse.getAnnotationSummary().getGenomicLocation().getStart().toString();
+                } else {
+                    return originalStart;
+                }
+            }
+        }
+        
     }
 
     public String resolveChromosome(VariantAnnotation gnResponse, MutationRecord mRecord) {
@@ -440,5 +458,9 @@ public class AnnotationUtil {
 
     private String parseIntegerAsString(Integer value) {
         return value != null ? String.valueOf(value) : "";
+    }
+
+    public Boolean shouldStripBases(String inputAllele, String outputAllele) {
+        return inputAllele.equals(outputAllele);
     }
 }

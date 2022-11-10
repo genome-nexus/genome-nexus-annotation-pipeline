@@ -56,6 +56,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.cbioportal.annotator.util.AnnotationUtil;
+import joptsimple.internal.Strings;
 
 /**
  *
@@ -114,7 +115,7 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     @Override
-    public AnnotatedRecord annotateRecord(MutationRecord mRecord, boolean replace, String isoformOverridesSource, boolean reannotate, String stripMatchingBases)
+    public AnnotatedRecord annotateRecord(MutationRecord mRecord, boolean replace, String isoformOverridesSource, boolean reannotate, String stripMatchingBases, Boolean ignoreOriginalData)
             throws GenomeNexusAnnotationFailureException
     {
         AnnotatedRecord annotatedRecord = new AnnotatedRecord(mRecord);
@@ -122,7 +123,7 @@ public class GenomeNexusImpl implements Annotator {
         if(!reannotate && !annotationNeeded(mRecord)) {
             return annotatedRecord;
         }
-        String genomicLocation = parseGenomicLocationString(mRecord);
+        String genomicLocation = parseGenomicLocationString(mRecord, ignoreOriginalData);
         VariantAnnotation gnResponse = null;
         try {
             gnResponse = this.apiClient.fetchVariantAnnotationByGenomicLocationGET(genomicLocation,
@@ -140,10 +141,10 @@ public class GenomeNexusImpl implements Annotator {
             LOG.warn("Annotation failed for variant " + gnResponse.getVariant());
             throw new GenomeNexusAnnotationFailureException("Genome Nexus failed to annotate: " + gnResponse.getVariant());
         }
-        return convertResponseToAnnotatedRecord(gnResponse, mRecord, replace, stripMatchingBases);
+        return convertResponseToAnnotatedRecord(gnResponse, mRecord, replace, stripMatchingBases, ignoreOriginalData);
     }
 
-    public List<AnnotatedRecord> annotateRecordsUsingGET(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, boolean reannotate, String stripMatchingBases) {
+    public List<AnnotatedRecord> annotateRecordsUsingGET(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, boolean reannotate, String stripMatchingBases, Boolean ignoreOriginalData) {
         List<AnnotatedRecord> annotatedRecordsList = new ArrayList<>();
         int totalVariantsToAnnotateCount = mutationRecords.size();
         int annotatedVariantsCount = 0;
@@ -157,7 +158,7 @@ public class GenomeNexusImpl implements Annotator {
             AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
             Instant startTime = Instant.now();
             try {
-                annotatedRecord = annotateRecord(record, replace, isoformOverridesSource, reannotate, stripMatchingBases);
+                annotatedRecord = annotateRecord(record, replace, isoformOverridesSource, reannotate, stripMatchingBases, ignoreOriginalData);
                 annotatedRecord.setANNOTATION_STATUS("SUCCESS");
             }
             catch (HttpServerErrorException ex) {
@@ -214,59 +215,115 @@ public class GenomeNexusImpl implements Annotator {
         return apiClient;
     }
 
-    public AnnotatedRecord convertResponseToAnnotatedRecord(VariantAnnotation gnResponse, MutationRecord mRecord, boolean replace, String stripMatchingBases) {
+    public AnnotatedRecord convertResponseToAnnotatedRecord(VariantAnnotation gnResponse, MutationRecord mRecord, boolean replace, String stripMatchingBases, Boolean ignoreOriginalData) {
+        String ignoreGenomeNexusOriginalChromosome;
+        String ignoreGenomeNexusOriginalStartPosition;
+        String ignoreGenomeNexusOriginalEndPosition;
+        String ignoreGenomeNexusOriginalReferenceAllele;
+        String ignoreGenomeNexusOriginalTumorSeqAllele1;
+        String ignoreGenomeNexusOriginalTumorSeqAllele2;
+        System.out.println("m recods: " + mRecord.getCHROMOSOME() + " , " + mRecord.getSTART_POSITION() + " , " + mRecord.getEND_POSITION() + " , " + mRecord.getREFERENCE_ALLELE() + " , " + mRecord.getTUMOR_SEQ_ALLELE1() + " , " + mRecord.getTUMOR_SEQ_ALLELE2());
+        System.out.println("gn recods: " + gnResponse.getAnnotationSummary().getGenomicLocation().getChromosome() + " , " + gnResponse.getAnnotationSummary().getGenomicLocation().getStart().toString() + " , " + gnResponse.getAnnotationSummary().getGenomicLocation().getEnd().toString() + " , " + gnResponse.getAnnotationSummary().getGenomicLocation().getReferenceAllele() + " , " + gnResponse.getAnnotationSummary().getGenomicLocation().getVariantAllele());
+
+        ignoreGenomeNexusOriginalChromosome = (mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_CHROMOSOME() != null && mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_CHROMOSOME().length() > 0) ? mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_CHROMOSOME() : mRecord.getCHROMOSOME();
+        ignoreGenomeNexusOriginalStartPosition = (mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_START_POSITION() != null && mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_START_POSITION().length() > 0) ? mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_START_POSITION() : mRecord.getSTART_POSITION();
+        ignoreGenomeNexusOriginalEndPosition = (mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_END_POSITION() != null && mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_END_POSITION().length() > 0) ? mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_END_POSITION() : mRecord.getEND_POSITION();
+        ignoreGenomeNexusOriginalReferenceAllele = (mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_REFERENCE_ALLELE() != null && mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_REFERENCE_ALLELE().length() > 0) ? mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_REFERENCE_ALLELE() : mRecord.getREFERENCE_ALLELE();
+        ignoreGenomeNexusOriginalTumorSeqAllele1 = (mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE1() != null && mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE1().length() > 0) ? mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE1() : mRecord.getTUMOR_SEQ_ALLELE1();
+        ignoreGenomeNexusOriginalTumorSeqAllele2 = (mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE2() != null && mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE2().length() > 0) ? mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE2() : mRecord.getTUMOR_SEQ_ALLELE2();
+
         // get the canonical transcript
         TranscriptConsequenceSummary canonicalTranscript = getCanonicalTranscript(gnResponse);
         String resolvedReferenceAllele = annotationUtil.resolveReferenceAllele(gnResponse, mRecord);
         String resolvedTumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1();
         String resolvedTumorSeqAllele2 = annotationUtil.resolveTumorSeqAllele(gnResponse, mRecord);
-        
-        // strip matching allele bases 
-        if (stripMatchingBases.equals("none")) {
-            resolvedReferenceAllele = mRecord.getREFERENCE_ALLELE();
+        // strip matching allele bases
+        // use input data
+        if (ignoreOriginalData) {
+            String resolvedTumorSeqAlleleFromInput = MafUtil.resolveTumorSeqAllele(mRecord.getREFERENCE_ALLELE(), mRecord.getTUMOR_SEQ_ALLELE1(), mRecord.getTUMOR_SEQ_ALLELE2());
+            if (stripMatchingBases.equals("none")) {
+                resolvedReferenceAllele = mRecord.getREFERENCE_ALLELE();
+                resolvedTumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1();
+                resolvedTumorSeqAllele2 = resolvedTumorSeqAlleleFromInput;
+            }
+            else if (stripMatchingBases.equals("first")) {
+                // // ReferenceAllele
+                // resolvedReferenceAllele = mRecord.getREFERENCE_ALLELE().length() > 0 && !mRecord.getREFERENCE_ALLELE().equals(resolvedReferenceAllele)? mRecord.getREFERENCE_ALLELE().substring(1) : mRecord.getREFERENCE_ALLELE();
+                // // TumorSeqAllele2
+                // if (Strings.isNullOrEmpty(mRecord.getTUMOR_SEQ_ALLELE1()) || mRecord.getTUMOR_SEQ_ALLELE1().equals("NA") || mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getREFERENCE_ALLELE())) {
+                //     resolvedTumorSeqAllele2 = mRecord.getTUMOR_SEQ_ALLELE2().length() > 1 ? mRecord.getTUMOR_SEQ_ALLELE2().substring(1) : mRecord.getTUMOR_SEQ_ALLELE2();
+                // } 
+                // // TumorSeqAllele2
+                // else if (Strings.isNullOrEmpty(mRecord.getTUMOR_SEQ_ALLELE2()) || mRecord.getTUMOR_SEQ_ALLELE2().equals("NA") || mRecord.getTUMOR_SEQ_ALLELE2().equals(mRecord.getREFERENCE_ALLELE())) {
+                //     resolvedTumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1().length() > 1 ? mRecord.getTUMOR_SEQ_ALLELE1().substring(1) : mRecord.getTUMOR_SEQ_ALLELE1();
+                // }
+
+                // ReferenceAllele
+                resolvedReferenceAllele = mRecord.getREFERENCE_ALLELE().length() > 1 && !mRecord.getREFERENCE_ALLELE().equals(resolvedReferenceAllele)? mRecord.getREFERENCE_ALLELE().substring(1) : mRecord.getREFERENCE_ALLELE();
+                // TumorSeqAllele2
+                if (!resolvedTumorSeqAlleleFromInput.equals(resolvedTumorSeqAllele2) && resolvedTumorSeqAlleleFromInput.length() > 1) {
+                    resolvedTumorSeqAllele2 = resolvedTumorSeqAlleleFromInput.substring(1);
+                }
+            }
+            // strip all
+            else {
+                // TumorSeqAllele2
+                resolvedTumorSeqAllele2 = annotationUtil.resolveTumorSeqAllele(gnResponse, mRecord);
+            }
+            // TumorSeqAllele1 is unchanged, add here to make it easier to understand
             resolvedTumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1();
-            resolvedTumorSeqAllele2 = mRecord.getTUMOR_SEQ_ALLELE2();
-        }
-        else if (stripMatchingBases.equals("first")) {
-            resolvedReferenceAllele = mRecord.getREFERENCE_ALLELE().length() > 1 ? mRecord.getREFERENCE_ALLELE().substring(1) : mRecord.getREFERENCE_ALLELE();
-            resolvedTumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1().length() > 1 ? mRecord.getTUMOR_SEQ_ALLELE1().substring(1) : mRecord.getTUMOR_SEQ_ALLELE1();
-            resolvedTumorSeqAllele2 = mRecord.getTUMOR_SEQ_ALLELE2().length() > 1 ? mRecord.getTUMOR_SEQ_ALLELE2().substring(1) : mRecord.getTUMOR_SEQ_ALLELE2();
-        }
-        // Copy over changes to the reference allele or tumor_seq_allele1 if
-        // they were identical in the input
-        if (mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getREFERENCE_ALLELE())) {
-            resolvedTumorSeqAllele1 = resolvedReferenceAllele;
-        } else if (mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getTUMOR_SEQ_ALLELE2())) {
-            resolvedTumorSeqAllele1 = resolvedTumorSeqAllele2;
-        } else {
-            // TODO: it's also possible that the position has changed after
-            // resolving ref+alt. Tumor seq allele1 would have to be updated
-            // then as well. Kind of a corner case, but we might want to handle
-            // that in some way. Discussion point: should we even allow the core
-            // variant attributes (pos,ref,alt1,alt2) to be mutable?
+         }
+        // use original data (columns with "IGNORE_" prefix)
+        else {
+            String resolvedTumorSeqAlleleFromInput = MafUtil.resolveTumorSeqAllele(ignoreGenomeNexusOriginalReferenceAllele, ignoreGenomeNexusOriginalTumorSeqAllele1, ignoreGenomeNexusOriginalTumorSeqAllele2);
+            if (stripMatchingBases.equals("none")) {
+                resolvedReferenceAllele = ignoreGenomeNexusOriginalReferenceAllele;
+                resolvedTumorSeqAllele1 = ignoreGenomeNexusOriginalTumorSeqAllele1;
+                resolvedTumorSeqAllele2 = resolvedTumorSeqAlleleFromInput;
+            }
+            else if (stripMatchingBases.equals("first")) {
+                // resolvedReferenceAllele = ignoreGenomeNexusOriginalReferenceAllele.length() > 1 && !ignoreGenomeNexusOriginalReferenceAllele.equals(resolvedReferenceAllele) ? ignoreGenomeNexusOriginalReferenceAllele.substring(1) : ignoreGenomeNexusOriginalReferenceAllele;
+                // if (Strings.isNullOrEmpty(ignoreGenomeNexusOriginalTumorSeqAllele1) || ignoreGenomeNexusOriginalTumorSeqAllele1.equals("NA") || ignoreGenomeNexusOriginalTumorSeqAllele1.equals(ignoreGenomeNexusOriginalReferenceAllele)) {
+                //     resolvedTumorSeqAllele2 = ignoreGenomeNexusOriginalTumorSeqAllele2.length() > 1 ? ignoreGenomeNexusOriginalTumorSeqAllele2.substring(1) : ignoreGenomeNexusOriginalTumorSeqAllele2;
+                // } else if (Strings.isNullOrEmpty(ignoreGenomeNexusOriginalTumorSeqAllele2) || ignoreGenomeNexusOriginalTumorSeqAllele2.equals("NA") || ignoreGenomeNexusOriginalTumorSeqAllele2.equals(ignoreGenomeNexusOriginalReferenceAllele)) {
+                //     resolvedTumorSeqAllele1 = ignoreGenomeNexusOriginalTumorSeqAllele1.length() > 1 ? ignoreGenomeNexusOriginalTumorSeqAllele1.substring(1) : ignoreGenomeNexusOriginalTumorSeqAllele1;
+                // }
+
+                // ReferenceAllele
+                resolvedReferenceAllele = ignoreGenomeNexusOriginalReferenceAllele.length() > 1 && !ignoreGenomeNexusOriginalReferenceAllele.equals(resolvedReferenceAllele) ? ignoreGenomeNexusOriginalReferenceAllele.substring(1) : ignoreGenomeNexusOriginalReferenceAllele;
+                // TumorSeqAllele2
+                if (!resolvedTumorSeqAlleleFromInput.equals(resolvedTumorSeqAllele2) && resolvedTumorSeqAlleleFromInput.length() > 1) {
+                    resolvedTumorSeqAllele2 = resolvedTumorSeqAlleleFromInput.substring(1);
+                }
+            }
+            else {
+                // TumorSeqAllele2
+                resolvedTumorSeqAllele2 = annotationUtil.resolveTumorSeqAllele(gnResponse, mRecord);
+            }
+            // TumorSeqAllele1 should be from IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1
+            resolvedTumorSeqAllele1 = ignoreGenomeNexusOriginalTumorSeqAllele1;
         }
 
-        String IGNORE_Genome_Nexus_Original_Chromosome_Value;
-        String IGNORE_Genome_Nexus_Original_Start_Position_Value;
-        String IGNORE_Genome_Nexus_Original_End_Position_Value;
-        String IGNORE_Genome_Nexus_Original_Reference_Allele_Value;
-        String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1_Value;
-        String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2_Value;
-
-        IGNORE_Genome_Nexus_Original_Chromosome_Value = ((IGNORE_Genome_Nexus_Original_Chromosome_Value = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_CHROMOSOME()) != "") ? IGNORE_Genome_Nexus_Original_Chromosome_Value : mRecord.getCHROMOSOME();
-        IGNORE_Genome_Nexus_Original_Start_Position_Value = ((IGNORE_Genome_Nexus_Original_Start_Position_Value = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_START_POSITION()) != "") ? IGNORE_Genome_Nexus_Original_Start_Position_Value : mRecord.getSTART_POSITION();
-        IGNORE_Genome_Nexus_Original_End_Position_Value = ((IGNORE_Genome_Nexus_Original_End_Position_Value = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_END_POSITION()) != "") ? IGNORE_Genome_Nexus_Original_End_Position_Value : mRecord.getEND_POSITION();
-        IGNORE_Genome_Nexus_Original_Reference_Allele_Value = ((IGNORE_Genome_Nexus_Original_Reference_Allele_Value = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_REFERENCE_ALLELE()) != "") ? IGNORE_Genome_Nexus_Original_Reference_Allele_Value : mRecord.getREFERENCE_ALLELE();
-        IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1_Value = ((IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1_Value = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE1()) != "") ? IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1_Value : mRecord.getTUMOR_SEQ_ALLELE1();
-        IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2_Value = ((IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2_Value = mRecord.getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE2()) != "") ? IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2_Value : mRecord.getTUMOR_SEQ_ALLELE2();
-
+         // Copy over changes to the reference allele or tumor_seq_allele1 if
+         // they were identical in the input
+        //  if (mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getREFERENCE_ALLELE())) {
+        //      resolvedTumorSeqAllele1 = resolvedReferenceAllele;
+        //  } else if (mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getTUMOR_SEQ_ALLELE2())) {
+        //      resolvedTumorSeqAllele1 = resolvedTumorSeqAllele2;
+        //  } else {
+        //      // TODO: it's also possible that the position has changed after
+        //      // resolving ref+alt. Tumor seq allele1 would have to be updated
+        //      // then as well. Kind of a corner case, but we might want to handle
+        //      // that in some way. Discussion point: should we even allow the core
+        //      // variant attributes (pos,ref,alt1,alt2) to be mutable?
+        //  }
         // annotate the record
         AnnotatedRecord annotatedRecord= new AnnotatedRecord(annotationUtil.resolveHugoSymbol(canonicalTranscript, mRecord, replace),
                 annotationUtil.resolveEntrezGeneId(canonicalTranscript, mRecord, replace),
                 mRecord.getCENTER(),
                 annotationUtil.resolveAssemblyName(gnResponse, mRecord),
                 annotationUtil.resolveChromosome(gnResponse, mRecord),
-                annotationUtil.resolveStart(gnResponse, mRecord, stripMatchingBases),
+                annotationUtil.resolveStart(gnResponse, mRecord, stripMatchingBases, ignoreOriginalData, ignoreGenomeNexusOriginalStartPosition),
                 annotationUtil.resolveEnd(gnResponse, mRecord),
                 annotationUtil.resolveStrandSign(gnResponse, mRecord),
                 annotationUtil.resolveVariantClassification(canonicalTranscript, mRecord),
@@ -299,12 +356,12 @@ public class GenomeNexusImpl implements Annotator {
                 mRecord.getT_ALT_COUNT(),
                 mRecord.getN_REF_COUNT(),
                 mRecord.getN_ALT_COUNT(),
-                IGNORE_Genome_Nexus_Original_Chromosome_Value,
-                IGNORE_Genome_Nexus_Original_Start_Position_Value,
-                IGNORE_Genome_Nexus_Original_End_Position_Value,
-                IGNORE_Genome_Nexus_Original_Reference_Allele_Value,
-                IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1_Value,
-                IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2_Value,
+                ignoreGenomeNexusOriginalChromosome,
+                ignoreGenomeNexusOriginalStartPosition,
+                ignoreGenomeNexusOriginalEndPosition,
+                ignoreGenomeNexusOriginalReferenceAllele,
+                ignoreGenomeNexusOriginalTumorSeqAllele1,
+                ignoreGenomeNexusOriginalTumorSeqAllele2,
                 annotationUtil.resolveHgvsc(canonicalTranscript),
                 annotationUtil.resolveHgvsp(canonicalTranscript),
                 annotationUtil.resolveHgvspShort(canonicalTranscript),
@@ -380,7 +437,7 @@ public class GenomeNexusImpl implements Annotator {
     @Override
     public String getUrlForRecord(MutationRecord record, String isoformOverridesSource) {
         String genomicLocation = parseGenomicLocationString(record);
-
+        System.out.println(genomicLocation);
         // TODO this is now handled by the API client, we don't really need this (keeping for logging purposes only)
         return genomeNexusBaseUrl + "annotation/genomic/" + genomicLocation + "?" +
                 isoformQueryParameter + "=" + isoformOverridesSource + "&fields=" + enrichmentFields;
@@ -404,20 +461,42 @@ public class GenomeNexusImpl implements Annotator {
         return null;
     }
 
-    public GenomicLocation parseGenomicLocationFromRecord(MutationRecord record) {
+    public GenomicLocation parseGenomicLocationFromRecord(MutationRecord record, Boolean ignoreOriginalData) {
         GenomicLocation genomicLocation = new GenomicLocation();
-        genomicLocation.setChromosome(record.getCHROMOSOME());
-        genomicLocation.setStart(Integer.valueOf(record.getSTART_POSITION()));
-        genomicLocation.setEnd(Integer.valueOf(record.getEND_POSITION()));
-        genomicLocation.setReferenceAllele(record.getREFERENCE_ALLELE());
-        genomicLocation.setVariantAllele(MafUtil.resolveTumorSeqAllele(record.getREFERENCE_ALLELE(),
-                record.getTUMOR_SEQ_ALLELE1(),
-                record.getTUMOR_SEQ_ALLELE2()));
+        if (ignoreOriginalData) {
+            genomicLocation.setChromosome(record.getCHROMOSOME());
+            genomicLocation.setStart(Integer.valueOf(record.getSTART_POSITION()));
+            genomicLocation.setEnd(Integer.valueOf(record.getEND_POSITION()));
+            genomicLocation.setReferenceAllele(record.getREFERENCE_ALLELE());
+            genomicLocation.setVariantAllele(MafUtil.resolveTumorSeqAllele(record.getREFERENCE_ALLELE(),
+                    record.getTUMOR_SEQ_ALLELE1(),
+                    record.getTUMOR_SEQ_ALLELE2()));
+        }
+        else {
+            genomicLocation.setChromosome(Strings.isNullOrEmpty(record.getIGNORE_GENOME_NEXUS_ORIGINAL_CHROMOSOME()) ? record.getCHROMOSOME() : record.getIGNORE_GENOME_NEXUS_ORIGINAL_CHROMOSOME());
+            genomicLocation.setStart(Strings.isNullOrEmpty(record.getIGNORE_GENOME_NEXUS_ORIGINAL_START_POSITION()) ? Integer.valueOf(record.getSTART_POSITION()) : Integer.valueOf(record.getIGNORE_GENOME_NEXUS_ORIGINAL_START_POSITION()));
+            genomicLocation.setEnd(Strings.isNullOrEmpty(record.getIGNORE_GENOME_NEXUS_ORIGINAL_END_POSITION()) ? Integer.valueOf(record.getEND_POSITION()) : Integer.valueOf(record.getIGNORE_GENOME_NEXUS_ORIGINAL_END_POSITION()));
+            genomicLocation.setReferenceAllele(Strings.isNullOrEmpty(record.getIGNORE_GENOME_NEXUS_ORIGINAL_REFERENCE_ALLELE()) ? record.getREFERENCE_ALLELE() : record.getIGNORE_GENOME_NEXUS_ORIGINAL_REFERENCE_ALLELE());
+            genomicLocation.setVariantAllele(MafUtil.resolveTumorSeqAllele(genomicLocation.getReferenceAllele(),
+            Strings.isNullOrEmpty(record.getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE1()) ? record.getTUMOR_SEQ_ALLELE1() : record.getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE1(),
+            Strings.isNullOrEmpty(record.getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE2()) ? record.getTUMOR_SEQ_ALLELE2() : record.getIGNORE_GENOME_NEXUS_ORIGINAL_TUMOR_SEQ_ALLELE2()));
+        }
         return genomicLocation;
     }
 
+    public String parseGenomicLocationString(MutationRecord record, Boolean ignoreOriginalData) {
+        GenomicLocation genomicLocation = parseGenomicLocationFromRecord(record, ignoreOriginalData);
+        return StringUtils.join(new String[]{
+            genomicLocation.getChromosome(),
+            genomicLocation.getStart().toString(),
+            genomicLocation.getEnd().toString(),
+            genomicLocation.getReferenceAllele(),
+            genomicLocation.getVariantAllele()},
+                ",");
+    }
+
     public String parseGenomicLocationString(MutationRecord record) {
-        GenomicLocation genomicLocation = parseGenomicLocationFromRecord(record);
+        GenomicLocation genomicLocation = parseGenomicLocationFromRecord(record, false);
         return StringUtils.join(new String[]{
             genomicLocation.getChromosome(),
             genomicLocation.getStart().toString(),
@@ -453,20 +532,20 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     @Override
-    public List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, boolean reannotate, String stripMatchingBases) {
+    public List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, boolean reannotate, String stripMatchingBases, Boolean ignoreOriginalData) {
         // this will send everything at once
-        return getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverridesSource, replace, mutationRecords.size(), reannotate, stripMatchingBases);
+        return getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverridesSource, replace, mutationRecords.size(), reannotate, stripMatchingBases, ignoreOriginalData);
     }
 
     @Override
-    public List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, Integer postIntervalSize, boolean reannotate, String stripMatchingBases) {
+    public List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, Integer postIntervalSize, boolean reannotate, String stripMatchingBases, Boolean ignoreOriginalData) {
         // construct list of genomic location objects to pass to api client
         // TODO use SortedSet (or at least Set) instead?  Do we anticipate a lot of redundancy? Probably quite a bit.
         // Maybe test which is faster with a large study
         List<GenomicLocation> genomicLocations = new ArrayList<>();
         for (MutationRecord record : mutationRecords) {
             if(reannotate || annotationNeeded(record)) {
-                genomicLocations.add(parseGenomicLocationFromRecord(record));
+                genomicLocations.add(parseGenomicLocationFromRecord(record, ignoreOriginalData));
             }
         }
         // sort and partition the genomic locations
@@ -503,7 +582,7 @@ public class GenomeNexusImpl implements Annotator {
         // loop through the original mutationRecords (in original sort order) and
         // create annotated records by merging the responses from gn with their corresponding MAF record
         for (MutationRecord record : mutationRecords) {
-            String genomicLocation = parseGenomicLocationString(record);
+            String genomicLocation = parseGenomicLocationString(record, ignoreOriginalData);
             AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
             // if not a failed annotation then convert/merge the response from gn with the maf record
             VariantAnnotation gnResponse = gnResponseVariantKeyMap.get(genomicLocation);
@@ -514,7 +593,7 @@ public class GenomeNexusImpl implements Annotator {
                     summaryStatistics.addFailedAnnotatedRecordDueToServer(record, "Genome Nexus failed to annotate", isoformOverridesSource);
                 }
             } else {
-                annotatedRecord = convertResponseToAnnotatedRecord(gnResponseVariantKeyMap.get(genomicLocation), record, replace, stripMatchingBases);
+                annotatedRecord = convertResponseToAnnotatedRecord(gnResponseVariantKeyMap.get(genomicLocation), record, replace, stripMatchingBases, ignoreOriginalData);
                 annotatedRecord.setANNOTATION_STATUS("SUCCESS"); // annotation status indicates if a response was returned from GN, not whether the annotation is considered valid or not
                 if (summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverridesSource)) {
                     // Log case where annotation comes back from Genome Nexus but still invalid (e.g null variant classification)

@@ -66,7 +66,7 @@ public class AnnotationPipeline {
     private static final Logger LOG = LoggerFactory.getLogger(AnnotationPipeline.class);
 
     private static void annotateJob(String[] args, String filename, String outputFilename, String outputFormat, String isoformOverride,
-                                    String errorReportLocation, boolean replace, String postIntervalSize, String stripMatchingBases) throws Exception {
+                                    String errorReportLocation, boolean replace, String postIntervalSize, String stripMatchingBases, Boolean ignoreOriginalData) throws Exception {
         SpringApplication app = new SpringApplication(AnnotationPipeline.class);
         app.setWebApplicationType(WebApplicationType.NONE);
         app.setAllowBeanDefinitionOverriding(Boolean.TRUE);
@@ -83,6 +83,7 @@ public class AnnotationPipeline {
             .addString("errorReportLocation", errorReportLocation)
             .addString("postIntervalSize", postIntervalSize)
             .addString("stripMatchingBases", stripMatchingBases)
+            .addString("ignoreOriginalData", String.valueOf(ignoreOriginalData))
             .toJobParameters();
         JobExecution jobExecution = jobLauncher.run(annotationJob, jobParameters);
         if (!jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
@@ -218,7 +219,7 @@ public class AnnotationPipeline {
         try {
             annotateJob(args, subcommand.getOptionValue("filename"), subcommand.getOptionValue("output-filename"), outputFormat, subcommand.getOptionValue("isoform-override"),
                     subcommand.getOptionValue("error-report-location", ""),
-                    subcommand.hasOption("replace-symbol-entrez"), subcommand.getOptionValue("post-interval-size", "100"), subcommand.getOptionValue("strip-matching-bases", "all"));
+                    subcommand.hasOption("replace-symbol-entrez"), subcommand.getOptionValue("post-interval-size", "100"), subcommand.getOptionValue("strip-matching-bases", "all"), subcommand.hasOption("ignore-original-data"));
             // When you change the default value of post-interval-size, do not forget to update MutationRecordReader.postIntervalSize accordingly
         } catch (Exception e) {
             throw new AnnotationFailedException(e);
