@@ -286,17 +286,33 @@ public class GenomeNexusImpl implements Annotator {
 
         // Copy over changes to the reference allele or tumor_seq_allele1 if
         // they were identical in the input
-        //  if (mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getREFERENCE_ALLELE())) {
-        //      resolvedTumorSeqAllele1 = resolvedReferenceAllele;
-        //  } else if (mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getTUMOR_SEQ_ALLELE2())) {
-        //      resolvedTumorSeqAllele1 = resolvedTumorSeqAllele2;
-        //  } else {
-        //      // TODO: it's also possible that the position has changed after
-        //      // resolving ref+alt. Tumor seq allele1 would have to be updated
-        //      // then as well. Kind of a corner case, but we might want to handle
-        //      // that in some way. Discussion point: should we even allow the core
-        //      // variant attributes (pos,ref,alt1,alt2) to be mutable?
-        //  }
+        if (ignoreOriginalData) {
+            if (mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getREFERENCE_ALLELE())) {
+                resolvedTumorSeqAllele1 = resolvedReferenceAllele;
+            } else if (mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getTUMOR_SEQ_ALLELE2())) {
+                resolvedTumorSeqAllele1 = resolvedTumorSeqAllele2;
+            } else {
+                // TODO: it's also possible that the position has changed after
+                // resolving ref+alt. Tumor seq allele1 would have to be updated
+                // then as well. Kind of a corner case, but we might want to handle
+                // that in some way. Discussion point: should we even allow the core
+                // variant attributes (pos,ref,alt1,alt2) to be mutable?
+            }
+        }
+        else {
+            if (ignoreGenomeNexusOriginalTumorSeqAllele1.equals(ignoreGenomeNexusOriginalReferenceAllele)) {
+                resolvedTumorSeqAllele1 = resolvedReferenceAllele;
+            } else if (ignoreGenomeNexusOriginalTumorSeqAllele1.equals(ignoreGenomeNexusOriginalTumorSeqAllele2)) {
+                resolvedTumorSeqAllele1 = resolvedTumorSeqAllele2;
+            } else {
+                // TODO: it's also possible that the position has changed after
+                // resolving ref+alt. Tumor seq allele1 would have to be updated
+                // then as well. Kind of a corner case, but we might want to handle
+                // that in some way. Discussion point: should we even allow the core
+                // variant attributes (pos,ref,alt1,alt2) to be mutable?
+            }
+        }
+
         // annotate the record
         AnnotatedRecord annotatedRecord= new AnnotatedRecord(annotationUtil.resolveHugoSymbol(canonicalTranscript, mRecord, replace),
                 annotationUtil.resolveEntrezGeneId(canonicalTranscript, mRecord, replace),
