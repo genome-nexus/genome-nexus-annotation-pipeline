@@ -86,6 +86,9 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
     @Value("#{jobParameters[ignoreOriginalData] ?: 'false'}")
     private Boolean ignoreOriginalData;
 
+    @Value("#{jobParameters[addOriginalGenomicLocation] ?: 'false'}")
+    private Boolean addOriginalGenomicLocation;
+
     private AnnotationSummaryStatistics summaryStatistics;
     private List<AnnotatedRecord> allAnnotatedRecords = new ArrayList<>();
     private Set<String> header = new LinkedHashSet<>();
@@ -104,9 +107,9 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
         List<MutationRecord> mutationRecords = loadMutationRecordsFromMaf();
         if (!mutationRecords.isEmpty()) {
             if (postIntervalSize > 1) {
-                allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize, true, stripMatchingBases, ignoreOriginalData);
+                allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize, true, stripMatchingBases, ignoreOriginalData, addOriginalGenomicLocation);
             } else {
-                allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, replace, true, stripMatchingBases, ignoreOriginalData);
+                allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, replace, true, stripMatchingBases, ignoreOriginalData, addOriginalGenomicLocation);
             }
             // if output-format option is supplied, we only need to convert its data into header
             if (outputFormat != null) {
