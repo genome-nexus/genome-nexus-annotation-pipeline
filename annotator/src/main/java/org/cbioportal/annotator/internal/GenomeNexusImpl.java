@@ -55,8 +55,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import com.google.common.base.Strings;
 import org.cbioportal.annotator.util.AnnotationUtil;
-import joptsimple.internal.Strings;
 
 /**
  *
@@ -216,70 +216,75 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     public AnnotatedRecord convertResponseToAnnotatedRecord(VariantAnnotation gnResponse, MutationRecord mRecord, boolean replace, String stripMatchingBases, Boolean ignoreOriginalData, Boolean addOriginalGenomicLocation) {
-        String ignoreGenomeNexusOriginalChromosome;
-        String ignoreGenomeNexusOriginalStartPosition;
-        String ignoreGenomeNexusOriginalEndPosition;
-        String ignoreGenomeNexusOriginalReferenceAllele;
-        String ignoreGenomeNexusOriginalTumorSeqAllele1;
-        String ignoreGenomeNexusOriginalTumorSeqAllele2;
-
-        ignoreGenomeNexusOriginalChromosome = (mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome")!= null && mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome").length() > 0) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome") : mRecord.getCHROMOSOME();
-        ignoreGenomeNexusOriginalStartPosition = (mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Start_Position") != null && mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Start_Position").length() > 0) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Start_Position") : mRecord.getSTART_POSITION();
-        ignoreGenomeNexusOriginalEndPosition = (mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_End_Position") != null && mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_End_Position").length() > 0) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_End_Position") : mRecord.getEND_POSITION();
-        ignoreGenomeNexusOriginalReferenceAllele = (mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Reference_Allele") != null && mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Reference_Allele").length() > 0) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Reference_Allele") : mRecord.getREFERENCE_ALLELE();
-        ignoreGenomeNexusOriginalTumorSeqAllele1 = (mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1") != null && mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1").length() > 0) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1") : mRecord.getTUMOR_SEQ_ALLELE1();
-        ignoreGenomeNexusOriginalTumorSeqAllele2 = (mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2") != null && mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2").length() > 0) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2") : mRecord.getTUMOR_SEQ_ALLELE2();
+        String ignoreGenomeNexusOriginalChromosome = annotationUtil.getGenomeNexusOriginalChromosome(mRecord);
+        String ignoreGenomeNexusOriginalStartPosition = annotationUtil.getGenomeNexusOriginalStartPosition(mRecord);
+        String ignoreGenomeNexusOriginalEndPosition = annotationUtil.getGenomeNexusOriginalEndPosition(mRecord);
+        String ignoreGenomeNexusOriginalReferenceAllele = annotationUtil.getGenomeNexusOriginalReferenceAllele(mRecord);
+        String ignoreGenomeNexusOriginalTumorSeqAllele1 = annotationUtil.getGenomeNexusOriginalTumorSeqAllele1(mRecord);
+        String ignoreGenomeNexusOriginalTumorSeqAllele2 = annotationUtil.getGenomeNexusOriginalTumorSeqAllele2(mRecord);
 
         // get the canonical transcript
         TranscriptConsequenceSummary canonicalTranscript = getCanonicalTranscript(gnResponse);
+
+        // This is the default situation - stripping all matching alleles bases.
         String resolvedReferenceAllele = annotationUtil.resolveReferenceAllele(gnResponse, mRecord);
         String resolvedTumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1();
         String resolvedTumorSeqAllele2 = annotationUtil.resolveTumorSeqAllele(gnResponse, mRecord);
-        // strip matching allele bases
-        // use input data
+        
+        // Other cases of stripping matching allele bases
+
+        // If use genomic location value columns data (vs use original genome location columns that have prefix "IGNORE_Genome_Nexus_Original_")
         if (ignoreOriginalData) {
+            // Get tumorSeqAllele from input, it could be from tumorSeqAllele2 or tumorSeqAllele1
+            // Logic is here: https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/java/org/mskcc/cbio/maf/MafUtil.java#L811
             String resolvedTumorSeqAlleleFromInput = MafUtil.resolveTumorSeqAllele(mRecord.getREFERENCE_ALLELE(), mRecord.getTUMOR_SEQ_ALLELE1(), mRecord.getTUMOR_SEQ_ALLELE2());
+            // If keep all allele bases
             if (stripMatchingBases.equals("none")) {
+                // If keep all allele bases, referenceAllele and tumorSeqAllele1 would be the input value
+                // TumorSeqAllele2 would be the resolved result that was sent to genome nexus server.
                 resolvedReferenceAllele = mRecord.getREFERENCE_ALLELE();
-                resolvedTumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1();
                 resolvedTumorSeqAllele2 = resolvedTumorSeqAlleleFromInput;
             }
+            // If strip first allele bases
             else if (stripMatchingBases.equals("first")) {
-                // ReferenceAllele
+                // If strip first allele bases, first check if referenceAllele has matching bases, and length > 1 to ensure stripping is valid.
+                // Then remove the first matching allele base
                 resolvedReferenceAllele = mRecord.getREFERENCE_ALLELE().length() > 1 && !mRecord.getREFERENCE_ALLELE().equals(resolvedReferenceAllele)? mRecord.getREFERENCE_ALLELE().substring(1) : mRecord.getREFERENCE_ALLELE();
-                // TumorSeqAllele2
+                // If resolvedTumorSeqAlleleFromInput equals resolvedTumorSeqAllele2, it means there are matching allele bases in the input and needs to do stripping
+                // Check if length > 1 to ensure stripping is valid
                 if (!resolvedTumorSeqAlleleFromInput.equals(resolvedTumorSeqAllele2) && resolvedTumorSeqAlleleFromInput.length() > 1) {
                     resolvedTumorSeqAllele2 = resolvedTumorSeqAlleleFromInput.substring(1);
                 }
             }
-            // strip all
-            else {
-                // TumorSeqAllele2
-                resolvedTumorSeqAllele2 = annotationUtil.resolveTumorSeqAllele(gnResponse, mRecord);
-            }
-            // TumorSeqAllele1 is unchanged, add here to make it easier to understand
-            resolvedTumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1();
+            // Strip all allele bases is the default condition, see resolved results above.
+            // TumorSeqAllele1 is unchanged in all three conditions
          }
-        // use original data (columns with "IGNORE_" prefix)
+
+        // If use original genome location columns that have prefix "IGNORE_Genome_Nexus_Original_"
         else {
+            // Get tumorSeqAllele from original genomic location info columns, it could be from IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1 or IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2
+            // Logic is here: https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/java/org/mskcc/cbio/maf/MafUtil.java#L811
             String resolvedTumorSeqAlleleFromInput = MafUtil.resolveTumorSeqAllele(ignoreGenomeNexusOriginalReferenceAllele, ignoreGenomeNexusOriginalTumorSeqAllele1, ignoreGenomeNexusOriginalTumorSeqAllele2);
+            // If keep all allele bases
             if (stripMatchingBases.equals("none")) {
+                // If keep all allele bases, referenceAllele and tumorSeqAllele1 would be the original genomic location value
+                // TumorSeqAllele2 would be the resolved result that was sent to genome nexus server.
                 resolvedReferenceAllele = ignoreGenomeNexusOriginalReferenceAllele;
                 resolvedTumorSeqAllele1 = ignoreGenomeNexusOriginalTumorSeqAllele1;
                 resolvedTumorSeqAllele2 = resolvedTumorSeqAlleleFromInput;
             }
+            // If strip first allele bases
             else if (stripMatchingBases.equals("first")) {
-                // ReferenceAllele
+                // If strip first allele bases, first check if referenceAllele has matching bases, and length > 1 to ensure stripping is valid.
+                // Then remove the first matching allele base
                 resolvedReferenceAllele = ignoreGenomeNexusOriginalReferenceAllele.length() > 1 && !ignoreGenomeNexusOriginalReferenceAllele.equals(resolvedReferenceAllele) ? ignoreGenomeNexusOriginalReferenceAllele.substring(1) : ignoreGenomeNexusOriginalReferenceAllele;
-                // TumorSeqAllele2
+                // If resolvedTumorSeqAlleleFromInput equals resolvedTumorSeqAllele2, it means there are matching allele bases in the original genomic location columns and needs to do stripping
+                // Check if length > 1 to ensure stripping is valid
                 if (!resolvedTumorSeqAlleleFromInput.equals(resolvedTumorSeqAllele2) && resolvedTumorSeqAlleleFromInput.length() > 1) {
                     resolvedTumorSeqAllele2 = resolvedTumorSeqAlleleFromInput.substring(1);
                 }
             }
-            else {
-                // TumorSeqAllele2
-                resolvedTumorSeqAllele2 = annotationUtil.resolveTumorSeqAllele(gnResponse, mRecord);
-            }
+            // Strip all allele bases is the default condition, see resolved results above.
             // TumorSeqAllele1 should be from IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1
             resolvedTumorSeqAllele1 = ignoreGenomeNexusOriginalTumorSeqAllele1;
         }
@@ -287,6 +292,9 @@ public class GenomeNexusImpl implements Annotator {
         // Copy over changes to the reference allele or tumor_seq_allele1 if
         // they were identical in the input
         if (ignoreOriginalData) {
+            // if tumorSeqAllele1 equals to referenceAllele or tumorSeqAllele2
+            // assign its value to tumorSeqAllele1
+            // otherwire tumorSeqAllele1 will stays as is
             if (mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getREFERENCE_ALLELE())) {
                 resolvedTumorSeqAllele1 = resolvedReferenceAllele;
             } else if (mRecord.getTUMOR_SEQ_ALLELE1().equals(mRecord.getTUMOR_SEQ_ALLELE2())) {
@@ -299,7 +307,11 @@ public class GenomeNexusImpl implements Annotator {
                 // variant attributes (pos,ref,alt1,alt2) to be mutable?
             }
         }
+        // Try to resolve tumorSeqAllele1 from original genomic location info columns
         else {
+            // if ignoreGenomeNexusOriginalTumorSeqAllele1 equals to ignoreGenomeNexusOriginalReferenceAllele or ignoreGenomeNexusOriginalTumorSeqAllele2
+            // assign its value to resolvedTumorSeqAllele1
+            // otherwire tumorSeqAllele1 will stays as is
             if (ignoreGenomeNexusOriginalTumorSeqAllele1.equals(ignoreGenomeNexusOriginalReferenceAllele)) {
                 resolvedTumorSeqAllele1 = resolvedReferenceAllele;
             } else if (ignoreGenomeNexusOriginalTumorSeqAllele1.equals(ignoreGenomeNexusOriginalTumorSeqAllele2)) {
@@ -465,6 +477,8 @@ public class GenomeNexusImpl implements Annotator {
                     record.getTUMOR_SEQ_ALLELE2()));
         }
         else {
+            // Try to get data from original genomic location info columns
+            // If those columns not exist, get from genomic location input columns instead
             genomicLocation.setChromosome(Strings.isNullOrEmpty(record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome")) ? record.getCHROMOSOME() : record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome"));
             genomicLocation.setStart(Strings.isNullOrEmpty(record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Start_Position")) ? Integer.valueOf(record.getSTART_POSITION()) : Integer.valueOf(record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Start_Position")));
             genomicLocation.setEnd(Strings.isNullOrEmpty(record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_End_Position")) ? Integer.valueOf(record.getEND_POSITION()) : Integer.valueOf(record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_End_Position")));

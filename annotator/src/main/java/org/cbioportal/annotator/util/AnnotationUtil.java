@@ -452,6 +452,31 @@ public class AnnotationUtil {
         return varTri != null ? varTri : "";
     }
 
+    public String getGenomeNexusOriginalChromosome(MutationRecord mRecord) {
+        return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome") : mRecord.getCHROMOSOME();
+    }
+
+    public String getGenomeNexusOriginalStartPosition(MutationRecord mRecord) {
+        return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Start_Position")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Start_Position") : mRecord.getSTART_POSITION();
+    }
+
+    public String getGenomeNexusOriginalEndPosition(MutationRecord mRecord) {
+        return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_End_Position")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_End_Position") : mRecord.getEND_POSITION();
+    }
+
+    public String getGenomeNexusOriginalReferenceAllele(MutationRecord mRecord) {
+        return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Reference_Allele")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Reference_Allele") : mRecord.getREFERENCE_ALLELE();
+    }
+
+    public String getGenomeNexusOriginalTumorSeqAllele1(MutationRecord mRecord) {
+        return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1") : mRecord.getTUMOR_SEQ_ALLELE1();
+    }
+
+    public String getGenomeNexusOriginalTumorSeqAllele2(MutationRecord mRecord) {
+        return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2") : mRecord.getTUMOR_SEQ_ALLELE2();
+    }
+
+
     private String parseDoubleAsString(Double value) {
         return value != null ? String.valueOf(value)  : "";
     }
@@ -460,7 +485,4 @@ public class AnnotationUtil {
         return value != null ? String.valueOf(value) : "";
     }
 
-    public Boolean shouldStripBases(String inputAllele, String outputAllele) {
-        return inputAllele.equals(outputAllele);
-    }
 }
