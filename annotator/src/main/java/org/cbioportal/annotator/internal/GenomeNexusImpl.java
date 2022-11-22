@@ -216,17 +216,17 @@ public class GenomeNexusImpl implements Annotator {
     }
 
     public AnnotatedRecord convertResponseToAnnotatedRecord(VariantAnnotation gnResponse, MutationRecord mRecord, boolean replace, String stripMatchingBases, Boolean ignoreOriginalData, Boolean addOriginalGenomicLocation) {
-        String ignoreGenomeNexusOriginalChromosome = annotationUtil.getGenomeNexusOriginalChromosome(mRecord);
-        String ignoreGenomeNexusOriginalStartPosition = annotationUtil.getGenomeNexusOriginalStartPosition(mRecord);
-        String ignoreGenomeNexusOriginalEndPosition = annotationUtil.getGenomeNexusOriginalEndPosition(mRecord);
-        String ignoreGenomeNexusOriginalReferenceAllele = annotationUtil.getGenomeNexusOriginalReferenceAllele(mRecord);
-        String ignoreGenomeNexusOriginalTumorSeqAllele1 = annotationUtil.getGenomeNexusOriginalTumorSeqAllele1(mRecord);
-        String ignoreGenomeNexusOriginalTumorSeqAllele2 = annotationUtil.getGenomeNexusOriginalTumorSeqAllele2(mRecord);
+        String genomeNexusOriginalChromosome = annotationUtil.getGenomeNexusOriginalChromosome(mRecord);
+        String genomeNexusOriginalStartPosition = annotationUtil.getGenomeNexusOriginalStartPosition(mRecord);
+        String genomeNexusOriginalEndPosition = annotationUtil.getGenomeNexusOriginalEndPosition(mRecord);
+        String genomeNexusOriginalReferenceAllele = annotationUtil.getGenomeNexusOriginalReferenceAllele(mRecord);
+        String genomeNexusOriginalTumorSeqAllele1 = annotationUtil.getGenomeNexusOriginalTumorSeqAllele1(mRecord);
+        String genomeNexusOriginalTumorSeqAllele2 = annotationUtil.getGenomeNexusOriginalTumorSeqAllele2(mRecord);
 
         // get the canonical transcript
         TranscriptConsequenceSummary canonicalTranscript = getCanonicalTranscript(gnResponse);
 
-        // This is the default situation - stripping all matching alleles bases.
+        // This is the default condition - stripping all matching alleles bases.
         String resolvedReferenceAllele = annotationUtil.resolveReferenceAllele(gnResponse, mRecord);
         String resolvedTumorSeqAllele1 = mRecord.getTUMOR_SEQ_ALLELE1();
         String resolvedTumorSeqAllele2 = annotationUtil.resolveTumorSeqAllele(gnResponse, mRecord);
@@ -264,20 +264,20 @@ public class GenomeNexusImpl implements Annotator {
         else {
             // Get tumorSeqAllele from original genomic location info columns, it could be from IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1 or IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2
             // Logic is here: https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/java/org/mskcc/cbio/maf/MafUtil.java#L811
-            String resolvedTumorSeqAlleleFromInput = MafUtil.resolveTumorSeqAllele(ignoreGenomeNexusOriginalReferenceAllele, ignoreGenomeNexusOriginalTumorSeqAllele1, ignoreGenomeNexusOriginalTumorSeqAllele2);
+            String resolvedTumorSeqAlleleFromInput = MafUtil.resolveTumorSeqAllele(genomeNexusOriginalReferenceAllele, genomeNexusOriginalTumorSeqAllele1, genomeNexusOriginalTumorSeqAllele2);
             // If keep all allele bases
             if (stripMatchingBases.equals("none")) {
                 // If keep all allele bases, referenceAllele and tumorSeqAllele1 would be the original genomic location value
                 // TumorSeqAllele2 would be the resolved result that was sent to genome nexus server.
-                resolvedReferenceAllele = ignoreGenomeNexusOriginalReferenceAllele;
-                resolvedTumorSeqAllele1 = ignoreGenomeNexusOriginalTumorSeqAllele1;
+                resolvedReferenceAllele = genomeNexusOriginalReferenceAllele;
+                resolvedTumorSeqAllele1 = genomeNexusOriginalTumorSeqAllele1;
                 resolvedTumorSeqAllele2 = resolvedTumorSeqAlleleFromInput;
             }
             // If strip first allele bases
             else if (stripMatchingBases.equals("first")) {
                 // If strip first allele bases, first check if referenceAllele has matching bases, and length > 1 to ensure stripping is valid.
                 // Then remove the first matching allele base
-                resolvedReferenceAllele = ignoreGenomeNexusOriginalReferenceAllele.length() > 1 && !ignoreGenomeNexusOriginalReferenceAllele.equals(resolvedReferenceAllele) ? ignoreGenomeNexusOriginalReferenceAllele.substring(1) : ignoreGenomeNexusOriginalReferenceAllele;
+                resolvedReferenceAllele = genomeNexusOriginalReferenceAllele.length() > 1 && !genomeNexusOriginalReferenceAllele.equals(resolvedReferenceAllele) ? genomeNexusOriginalReferenceAllele.substring(1) : genomeNexusOriginalReferenceAllele;
                 // If resolvedTumorSeqAlleleFromInput equals resolvedTumorSeqAllele2, it means there are matching allele bases in the original genomic location columns and needs to do stripping
                 // Check if length > 1 to ensure stripping is valid
                 if (!resolvedTumorSeqAlleleFromInput.equals(resolvedTumorSeqAllele2) && resolvedTumorSeqAlleleFromInput.length() > 1) {
@@ -286,7 +286,7 @@ public class GenomeNexusImpl implements Annotator {
             }
             // Strip all allele bases is the default condition, see resolved results above.
             // TumorSeqAllele1 should be from IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1
-            resolvedTumorSeqAllele1 = ignoreGenomeNexusOriginalTumorSeqAllele1;
+            resolvedTumorSeqAllele1 = genomeNexusOriginalTumorSeqAllele1;
         }
 
         // Copy over changes to the reference allele or tumor_seq_allele1 if
@@ -309,12 +309,12 @@ public class GenomeNexusImpl implements Annotator {
         }
         // Try to resolve tumorSeqAllele1 from original genomic location info columns
         else {
-            // if ignoreGenomeNexusOriginalTumorSeqAllele1 equals to ignoreGenomeNexusOriginalReferenceAllele or ignoreGenomeNexusOriginalTumorSeqAllele2
+            // if genomeNexusOriginalTumorSeqAllele1 equals to genomeNexusOriginalReferenceAllele or genomeNexusOriginalTumorSeqAllele2
             // assign its value to resolvedTumorSeqAllele1
             // otherwire tumorSeqAllele1 will stays as is
-            if (ignoreGenomeNexusOriginalTumorSeqAllele1.equals(ignoreGenomeNexusOriginalReferenceAllele)) {
+            if (genomeNexusOriginalTumorSeqAllele1.equals(genomeNexusOriginalReferenceAllele)) {
                 resolvedTumorSeqAllele1 = resolvedReferenceAllele;
-            } else if (ignoreGenomeNexusOriginalTumorSeqAllele1.equals(ignoreGenomeNexusOriginalTumorSeqAllele2)) {
+            } else if (genomeNexusOriginalTumorSeqAllele1.equals(genomeNexusOriginalTumorSeqAllele2)) {
                 resolvedTumorSeqAllele1 = resolvedTumorSeqAllele2;
             } else {
                 // TODO: it's also possible that the position has changed after
@@ -331,7 +331,7 @@ public class GenomeNexusImpl implements Annotator {
                 mRecord.getCENTER(),
                 annotationUtil.resolveAssemblyName(gnResponse, mRecord),
                 annotationUtil.resolveChromosome(gnResponse, mRecord),
-                annotationUtil.resolveStart(gnResponse, mRecord, stripMatchingBases, ignoreOriginalData, ignoreGenomeNexusOriginalStartPosition),
+                annotationUtil.resolveStart(gnResponse, mRecord, stripMatchingBases, ignoreOriginalData, genomeNexusOriginalStartPosition),
                 annotationUtil.resolveEnd(gnResponse, mRecord),
                 annotationUtil.resolveStrandSign(gnResponse, mRecord),
                 annotationUtil.resolveVariantClassification(canonicalTranscript, mRecord),
@@ -378,7 +378,7 @@ public class GenomeNexusImpl implements Annotator {
                 annotationUtil.resolveExon(canonicalTranscript),
                 mRecord.getAdditionalProperties());
         if (addOriginalGenomicLocation) {
-            annotatedRecord.setOriginalGenomicLocation(ignoreGenomeNexusOriginalChromosome, ignoreGenomeNexusOriginalStartPosition, ignoreGenomeNexusOriginalEndPosition, ignoreGenomeNexusOriginalReferenceAllele, ignoreGenomeNexusOriginalTumorSeqAllele1, ignoreGenomeNexusOriginalTumorSeqAllele2);
+            annotatedRecord.setOriginalGenomicLocation(genomeNexusOriginalChromosome, genomeNexusOriginalStartPosition, genomeNexusOriginalEndPosition, genomeNexusOriginalReferenceAllele, genomeNexusOriginalTumorSeqAllele1, genomeNexusOriginalTumorSeqAllele2);
         }
 
         if (enrichmentFields.contains("my_variant_info")) {
