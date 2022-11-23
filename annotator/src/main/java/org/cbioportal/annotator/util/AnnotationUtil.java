@@ -60,8 +60,8 @@ public class AnnotationUtil {
         return mRecord.getREFERENCE_ALLELE();
     }
 
-    public String resolveStart(VariantAnnotation gnResponse, MutationRecord mRecord, String stripMatchingBases, Boolean ignoreOriginalData, String originalStart) {
-        if (ignoreOriginalData) {
+    public String resolveStart(VariantAnnotation gnResponse, MutationRecord mRecord, String stripMatchingBases, Boolean ignoreOriginalGenomicLocation, String originalStart) {
+        if (ignoreOriginalGenomicLocation) {
             if (stripMatchingBases.equals("none")) {
                 return mRecord.getSTART_POSITION();
             }

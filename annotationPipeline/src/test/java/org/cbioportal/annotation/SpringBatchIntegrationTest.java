@@ -388,7 +388,7 @@ public class SpringBatchIntegrationTest {
                 .addString("errorReportLocation", null)
                 .addString("postIntervalSize", String.valueOf(-1))
                 .addString("stripMatchingBases", "none")
-                .addString("ignoreOriginalData", String.valueOf(true))
+                .addString("ignoreOriginalGenomicLocation", String.valueOf(true))
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
     }
