@@ -60,15 +60,15 @@ public class AnnotationUtil {
         return mRecord.getREFERENCE_ALLELE();
     }
 
-    public String resolveStart(VariantAnnotation gnResponse, MutationRecord mRecord, String stripMatchingBases, Boolean ignoreOriginalGenomicLocation, String originalStart) {
+    public String resolveStart(VariantAnnotation gnResponse, MutationRecord mRecord, String stripMatchingBases, Boolean ignoreOriginalGenomicLocation, String originalStart, Boolean isStrippedAllele) {
         if (ignoreOriginalGenomicLocation) {
             if (stripMatchingBases.equals("none")) {
                 return mRecord.getSTART_POSITION();
             }
             else if (stripMatchingBases.equals("first")) {
-                return String.valueOf(Integer.parseInt(mRecord.getSTART_POSITION()) + 1);
+                return isStrippedAllele ? String.valueOf(Integer.parseInt(mRecord.getSTART_POSITION()) + 1) : mRecord.getSTART_POSITION();
             }
-            else { // all
+            else {
                 if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getStart() != null) {
                     return gnResponse.getAnnotationSummary().getGenomicLocation().getStart().toString();
                 } else {
@@ -81,9 +81,9 @@ public class AnnotationUtil {
                 return originalStart;
             }
             else if (stripMatchingBases.equals("first")) {
-                return String.valueOf(Integer.parseInt(originalStart) + 1);
+                return isStrippedAllele ? String.valueOf(Integer.parseInt(originalStart) + 1) : originalStart;
             }
-            else { // all
+            else {
                 if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getStart() != null) {
                     return gnResponse.getAnnotationSummary().getGenomicLocation().getStart().toString();
                 } else {

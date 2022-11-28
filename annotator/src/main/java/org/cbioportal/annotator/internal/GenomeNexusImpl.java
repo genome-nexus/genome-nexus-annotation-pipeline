@@ -225,6 +225,7 @@ public class GenomeNexusImpl implements Annotator {
 
         // get the canonical transcript
         TranscriptConsequenceSummary canonicalTranscript = getCanonicalTranscript(gnResponse);
+        String resolvedStartPosition = ignoreOriginalGenomicLocation ? mRecord.getSTART_POSITION() : genomeNexusOriginalStartPosition;
 
         // This is the default condition - stripping all matching alleles bases.
         String resolvedReferenceAllele = annotationUtil.resolveReferenceAllele(gnResponse, mRecord);
@@ -256,8 +257,11 @@ public class GenomeNexusImpl implements Annotator {
                     resolvedTumorSeqAllele2 = resolvedTumorSeqAlleleFromInput.substring(1);
                 }
             }
+            resolvedStartPosition = annotationUtil.resolveStart(gnResponse, mRecord, stripMatchingBases, ignoreOriginalGenomicLocation, genomeNexusOriginalStartPosition, !(mRecord.getTUMOR_SEQ_ALLELE1().equals(resolvedTumorSeqAllele2)) || !(mRecord.getTUMOR_SEQ_ALLELE2().equals(resolvedTumorSeqAllele2)));
+
             // Strip all allele bases is the default condition, see resolved results above.
             // TumorSeqAllele1 is unchanged in all three conditions
+
          }
 
         // If use original genome location columns that have prefix "IGNORE_Genome_Nexus_Original_"
@@ -284,6 +288,8 @@ public class GenomeNexusImpl implements Annotator {
                     resolvedTumorSeqAllele2 = resolvedTumorSeqAlleleFromInput.substring(1);
                 }
             }
+            resolvedStartPosition = annotationUtil.resolveStart(gnResponse, mRecord, stripMatchingBases, ignoreOriginalGenomicLocation, genomeNexusOriginalStartPosition, !(genomeNexusOriginalTumorSeqAllele1.equals(resolvedTumorSeqAllele2)) || !(genomeNexusOriginalTumorSeqAllele1.equals(resolvedTumorSeqAllele2)));
+
             // Strip all allele bases is the default condition, see resolved results above.
             // TumorSeqAllele1 should be from IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1
             resolvedTumorSeqAllele1 = genomeNexusOriginalTumorSeqAllele1;
@@ -331,7 +337,7 @@ public class GenomeNexusImpl implements Annotator {
                 mRecord.getCENTER(),
                 annotationUtil.resolveAssemblyName(gnResponse, mRecord),
                 annotationUtil.resolveChromosome(gnResponse, mRecord),
-                annotationUtil.resolveStart(gnResponse, mRecord, stripMatchingBases, ignoreOriginalGenomicLocation, genomeNexusOriginalStartPosition),
+                resolvedStartPosition,
                 annotationUtil.resolveEnd(gnResponse, mRecord),
                 annotationUtil.resolveStrandSign(gnResponse, mRecord),
                 annotationUtil.resolveVariantClassification(canonicalTranscript, mRecord),
