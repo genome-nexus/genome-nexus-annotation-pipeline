@@ -95,7 +95,7 @@
       <version>5.6.2</version>
       <scope>test</scope>
     </dependency>
-    <!-- api client -->
+    <!-- api client  -->
     <dependency>
       <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
       <artifactId>genomeNexusPublicApiClient</artifactId>
