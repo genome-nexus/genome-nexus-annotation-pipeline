@@ -78,7 +78,7 @@
     <dependency>
       <groupId>com.github.cbioportal.cbioportal</groupId>
       <artifactId>maf</artifactId>
-      <version>58d4eacadf96eb5486ea73e94e97e636fd1ae1cd</version>
+      <version>67ca9c95bbcccb51bb46e046851254bb31e4630a</version>
     </dependency>
     <!-- spring embedded datasource for testing -->
     <dependency>
