@@ -1,4 +1,4 @@
-#genome_nexus_version: 0-unknown-version-SNAPSHOT
+#genome_nexus_version: 1.0.2
 #isoform: uniprot
 Hugo_Symbol	Entrez_Gene_Id	Center	NCBI_Build	Chromosome	Annotation_Status
 SPEN	23013		GRCh37	1	SUCCESS
