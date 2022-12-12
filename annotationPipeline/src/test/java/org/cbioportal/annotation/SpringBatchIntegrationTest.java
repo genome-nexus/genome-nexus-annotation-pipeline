@@ -316,6 +316,83 @@ public class SpringBatchIntegrationTest {
         testWith(jobParameters, expectedFile, actualFile);
     }
 
+    @Test
+    @DisplayName("Test if output contains original genomic location when adding '-a'")
+    public void test_if_output_contains_original_genomic_location() throws Exception {
+        ReflectionTestUtils.setField(annotator, "enrichmentFields", "annotation_summary");
+        String inputFile = IN + "minimal_example.txt";
+        String expectedFile = EXPECTED + "output_contains_original_genomic_location.expected.txt";
+        String actualFile = ACTUAL + "output_contains_original_genomic_location.actual.txt";
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("filename", inputFile)
+                .addString("outputFilename", actualFile)
+                .addString("replace", String.valueOf(true))
+                .addString("isoformOverride", "mskcc")
+                .addString("errorReportLocation", null)
+                .addString("postIntervalSize", String.valueOf(-1))
+                .addString("addOriginalGenomicLocation", String.valueOf(true))
+                .toJobParameters();
+        testWith(jobParameters, expectedFile, actualFile);
+    }
+
+    @Test
+    @DisplayName("Test strip off first matching base")
+    public void test_strip_off_first_matching_base() throws Exception {
+        ReflectionTestUtils.setField(annotator, "enrichmentFields", "annotation_summary");
+        String inputFile = IN + "minimal_example_with_matching_bases.txt";
+        String expectedFile = EXPECTED + "minimal_example_strip_off_first_matching_bases.expected.txt";
+        String actualFile = ACTUAL + "minimal_example_strip_off_first_matching_base.actual.txt";
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("filename", inputFile)
+                .addString("outputFilename", actualFile)
+                .addString("replace", String.valueOf(true))
+                .addString("isoformOverride", "mskcc")
+                .addString("errorReportLocation", null)
+                .addString("postIntervalSize", String.valueOf(-1))
+                .addString("stripMatchingBases", "first")
+                .toJobParameters();
+        testWith(jobParameters, expectedFile, actualFile);
+    }
+
+    @Test
+    @DisplayName("Test no strip off matching bases")
+    public void test_no_strip_off_matching_bases() throws Exception {
+        ReflectionTestUtils.setField(annotator, "enrichmentFields", "annotation_summary");
+        String inputFile = IN + "minimal_example_with_matching_bases.txt";
+        String expectedFile = EXPECTED + "minimal_example_no_strip_off_matching_bases.expected.txt";
+        String actualFile = ACTUAL + "minimal_example_no_strip_off_matching_bases.actual.txt";
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("filename", inputFile)
+                .addString("outputFilename", actualFile)
+                .addString("replace", String.valueOf(true))
+                .addString("isoformOverride", "mskcc")
+                .addString("errorReportLocation", null)
+                .addString("postIntervalSize", String.valueOf(-1))
+                .addString("stripMatchingBases", "none")
+                .toJobParameters();
+        testWith(jobParameters, expectedFile, actualFile);
+    }
+
+    @Test
+    @DisplayName("Test ignore original genomic location in input")
+    public void test_ignore_original_genomic_location_in_input() throws Exception {
+        ReflectionTestUtils.setField(annotator, "enrichmentFields", "annotation_summary");
+        String inputFile = IN + "minimal_example_with_matching_bases_and_original_genomic_location.txt";
+        String expectedFile = EXPECTED + "test_ignore_original_genomic_location.expected.txt";
+        String actualFile = ACTUAL + "test_ignore_original_genomic_location.actual.txt";
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("filename", inputFile)
+                .addString("outputFilename", actualFile)
+                .addString("replace", String.valueOf(true))
+                .addString("isoformOverride", "mskcc")
+                .addString("errorReportLocation", null)
+                .addString("postIntervalSize", String.valueOf(-1))
+                .addString("stripMatchingBases", "none")
+                .addString("ignoreOriginalGenomicLocation", String.valueOf(true))
+                .toJobParameters();
+        testWith(jobParameters, expectedFile, actualFile);
+    }
+
     private void testWith(JobParameters jobParameters, String expectedPath, String actualPath) throws Exception {
         FileSystemResource expectedResult = new FileSystemResource(expectedPath);
         FileSystemResource actualResult = new FileSystemResource(actualPath);

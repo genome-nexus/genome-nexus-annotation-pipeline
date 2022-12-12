@@ -60,12 +60,38 @@ public class AnnotationUtil {
         return mRecord.getREFERENCE_ALLELE();
     }
 
-    public String resolveStart(VariantAnnotation gnResponse, MutationRecord mRecord) {
-        if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getStart() != null) {
-            return gnResponse.getAnnotationSummary().getGenomicLocation().getStart().toString();
-        } else {
-            return mRecord.getSTART_POSITION();
+    public String resolveStart(VariantAnnotation gnResponse, MutationRecord mRecord, String stripMatchingBases, Boolean ignoreOriginalGenomicLocation, String originalStart, Boolean isStrippedAllele) {
+        if (ignoreOriginalGenomicLocation) {
+            if (stripMatchingBases.equals("none")) {
+                return mRecord.getSTART_POSITION();
+            }
+            else if (stripMatchingBases.equals("first")) {
+                return isStrippedAllele ? String.valueOf(Integer.parseInt(mRecord.getSTART_POSITION()) + 1) : mRecord.getSTART_POSITION();
+            }
+            else {
+                if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getStart() != null) {
+                    return gnResponse.getAnnotationSummary().getGenomicLocation().getStart().toString();
+                } else {
+                    return mRecord.getSTART_POSITION();
+                }
+            }
         }
+        else {
+            if (stripMatchingBases.equals("none")) {
+                return originalStart;
+            }
+            else if (stripMatchingBases.equals("first")) {
+                return isStrippedAllele ? String.valueOf(Integer.parseInt(originalStart) + 1) : originalStart;
+            }
+            else {
+                if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getStart() != null) {
+                    return gnResponse.getAnnotationSummary().getGenomicLocation().getStart().toString();
+                } else {
+                    return originalStart;
+                }
+            }
+        }
+        
     }
 
     public String resolveChromosome(VariantAnnotation gnResponse, MutationRecord mRecord) {
@@ -318,11 +344,12 @@ public class AnnotationUtil {
     }
 
     public String resolveEnd(VariantAnnotation gnResponse, MutationRecord mRecord) {
-        if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getEnd() != null) {
-            return gnResponse.getAnnotationSummary().getGenomicLocation().getEnd().toString();
-        } else {
-            return mRecord.getEND_POSITION();
-        }
+            if (gnResponse.getAnnotationSummary() != null && gnResponse.getAnnotationSummary().getGenomicLocation().getEnd() != null) {
+                return gnResponse.getAnnotationSummary().getGenomicLocation().getEnd().toString();
+            } else {
+                return mRecord.getEND_POSITION();
+            }
+
     }
 
     public String resolveVariantClassification(TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord) {
@@ -425,6 +452,31 @@ public class AnnotationUtil {
         return varTri != null ? varTri : "";
     }
 
+    public String getGenomeNexusOriginalChromosome(MutationRecord mRecord) {
+        return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome") : mRecord.getCHROMOSOME();
+    }
+
+    public String getGenomeNexusOriginalStartPosition(MutationRecord mRecord) {
+        return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Start_Position")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Start_Position") : mRecord.getSTART_POSITION();
+    }
+
+    public String getGenomeNexusOriginalEndPosition(MutationRecord mRecord) {
+        return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_End_Position")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_End_Position") : mRecord.getEND_POSITION();
+    }
+
+    public String getGenomeNexusOriginalReferenceAllele(MutationRecord mRecord) {
+        return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Reference_Allele")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Reference_Allele") : mRecord.getREFERENCE_ALLELE();
+    }
+
+    public String getGenomeNexusOriginalTumorSeqAllele1(MutationRecord mRecord) {
+        return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1") : mRecord.getTUMOR_SEQ_ALLELE1();
+    }
+
+    public String getGenomeNexusOriginalTumorSeqAllele2(MutationRecord mRecord) {
+        return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2") : mRecord.getTUMOR_SEQ_ALLELE2();
+    }
+
+
     private String parseDoubleAsString(Double value) {
         return value != null ? String.valueOf(value)  : "";
     }
@@ -432,4 +484,5 @@ public class AnnotationUtil {
     private String parseIntegerAsString(Integer value) {
         return value != null ? String.valueOf(value) : "";
     }
+
 }
