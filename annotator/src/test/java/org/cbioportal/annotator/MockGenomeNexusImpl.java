@@ -68,6 +68,7 @@ import org.springframework.context.annotation.*;
 public class MockGenomeNexusImpl extends GenomeNexusImpl {
 
     private final boolean REPLACE = false;
+    private final String stripMatchingBases = "all";
     private Map<String, String> mockGenomeNexusHgvsResponseMap = new HashMap<>();
     @Autowired
     private void setMockGenomeNexusHgvsResponseMap() {
@@ -145,7 +146,7 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
             throw new RuntimeException(e);
         }
 
-        return convertResponseToAnnotatedRecord(gnResponse, record, REPLACE);
+        return convertResponseToAnnotatedRecord(gnResponse, record, REPLACE, stripMatchingBases, true, false);
     }
 
     public AnnotatedRecord makeMockPOSTAnnotatedRecord(MutationRecord record) {
@@ -157,7 +158,7 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
             throw new RuntimeException(e);
         }
 
-        return convertResponseToAnnotatedRecord(gnResponse, record, REPLACE);
+        return convertResponseToAnnotatedRecord(gnResponse, record, REPLACE, stripMatchingBases, true, false);
     }
 
     public AnnotatedRecord makeMockMyVariantInfoAnnotatedRecord(MutationRecord record) {
@@ -169,7 +170,7 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
             throw new RuntimeException(e);
         }
 
-        return convertResponseToAnnotatedRecord(gnResponse, record, REPLACE);
+        return convertResponseToAnnotatedRecord(gnResponse, record, REPLACE, stripMatchingBases, true, false);
     }
 
     private VariantAnnotation makeMockGenomeNexusResponse(String mockReturnJsonString) throws IOException {

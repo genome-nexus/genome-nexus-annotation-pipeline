@@ -523,5 +523,6 @@ public class MutationRecord {
         header.add("t_alt_count");
         header.add("n_ref_count");
         header.add("n_alt_count");
+
     }
 }

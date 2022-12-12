@@ -32,6 +32,8 @@
 package org.cbioportal.models;
 
 import java.util.*;
+import joptsimple.internal.Strings;
+
 
 /**
  *
@@ -226,6 +228,32 @@ public class AnnotatedRecord extends MutationRecord {
         this.proteinPosition = additionalProperties.get("Protein_position") != null ? additionalProperties.get("Protein_position") : "";
         this.exon = additionalProperties.get("exon") != null ? additionalProperties.get("exon") : "";
         this.additionalProperties = additionalProperties;
+    }
+    
+    public void setOriginalGenomicLocation(String IGNORE_Genome_Nexus_Original_Chromosome,
+    String IGNORE_Genome_Nexus_Original_Start_Position,
+    String IGNORE_Genome_Nexus_Original_End_Position,
+    String IGNORE_Genome_Nexus_Original_Reference_Allele,
+    String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1,
+    String IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2) {
+        if (!Strings.isNullOrEmpty(IGNORE_Genome_Nexus_Original_Chromosome)) {
+            addAdditionalProperty("IGNORE_Genome_Nexus_Original_Chromosome",IGNORE_Genome_Nexus_Original_Chromosome);
+        }
+        if (!Strings.isNullOrEmpty(IGNORE_Genome_Nexus_Original_Start_Position)) {
+            addAdditionalProperty("IGNORE_Genome_Nexus_Original_Start_Position",IGNORE_Genome_Nexus_Original_Start_Position);
+        }
+        if (!Strings.isNullOrEmpty(IGNORE_Genome_Nexus_Original_End_Position)) {
+            addAdditionalProperty("IGNORE_Genome_Nexus_Original_End_Position",IGNORE_Genome_Nexus_Original_End_Position);
+        }
+        if (!Strings.isNullOrEmpty(IGNORE_Genome_Nexus_Original_Reference_Allele)) {
+            addAdditionalProperty("IGNORE_Genome_Nexus_Original_Reference_Allele",IGNORE_Genome_Nexus_Original_Reference_Allele);
+        }
+        if (!Strings.isNullOrEmpty(IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1)) {
+            addAdditionalProperty("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1",IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1);
+        }
+        if (!Strings.isNullOrEmpty(IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2)) {
+            addAdditionalProperty("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2",IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2);
+        }
     }
 
     public void setGnomadFields(String gnomadAlleleFrequency,
