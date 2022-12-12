@@ -103,12 +103,12 @@
     <dependency>
       <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
       <artifactId>genomeNexusPublicApiClient</artifactId>
-      <version>600501017ef64be14cfb36679babec30da9200ca</version>
+      <version>59f677151e77710be41ff07ac92969d383287068</version>
     </dependency>
     <dependency>
       <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
       <artifactId>genomeNexusInternalApiClient</artifactId>
-      <version>600501017ef64be14cfb36679babec30da9200ca</version>
+      <version>59f677151e77710be41ff07ac92969d383287068</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>

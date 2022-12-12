@@ -1,4 +1,4 @@
-#genome_nexus_version: 0-unknown-version-SNAPSHOT
+#genome_nexus_version: 1.0.2
 #isoform: uniprot
 Chromosome	Start_Position	End_Position	Reference_Allele	Tumor_Seq_Allele1	BAM_File	Center	Codons	Consequence	Entrez_Gene_Id	Exon_Number	HGVSc	HGVSp	HGVSp_Short	Hugo_Symbol	Match_Norm_Seq_Allele1	Match_Norm_Seq_Allele2	Match_Norm_Validation_Allele1	Match_Norm_Validation_Allele2	Matched_Norm_Sample_Barcode	Mutation_Status	NCBI_Build	Protein_position	RefSeq	Score	Sequence_Source	Sequencer	Sequencing_Phase	Strand	Transcript_ID	Tumor_Sample_Barcode	Tumor_Seq_Allele2	Tumor_Validation_Allele1	Tumor_Validation_Allele2	Validation_Method	Validation_Status	Variant_Classification	Variant_Type	Verification_Status	dbSNP_RS	dbSNP_Val_Status	n_alt_count	n_ref_count	t_alt_count	t_ref_count	Annotation_Status
 3	178916927	178916939	TAGGCAACCGTGA	G			gTAGGCAACCGTGAa/gGa	protein_altering_variant	5290	2/21	ENST00000263967.3:c.314_326delinsG	p.Val105_Glu109delinsGly	p.V105_E109delinsG	PIK3CA							GRCh37	105	NM_006218.2					+	ENST00000263967		G					In_Frame_Del	DEL								SUCCESS

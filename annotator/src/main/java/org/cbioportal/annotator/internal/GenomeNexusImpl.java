@@ -192,8 +192,8 @@ public class GenomeNexusImpl implements Annotator {
     public String getVersion() {
         InfoControllerApi infoApiClient = new InfoControllerApi();
         try {
-            Version result = infoApiClient.fetchVersionGET();
-            return result.getVersion();
+            AggregateSourceInfo result = infoApiClient.fetchVersionGET();
+            return result.getGenomeNexus().getServer().getVersion();
         } catch (ApiException e) {
             LOG.error("Exception when calling InfoControllerApi#fetchVersionGET, genome nexus version is unknown", e);
         }
