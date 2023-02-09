@@ -40,6 +40,20 @@ reporting to a file, supply the `-e` option a location for the file to be
 saved. By running the jar without any arguments or by providing the optional
 parameter `-h` you can view the full usage statement. 
 
+## Annotate data with Docker
+Genome Nexus Annotation Pipeline is available on Docker: https://hub.docker.com/r/genomenexus/gn-annotation-pipeline.
+
+#### Usage instruction
+```
+docker run -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master --filename /wd/input.txt  --output-filename /wd/output.txt --isoform-override uniprot
+```
+- `-v ${PWD}:/wd`: This option maps the current working directory to a volume within the Docker container at the path `/wd`. This makes it possible for files in the host directory to be accessed and modified between container and host.
+- `--filename /wd/input.txt`: This option specifies the input file location at `/wd/input.txt`, which should be under the same directory as output file.
+
+- `--output-filename /wd/output.txt`: This option specifies the output file where the annotated results will be saved. The file will be created at `/wd/output.txt`, which should be under the same directory as input file.
+- `--isoform-override uniprot`: This option sets the isoform override source to use for annotation. Available isoform override sources are `mskcc` and `uniprot`.
+
+
 ### Optional parameters
 | Short | Long | Description | 
 | ------ | ------  | ------ |

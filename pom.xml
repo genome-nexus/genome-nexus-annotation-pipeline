@@ -79,6 +79,16 @@
       <groupId>com.github.cbioportal.cbioportal</groupId>
       <artifactId>maf</artifactId>
       <version>d3ca6e90775cdaa595bc5a6932795eb72e49bc8b</version>
+      <exclusions>
+       <exclusion>
+         <groupId>ch.qos.logback</groupId>
+         <artifactId>logback-core</artifactId>
+       </exclusion>
+       <exclusion>
+         <groupId>ch.qos.logback</groupId>
+         <artifactId>logback-classic</artifactId>
+       </exclusion>
+     </exclusions>
     </dependency>
     <!-- spring embedded datasource for testing -->
     <dependency>
