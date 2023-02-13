@@ -217,6 +217,18 @@ public class AnnotationPipeline {
                 }
             }
         }
+        if (subcommand.hasOption("isoform-override")) {
+            String isoformOverride = subcommand.getOptionValue("isoform-override");
+            if (!(isoformOverride.equals("mskcc") || isoformOverride.equals("uniprot"))) {
+                throw new AnnotationFailedException("Isoform override not valid. Options: 'mskcc' or 'uniprot'.");
+            }
+        }
+        if (subcommand.hasOption("strip-matching-bases")) {
+            String stripMatchingBases = subcommand.getOptionValue("strip-matching-bases");
+            if (!(stripMatchingBases.equals("first") || stripMatchingBases.equals("none") || stripMatchingBases.equals("all"))) {
+                throw new AnnotationFailedException("Strip matching bases not valid. Options: 'first', 'all' or 'none'.");
+            }
+        }
         try {
             annotateJob(args, subcommand.getOptionValue("filename"), subcommand.getOptionValue("output-filename"), outputFormat, subcommand.getOptionValue("isoform-override"),
                     subcommand.getOptionValue("error-report-location", ""),
