@@ -3,14 +3,18 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.cbioportal.annotation.pipeline</groupId>
   <artifactId>databaseAnnotator</artifactId>
-  <version>1.0.0</version>
+  <!-- project version is generated through git or can be passed as
+       PROJECT_VERSION env variable (see version.sh) -->
+  <version>0-auto-generated-version-SNAPSHOT</version>
   <name>cBioPortal Database Annotator</name>
   <description>Annotates mutations in database with missing information using Genome Nexus</description>
 
   <parent>
     <groupId>org.cbioportal.annotation.pipeline</groupId>
     <artifactId>master</artifactId>
-    <version>1.0.0</version>
+    <!-- project version is generated through git or can be passed as
+       PROJECT_VERSION env variable (see version.sh) -->
+    <version>0-auto-generated-version-SNAPSHOT</version>
   </parent>
 
   <properties>

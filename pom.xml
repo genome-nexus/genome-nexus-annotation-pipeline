@@ -3,7 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.cbioportal.annotation.pipeline</groupId>
   <artifactId>master</artifactId>
-  <version>1.0.0</version>
+  <!-- project version is generated through git or can be passed as
+       PROJECT_VERSION env variable (see version.sh) -->
+  <version>0-auto-generated-version-SNAPSHOT</version>
   <name>Genome Nexus Variant Annotation Tools</name>
   <description>tools for annotating variants via genome nexus</description>
   <packaging>pom</packaging>
@@ -154,6 +156,12 @@
       <url>https://jitpack.io</url>
     </repository>
   </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </pluginRepository>
+  </pluginRepositories>
 
   <build>
     <plugins>
@@ -165,6 +173,17 @@
           <properties>
             <includeTags>junit5</includeTags>
           </properties>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.github.cbioportal.maven-external-version</groupId>
+        <artifactId>maven-external-version-plugin</artifactId>
+        <version>f09c2b9608744881111f24e55d55a91e54e6cb5f</version>
+        <extensions>true</extensions>
+        <configuration>
+          <strategy hint="script">
+            <script>./version.sh</script>
+          </strategy>
         </configuration>
       </plugin>
     </plugins>
