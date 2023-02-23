@@ -12,6 +12,8 @@ public class Subcommands {
                 return new AnnotateSubcommand(args);
             } else if ("merge".equals(arg)) {
                 return new MergeSubcommand(args);
+            } else if("version".equals(arg)) {
+                return new VersionSubcommand(args);
             }
         }
         throw new NoSubcommandFoundException();
