@@ -3,14 +3,18 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.cbioportal.annotation.pipeline</groupId>
   <artifactId>annotator</artifactId>
-  <version>1.0.0</version>
+  <!-- project version is generated through git or can be passed as
+       PROJECT_VERSION env variable (see version.sh) -->
+  <version>0-auto-generated-version-SNAPSHOT</version>
   <name>cBioPortal Annotator</name>
   <description>Annotator</description>
 
   <parent>
     <groupId>org.cbioportal.annotation.pipeline</groupId>
     <artifactId>master</artifactId>
-    <version>1.0.0</version>
+    <!-- project version is generated through git or can be passed as
+       PROJECT_VERSION env variable (see version.sh) -->
+    <version>0-auto-generated-version-SNAPSHOT</version>
   </parent>
 
   <dependencies>
