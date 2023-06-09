@@ -52,6 +52,15 @@ docker run -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master --filename /w
 
 - `--output-filename /wd/output.txt`: This option specifies the output file where the annotated results will be saved. The file will be created at `/wd/output.txt`, which should be under the same directory as input file.
 
+#### View logging file
+To enable logging in the Genome Nexus Annotation Pipeline and access the log file, you need to mount your local path to view the log file locally. By default, the log file is stored at `/genome-nexus-annotation-pipeline/logs/genome-nexus-annotation-pipeline.log`. Use the following command as an example:
+```
+docker run  -v ${PWD}:/wd -v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs gn-annotation-pipeline:master --filename  /wd/input.txt  --output-filename /wd/output.txt
+```
+- `-v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs` flag mounts the logs directory inside the current working directory to the corresponding directory inside the Docker container.
+- Other flags are the same as above
+
+Make sure to adjust the file paths according to your specific requirements. Once the command is executed, the log file will be generated and stored in the logs directory within your local directory. 
 
 ### Optional parameters
 | Short | Long | Description | 
