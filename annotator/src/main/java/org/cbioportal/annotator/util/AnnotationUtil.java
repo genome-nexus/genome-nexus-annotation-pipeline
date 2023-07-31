@@ -453,14 +453,14 @@ public class AnnotationUtil {
     }
     
     public String getOncogenicOncoKB(VariantAnnotation gnResponse) {
-    	System.out.println(gnResponse.toString());
     	return gnResponse.getOncokb().getAnnotation().getOncogenic();
     }
     
     public Boolean geneGeneExist(VariantAnnotation gnResponse) {
-    	System.out.println(gnResponse.toString());
     	return gnResponse.getOncokb().getAnnotation().isGeneExist();
     }
+
+
 
     public String getGenomeNexusOriginalChromosome(MutationRecord mRecord) {
         return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome") : mRecord.getCHROMOSOME();
