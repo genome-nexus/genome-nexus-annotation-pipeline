@@ -121,7 +121,7 @@ public class AnnotationPipeline {
         } else if (subcommand instanceof MergeSubcommand) {
             merge(subcommand);
         } else if (subcommand instanceof VersionSubcommand) {
-            version(subcommand);
+            version((VersionSubcommand) subcommand);
         }
     }
 
@@ -146,12 +146,13 @@ public class AnnotationPipeline {
         return appVersion;
     }
 
-    private static void version(Subcommand subcommand) {
+    private static void version(VersionSubcommand subcommand) {
         if (subcommand.hasOption("h")) {
             subcommand.printHelp();
             return;
         }
         System.out.println("Client: " + getAppVersion());
+        System.out.println(subcommand.getformattedServerVersion());
     }
 
     private static void merge(Subcommand subcommand) throws MergeFailedException {

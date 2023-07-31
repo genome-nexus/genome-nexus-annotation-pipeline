@@ -1,11 +1,21 @@
 package org.cbioportal.annotation.cli;
 
+import java.util.stream.Collectors;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.genome_nexus.ApiException;
+import org.genome_nexus.client.AggregateSourceInfo;
+import org.genome_nexus.client.InfoControllerApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class VersionSubcommand implements Subcommand {
     private static Options options;
+    private static final String UKNOWN_GENOME_NEXUS_VERSION = "unknown";
+    private final Logger LOG = LoggerFactory.getLogger(VersionSubcommand.class);
 
     static {
         options = getOptions();
@@ -18,6 +28,21 @@ public class VersionSubcommand implements Subcommand {
 
     public VersionSubcommand(String[] args) throws ParseException {
         commandLine = Subcommands.getCommandLine(args, options);
+    }
+
+    public String getformattedServerVersion() {
+        InfoControllerApi infoApiClient = new InfoControllerApi();
+        try {
+            AggregateSourceInfo result = infoApiClient.fetchVersionGET();
+            return "Server: " + result.getGenomeNexus().getServer().getVersion() + System.lineSeparator() +
+             "Annotation Sources" + System.lineSeparator() +
+             "    " + "VEP Server: " +result.getVep().getServer().getVersion() + System.lineSeparator() +
+             "    " + "VEP Cache: "  +result.getVep().getCache().getVersion() + System.lineSeparator() +
+             result.getAnnotationSourcesInfo().stream().map(source -> "    " + source.getName() + ": " + source.getVersion()).collect(Collectors.joining(System.lineSeparator()));
+        } catch (ApiException e) {
+            LOG.error("Exception when calling InfoControllerApi#fetchVersionGET, genome nexus version is unknown", e);
+        }
+        return UKNOWN_GENOME_NEXUS_VERSION;
     }
 
     private static Options getOptions() {
