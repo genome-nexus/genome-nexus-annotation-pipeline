@@ -56,6 +56,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import com.google.common.base.Strings;
+import com.google.gson.Gson;
 import org.cbioportal.annotator.util.AnnotationUtil;
 
 /**
@@ -75,6 +76,10 @@ public class GenomeNexusImpl implements Annotator {
     private String isoformQueryParameter;
     @Value("${genomenexus.enrichment_fields:annotation_summary}")
     private String enrichmentFields;
+    @Value("${oncokb.token}")
+    private String oncokbToken;
+    
+    private String tokens;
 
     private AnnotationControllerApi apiClient;
     private static final String UKNOWN_GENOME_NEXUS_VERSION = "unknown";
@@ -95,6 +100,7 @@ public class GenomeNexusImpl implements Annotator {
     @Bean
     public GenomeNexusImpl annotator() {
         this.apiClient = initApiClient();
+        this.tokens = getTokens();
         return this;
     }
 
@@ -104,6 +110,12 @@ public class GenomeNexusImpl implements Annotator {
 
     public void setGenomeNexusBaseUrl(String genomeNexusBaseUrl) {
         this.genomeNexusBaseUrl = genomeNexusBaseUrl;
+    }
+    
+    private String getTokens() {
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("oncokb", oncokbToken);
+        return (new Gson()).toJson(tokens);
     }
 
     private boolean annotationNeeded(MutationRecord record) {
@@ -128,7 +140,7 @@ public class GenomeNexusImpl implements Annotator {
         try {
             gnResponse = this.apiClient.fetchVariantAnnotationByGenomicLocationGET(genomicLocation,
                     isoformOverridesSource,
-                    "\"{\"oncokb\":\"token\"}",
+                    tokens,
                     Arrays.asList(this.enrichmentFields.split(",")));
         } catch (ApiException e) {
             // catch case where Genome Nexus Server is down
@@ -579,7 +591,7 @@ public class GenomeNexusImpl implements Annotator {
             // Get annotations from Genome Nexus and log if server error (e.g VEP is down)
             try {
                  gnResponseList = apiClient.fetchVariantAnnotationByGenomicLocationPOST(partitionedList,
-                    isoformOverridesSource, "{\"oncokb\":\"token\"}", Arrays.asList(this.enrichmentFields.split(",")));
+                    isoformOverridesSource, tokens, Arrays.asList(this.enrichmentFields.split(",")));
             } catch (Exception e) {
                 LOG.error("Annotation failed for ALL variants in this partition. " + e.getMessage());
             }
