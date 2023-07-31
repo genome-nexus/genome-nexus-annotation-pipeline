@@ -144,23 +144,15 @@ Make sure to adjust the file paths according to your specific requirements. Once
 |SIFT_Score|SIFT|Need to add "sift" in "enrichment_fields|
 |Ref_Tri||Need to add "nucleotide_context" in "enrichment_field|
 |Var_Tri||Need to add "nucleotide_context" in "enrichment_field|
-|ANNOTATED|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-|GENE_IN_ONCOKB|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-|VARIANT_IN_ONCOKB|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|                                                                                                    |
-|MUTATION_EFFECT|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| MUTATION_EFFECT_CITATIONS |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| ONCOGENIC|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| LEVEL_* |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| HIGHEST_LEVEL|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| HIGHEST_SENSITIVE_LEVEL   |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| HIGHEST_RESISTANCE_LEVEL  |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| TX_CITATIONS              |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| LEVEL_Dx*                 |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| HIGHEST_DX_LEVEL          |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| DX_CITATIONS              |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| LEVEL_Px*                 |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| HIGHEST_PX_LEVEL          |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| PX_CITATIONS              |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+|oncokb_geneExist|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+|oncokb_highestDXLevel|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+|oncokb_highestPXLevel|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|                                                                                                    |
+|oncokb_highestResistanceLevel|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| oncokb_highestSensitiveLevel |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| oncokb_mutationEffect|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+|oncokb_mutationEffectCitations|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| oncokb_oncogenic|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| oncokb_variantExist   |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
 |Annotation_Status|||
 
 **Example**:
