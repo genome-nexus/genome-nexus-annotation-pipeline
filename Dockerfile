@@ -20,4 +20,4 @@ COPY --from=0 $GN_HOME/annotationPipeline/target/annotationPipeline-*.jar $GN_HO
 
 COPY annotationPipeline/src/main/resources/application.properties.EXAMPLE $GN_HOME/annotationPipeline/src/main/resources/application.properties
 
-ENTRYPOINT ["java", "-jar", "/genome-nexus-annotation-pipeline/annotationPipeline/target/annotationPipeline.jar"]
+CMD ["java", "-jar", "/genome-nexus-annotation-pipeline/annotationPipeline/target/annotationPipeline.jar"]
