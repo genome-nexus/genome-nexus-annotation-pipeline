@@ -28,11 +28,14 @@ public class VersionSubcommand implements Subcommand {
         commandLine = Subcommands.getCommandLine(args, options);
     }
 
-    public String getServerVersion() {
+    public String getformattedServerVersion() {
         InfoControllerApi infoApiClient = new InfoControllerApi();
         try {
             AggregateSourceInfo result = infoApiClient.fetchVersionGET();
-            return result.getGenomeNexus().getServer().getVersion();
+            return "Server: " + result.getGenomeNexus().getServer().getVersion() + System.lineSeparator() +
+             "Annotation Sources" + System.lineSeparator() +
+             "    " + "VEP Server: " +result.getVep().getServer().getVersion() + System.lineSeparator() +
+             "    " + "VEP Cache: "  +result.getVep().getCache().getVersion();
         } catch (ApiException e) {
             LOG.error("Exception when calling InfoControllerApi#fetchVersionGET, genome nexus version is unknown", e);
         }

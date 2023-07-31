@@ -152,7 +152,7 @@ public class AnnotationPipeline {
             return;
         }
         System.out.println("Client: " + getAppVersion());
-        System.out.println("Server: " + subcommand.getServerVersion());
+        System.out.println(subcommand.getformattedServerVersion());
     }
 
     private static void merge(Subcommand subcommand) throws MergeFailedException {
