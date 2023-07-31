@@ -20,4 +20,6 @@ COPY --from=0 $GN_HOME/annotationPipeline/target/annotationPipeline-*.jar $GN_HO
 
 COPY annotationPipeline/src/main/resources/application.properties.EXAMPLE $GN_HOME/annotationPipeline/src/main/resources/application.properties
 
+RUN apt-get update && apt-get install procps -y
+
 CMD ["java", "-jar", "/genome-nexus-annotation-pipeline/annotationPipeline/target/annotationPipeline.jar"]
