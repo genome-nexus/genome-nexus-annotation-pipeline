@@ -311,6 +311,11 @@ public class AnnotatedRecord extends MutationRecord {
         addAdditionalProperty("Ref_Tri", refTri);
         addAdditionalProperty("Var_Tri", varTri);
     }
+    
+    public void setOncoKBContextFields(String successfullyAnotated, Boolean geneExist) {
+        addAdditionalProperty("oncogenic", successfullyAnotated);
+        addAdditionalProperty("geneExist", geneExist.toString());
+    }
 
     public String getHGVSC() {
         return this.hgvsc;

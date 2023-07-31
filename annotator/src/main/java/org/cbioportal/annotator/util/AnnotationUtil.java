@@ -451,6 +451,16 @@ public class AnnotationUtil {
         }
         return varTri != null ? varTri : "";
     }
+    
+    public String getOncogenicOncoKB(VariantAnnotation gnResponse) {
+    	System.out.println(gnResponse.toString());
+    	return gnResponse.getOncokb().getAnnotation().getOncogenic();
+    }
+    
+    public Boolean geneGeneExist(VariantAnnotation gnResponse) {
+    	System.out.println(gnResponse.toString());
+    	return gnResponse.getOncokb().getAnnotation().isGeneExist();
+    }
 
     public String getGenomeNexusOriginalChromosome(MutationRecord mRecord) {
         return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome") : mRecord.getCHROMOSOME();
@@ -475,7 +485,7 @@ public class AnnotationUtil {
     public String getGenomeNexusOriginalTumorSeqAllele2(MutationRecord mRecord) {
         return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2") : mRecord.getTUMOR_SEQ_ALLELE2();
     }
-
+    
 
     private String parseDoubleAsString(Double value) {
         return value != null ? String.valueOf(value)  : "";

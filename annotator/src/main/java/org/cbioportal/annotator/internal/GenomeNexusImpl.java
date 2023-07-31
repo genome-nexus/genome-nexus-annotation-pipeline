@@ -128,7 +128,7 @@ public class GenomeNexusImpl implements Annotator {
         try {
             gnResponse = this.apiClient.fetchVariantAnnotationByGenomicLocationGET(genomicLocation,
                     isoformOverridesSource,
-                    "",
+                    "\"{\"oncokb\":\"token\"}",
                     Arrays.asList(this.enrichmentFields.split(",")));
         } catch (ApiException e) {
             // catch case where Genome Nexus Server is down
@@ -424,6 +424,13 @@ public class GenomeNexusImpl implements Annotator {
                     annotationUtil.resolveRefTri(gnResponse),
                     annotationUtil.resolveVarTri(gnResponse));
         }
+        if (enrichmentFields.contains("oncokb")) {
+        	if (gnResponse.getOncokb() != null) { 
+        	annotatedRecord.setOncoKBContextFields(
+        			annotationUtil.getOncogenicOncoKB(gnResponse),
+        			annotationUtil.geneGeneExist(gnResponse));
+        	}
+        }
 
         return annotatedRecord;
     }
@@ -572,7 +579,7 @@ public class GenomeNexusImpl implements Annotator {
             // Get annotations from Genome Nexus and log if server error (e.g VEP is down)
             try {
                  gnResponseList = apiClient.fetchVariantAnnotationByGenomicLocationPOST(partitionedList,
-                    isoformOverridesSource, "", Arrays.asList(this.enrichmentFields.split(",")));
+                    isoformOverridesSource, "{\"oncokb\":\"token\"}", Arrays.asList(this.enrichmentFields.split(",")));
             } catch (Exception e) {
                 LOG.error("Annotation failed for ALL variants in this partition. " + e.getMessage());
             }
