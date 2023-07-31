@@ -438,7 +438,7 @@ public class GenomeNexusImpl implements Annotator {
         }
         if (enrichmentFields.contains("oncokb")) {
         	if (gnResponse.getOncokb() != null) { 
-        	annotatedRecord.setOncoKBContextFields(
+        	    annotatedRecord.setOncoKBContextFields(
         			annotationUtil.getOncogenicOncoKB(gnResponse),
         			annotationUtil.geneGeneExist(gnResponse),
                     annotationUtil.getVariantExists(gnResponse),
