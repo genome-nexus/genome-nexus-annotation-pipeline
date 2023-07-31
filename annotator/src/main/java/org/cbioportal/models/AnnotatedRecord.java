@@ -312,9 +312,17 @@ public class AnnotatedRecord extends MutationRecord {
         addAdditionalProperty("Var_Tri", varTri);
     }
     
-    public void setOncoKBContextFields(String successfullyAnotated, Boolean geneExist) {
-        addAdditionalProperty("oncogenic", successfullyAnotated);
-        addAdditionalProperty("geneExist", geneExist.toString());
+    public void setOncoKBContextFields(String successfullyAnotated, Boolean geneExist, Boolean variantExist, String mutationKnownEffect, String mutationEffectCitations, String highestDXLevel, String highestPXLevel, String highestResistanceLevel, String highestSensitiveLevel ) {
+        addAdditionalProperty("oncokb_oncogenic", successfullyAnotated);
+        addAdditionalProperty("oncokb_geneExist", geneExist.toString());
+        addAdditionalProperty("oncokb_variantExist", variantExist.toString());
+        addAdditionalProperty("oncokb_mutationEffect", mutationKnownEffect);
+        addAdditionalProperty("oncokb_mutationEffectCitations", mutationEffectCitations);
+        addAdditionalProperty("oncokb_highestDXLevel", highestDXLevel);
+        addAdditionalProperty("oncokb_highestPXLevel", highestPXLevel);
+        addAdditionalProperty("oncokb_highestResistanceLevel", highestResistanceLevel);
+        addAdditionalProperty("oncokb_highestSensitiveLevel", highestSensitiveLevel);
+
     }
 
     public String getHGVSC() {

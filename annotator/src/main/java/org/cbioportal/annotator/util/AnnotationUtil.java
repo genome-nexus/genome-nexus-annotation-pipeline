@@ -460,6 +460,34 @@ public class AnnotationUtil {
     	return gnResponse.getOncokb().getAnnotation().isGeneExist();
     }
 
+    public Boolean getVariantExists(VariantAnnotation gnResponse) {
+        return gnResponse.getOncokb().getAnnotation().isVariantExist();
+    }
+
+    public String getMutationKnownEffect(VariantAnnotation gnResponse) {
+        return gnResponse.getOncokb().getAnnotation().getMutationEffect().getKnownEffect();
+    }
+
+    
+    public String getMutationEffectCitations(VariantAnnotation gnResponse) {
+        return String.join(";",gnResponse.getOncokb().getAnnotation().getMutationEffect().getCitations().getPmids());
+    }
+
+    public String getHighestDiagnosticImplicationLevel(VariantAnnotation gnResponse) {
+        return gnResponse.getOncokb().getAnnotation().getHighestDiagnosticImplicationLevel().getValue();
+    }
+
+    public String getHighestPrognosticImplicationLevel(VariantAnnotation gnResponse) {
+        return gnResponse.getOncokb().getAnnotation().getHighestPrognosticImplicationLevel().getValue();
+    }
+
+    public String getHighestResistanceLevel(VariantAnnotation gnResponse) {
+        return gnResponse.getOncokb().getAnnotation().getHighestResistanceLevel().getValue();
+    }
+
+    public String getHighestSensitiveLevel(VariantAnnotation gnResponse) {
+        return gnResponse.getOncokb().getAnnotation().getHighestSensitiveLevel().getValue();
+    }
 
 
     public String getGenomeNexusOriginalChromosome(MutationRecord mRecord) {

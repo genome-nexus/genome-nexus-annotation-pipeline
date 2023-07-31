@@ -428,7 +428,15 @@ public class GenomeNexusImpl implements Annotator {
         	if (gnResponse.getOncokb() != null) { 
         	annotatedRecord.setOncoKBContextFields(
         			annotationUtil.getOncogenicOncoKB(gnResponse),
-        			annotationUtil.geneGeneExist(gnResponse));
+        			annotationUtil.geneGeneExist(gnResponse),
+                    annotationUtil.getVariantExists(gnResponse),
+                    annotationUtil.getMutationKnownEffect(gnResponse),
+                    annotationUtil.getMutationEffectCitations(gnResponse),
+                    annotationUtil.getHighestDiagnosticImplicationLevel(gnResponse),
+                    annotationUtil.getHighestPrognosticImplicationLevel(gnResponse),
+                    annotationUtil.getHighestResistanceLevel(gnResponse),
+                    annotationUtil.getHighestSensitiveLevel(gnResponse)
+                    );
         	}
         }
 
