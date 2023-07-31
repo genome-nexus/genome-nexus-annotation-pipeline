@@ -55,6 +55,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * @author Mete Ozguz
@@ -114,20 +115,43 @@ public class AnnotationPipeline {
             subcommand = new AnnotateSubcommand(args);
         }
         if (subcommand instanceof AnnotateSubcommand) {
+            Instant start = Instant.now();
             annotate(subcommand, args);
+            System.out.println(" RUNTIME: " + Duration.between(start, Instant.now()).getSeconds() + " secs.");
         } else if (subcommand instanceof MergeSubcommand) {
             merge(subcommand);
+        } else if (subcommand instanceof VersionSubcommand) {
+            version(subcommand);
         }
     }
 
     public static void main(String[] args) {
-        Instant start = Instant.now();
         try {
             subMain(args);
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
-        System.out.println(" RUNTIME: " + Duration.between(start, Instant.now()).getSeconds() + " secs.");
+    }
+
+    private static String getAppVersion() {
+        java.io.InputStream is = AnnotationPipeline.class.getClassLoader().getResourceAsStream("maven.properties");
+        java.util.Properties p = new Properties();
+        try {
+            p.load(is);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String appVersion = p.getProperty("app.version");
+
+        return appVersion;
+    }
+
+    private static void version(Subcommand subcommand) {
+        if (subcommand.hasOption("h")) {
+            subcommand.printHelp();
+            return;
+        }
+        System.out.println("Client: " + getAppVersion());
     }
 
     private static void merge(Subcommand subcommand) throws MergeFailedException {
