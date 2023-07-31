@@ -474,19 +474,19 @@ public class AnnotationUtil {
     }
 
     public String getHighestDiagnosticImplicationLevel(VariantAnnotation gnResponse) {
-        return gnResponse.getOncokb().getAnnotation().getHighestDiagnosticImplicationLevel().getValue();
+        return gnResponse.getOncokb().getAnnotation().getHighestDiagnosticImplicationLevel() != null ? gnResponse.getOncokb().getAnnotation().getHighestDiagnosticImplicationLevel().getValue(): "";
     }
 
     public String getHighestPrognosticImplicationLevel(VariantAnnotation gnResponse) {
-        return gnResponse.getOncokb().getAnnotation().getHighestPrognosticImplicationLevel().getValue();
+        return gnResponse.getOncokb().getAnnotation().getHighestPrognosticImplicationLevel() != null ? gnResponse.getOncokb().getAnnotation().getHighestPrognosticImplicationLevel().getValue(): "";
     }
 
     public String getHighestResistanceLevel(VariantAnnotation gnResponse) {
-        return gnResponse.getOncokb().getAnnotation().getHighestResistanceLevel().getValue();
+        return gnResponse.getOncokb().getAnnotation().getHighestResistanceLevel() != null ? gnResponse.getOncokb().getAnnotation().getHighestResistanceLevel().getValue(): "";
     }
 
     public String getHighestSensitiveLevel(VariantAnnotation gnResponse) {
-        return gnResponse.getOncokb().getAnnotation().getHighestSensitiveLevel().getValue();
+        return gnResponse.getOncokb().getAnnotation().getHighestSensitiveLevel() != null ? gnResponse.getOncokb().getAnnotation().getHighestSensitiveLevel().getValue(): "";
     }
 
 
