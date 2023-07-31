@@ -144,11 +144,38 @@ Make sure to adjust the file paths according to your specific requirements. Once
 |SIFT_Score|SIFT|Need to add "sift" in "enrichment_fields|
 |Ref_Tri||Need to add "nucleotide_context" in "enrichment_field|
 |Var_Tri||Need to add "nucleotide_context" in "enrichment_field|
+|ANNOTATED|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+|GENE_IN_ONCOKB|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+|VARIANT_IN_ONCOKB|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|                                                                                                    |
+|MUTATION_EFFECT|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| MUTATION_EFFECT_CITATIONS |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| ONCOGENIC|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| LEVEL_* |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| HIGHEST_LEVEL|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| HIGHEST_SENSITIVE_LEVEL   |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| HIGHEST_RESISTANCE_LEVEL  |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| TX_CITATIONS              |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| LEVEL_Dx*                 |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| HIGHEST_DX_LEVEL          |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| DX_CITATIONS              |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| LEVEL_Px*                 |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| HIGHEST_PX_LEVEL          |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
+| PX_CITATIONS              |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
 |Annotation_Status|||
+
+**Example**:
+```
+java 
+-Dgenomenexus.enrichment_fields=annotation_summary,my_variant_info
+-jar annotationPipeline/target/annotationPipeline-*.jar \ -r \ 
+--filename test/data/minimal_example.in.txt \ 
+--output-filename test/data/minimal_example.out.uniprot.txt \ 
+--isoform-override uniprot
+```
 
 ### Enrichment fields
 Genome Nexus supports additional enrichment fields to add more annotation columns. Enrichment fields setting is in `application.properties`, please refer to `Pre-build steps` section.
-To set enrichment fields, add fields name from the list below to `genomenexus.enrichment_fields=` and separete with `,`, `annotation_summary` is hightly recommended to add as default since it's crucial for lots of annotation fields.
+To set enrichment fields, add fields name from the list below to `genomenexus.enrichment_fields=` and separate with `,`, `annotation_summary` is highly recommended to add as default since it's crucial for lots of annotation fields.
 Available enrichment fields:
 - annotation_summary:
     - 'annotation_summary' is required for most annotation fields
@@ -159,6 +186,8 @@ Available enrichment fields:
 - mutation_assessor
     - 'mutation_assessor' provides V3 version annotation from Mutation Assessor, which is currently stored in Genome Nexus database
 - nucleotide_context
+- oncokb:
+    - 'oncokb' provides biological and clinical information from OncoKB website. OncoKB token is required (see more information from: [https://www.oncokb.org/apiAccess](https://www.oncokb.org/apiAccess)). Please provide your token in  `application.properties` in the format of `{"oncokb":"put-your-oncokb-token-here"}`. Token parameter in command line will be supported in the future.
 
 ### Minimal MAF Example
 
