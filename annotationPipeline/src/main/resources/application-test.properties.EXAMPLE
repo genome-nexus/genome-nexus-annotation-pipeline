@@ -3,6 +3,7 @@ genomenexus.hgvs=<HOST>/variant_annotation/hgvs/
 genomenexus.isoform_override=<HOST>/variant_annotation/isoform_override/
 genomenexus.hotspot_parameter=summary
 chunk=10
+oncokb.token=
 
 
 input.inputfile=genome-nexus-annotation-pipeline/annotationPipeline/src/main/resources/data/testmaf.txt
