@@ -76,7 +76,7 @@ public class GenomeNexusImpl implements Annotator {
     private String isoformQueryParameter;
     @Value("${genomenexus.enrichment_fields:annotation_summary}")
     private String enrichmentFields;
-    @Value("${oncokb.token}")
+    @Value("${oncokb.token:null}")
     private String oncokbToken;
     
     private String tokens;
