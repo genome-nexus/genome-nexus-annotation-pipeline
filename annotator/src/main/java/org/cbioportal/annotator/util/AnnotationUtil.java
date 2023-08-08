@@ -451,6 +451,44 @@ public class AnnotationUtil {
         }
         return varTri != null ? varTri : "";
     }
+    
+    public String getOncogenicOncoKB(VariantAnnotation gnResponse) {
+    	return gnResponse.getOncokb().getAnnotation().getOncogenic();
+    }
+    
+    public Boolean geneGeneExist(VariantAnnotation gnResponse) {
+    	return gnResponse.getOncokb().getAnnotation().isGeneExist();
+    }
+
+    public Boolean getVariantExists(VariantAnnotation gnResponse) {
+        return gnResponse.getOncokb().getAnnotation().isVariantExist();
+    }
+
+    public String getMutationKnownEffect(VariantAnnotation gnResponse) {
+        return gnResponse.getOncokb().getAnnotation().getMutationEffect().getKnownEffect();
+    }
+
+    
+    public String getMutationEffectCitations(VariantAnnotation gnResponse) {
+        return String.join(";",gnResponse.getOncokb().getAnnotation().getMutationEffect().getCitations().getPmids());
+    }
+
+    public String getHighestDiagnosticImplicationLevel(VariantAnnotation gnResponse) {
+        return gnResponse.getOncokb().getAnnotation().getHighestDiagnosticImplicationLevel() != null ? gnResponse.getOncokb().getAnnotation().getHighestDiagnosticImplicationLevel().getValue(): "";
+    }
+
+    public String getHighestPrognosticImplicationLevel(VariantAnnotation gnResponse) {
+        return gnResponse.getOncokb().getAnnotation().getHighestPrognosticImplicationLevel() != null ? gnResponse.getOncokb().getAnnotation().getHighestPrognosticImplicationLevel().getValue(): "";
+    }
+
+    public String getHighestResistanceLevel(VariantAnnotation gnResponse) {
+        return gnResponse.getOncokb().getAnnotation().getHighestResistanceLevel() != null ? gnResponse.getOncokb().getAnnotation().getHighestResistanceLevel().getValue(): "";
+    }
+
+    public String getHighestSensitiveLevel(VariantAnnotation gnResponse) {
+        return gnResponse.getOncokb().getAnnotation().getHighestSensitiveLevel() != null ? gnResponse.getOncokb().getAnnotation().getHighestSensitiveLevel().getValue(): "";
+    }
+
 
     public String getGenomeNexusOriginalChromosome(MutationRecord mRecord) {
         return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome") : mRecord.getCHROMOSOME();
@@ -475,7 +513,7 @@ public class AnnotationUtil {
     public String getGenomeNexusOriginalTumorSeqAllele2(MutationRecord mRecord) {
         return !Strings.isNullOrEmpty(mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2")) ? mRecord.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele2") : mRecord.getTUMOR_SEQ_ALLELE2();
     }
-
+    
 
     private String parseDoubleAsString(Double value) {
         return value != null ? String.valueOf(value)  : "";

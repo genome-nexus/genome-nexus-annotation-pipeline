@@ -4,3 +4,4 @@ genomenexus.base=https://www.genomenexus.org
 genomenexus.isoform_query_parameter=isoformOverrideSource
 genomenexus.enrichment_fields=annotation_summary
 chunk=10
+oncokb.token=
