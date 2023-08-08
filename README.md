@@ -179,7 +179,7 @@ Available enrichment fields:
     - 'mutation_assessor' provides V3 version annotation from Mutation Assessor, which is currently stored in Genome Nexus database
 - nucleotide_context
 - oncokb:
-    - 'oncokb' provides biological and clinical information from OncoKB website. OncoKB token is required (see more information from: [https://www.oncokb.org/apiAccess](https://www.oncokb.org/apiAccess)). Please provide your token in  `application.properties` in the format of `{"oncokb":"put-your-oncokb-token-here"}`. Token parameter in command line will be supported in the future.
+    - 'oncokb' provides annotations of the biological consequences and clinical implications from OncoKB website. OncoKB token is required (see more information from: [https://www.oncokb.org/apiAccess](https://www.oncokb.org/apiAccess)). Please provide your token in  `application.properties` in the format of `oncokb.token=abc123`. Token parameter in command line will be supported in the future.
 
 ### Minimal MAF Example
 
