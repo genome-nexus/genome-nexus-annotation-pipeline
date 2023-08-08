@@ -125,61 +125,61 @@ Make sure to adjust the file paths according to your specific requirements. Once
 |Protein_position|VEP||
 |Codons|VEP||
 |Exon_Number|VEP||
-|gnomAD_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
-|gnomAD_AFR_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
-|gnomAD_AMR_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
-|gnomAD_ASJ_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
-|gnomAD_EAS_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
-|gnomAD_FIN_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
-|gnomAD_NFE_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
-|gnomAD_OTH_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
-|gnomAD_SAS_AF|myvariant.info|Need to add "my_variant_info" in "enrichment_fields"|
-|MA:FIS|Mutation Assessor|Need to add "mutation_assessor" in "enrichment_fields"|
-|MA:FImpact|Mutation Assessor|Need to add "mutation_assessor" in "enrichment_fields"|
-|MA:link.MSA|Mutation Assessor|Need to add "mutation_assessor" in "enrichment_fields"|
-|MA:link.PDB|Mutation Assessor|Need to add "mutation_assessor" in "enrichment_fields"|
-|Polyphen_Prediction|Polyphen|Need to add "polyphen" in "enrichment_fields|
-|Polyphen_Score|Polyphen|Need to add "polyphen" in "enrichment_fields|
-|SIFT_Prediction|SIFT|Need to add "sift" in "enrichment_fields|
-|SIFT_Score|SIFT|Need to add "sift" in "enrichment_fields|
-|Ref_Tri||Need to add "nucleotide_context" in "enrichment_field|
-|Var_Tri||Need to add "nucleotide_context" in "enrichment_field|
-|oncokb_geneExist|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-|oncokb_highestDXLevel|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-|oncokb_highestPXLevel|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|                                                                                                    |
-|oncokb_highestResistanceLevel|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| oncokb_highestSensitiveLevel |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| oncokb_mutationEffect|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-|oncokb_mutationEffectCitations|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| oncokb_oncogenic|OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-| oncokb_variantExist   |OncoKb|Need to add "oncokb" in "enrichment_fields" and provide your OncoKB token in `application.properties`|
-|Annotation_Status|||
+|gnomAD_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+|gnomAD_AFR_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+|gnomAD_AMR_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+|gnomAD_ASJ_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+|gnomAD_EAS_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+|gnomAD_FIN_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+|gnomAD_NFE_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+|gnomAD_OTH_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+|gnomAD_SAS_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+|MA:FIS|Mutation Assessor|Need to add "mutation_assessor" in "genomenexus.enrichment_fields"|
+|MA:FImpact|Mutation Assessor|Need to add "mutation_assessor" in genomenexus.enrichment_fields"|
+|MA:link.MSA|Mutation Assessor|Need to add "mutation_assessor" in "genomenexus.enrichment_fields"|
+|MA:link.PDB|Mutation Assessor|Need to add "mutation_assessor" in "genomenexus.enrichment_fields"|
+|Polyphen_Prediction|Polyphen|Need to add "polyphen" in "genomenexus.enrichment_fields"|
+|Polyphen_Score|Polyphen|Need to add "polyphen" in "genomenexus.enrichment_fields"|
+|SIFT_Prediction|SIFT|Need to add "sift" in "genomenexus.enrichment_fields"|
+|SIFT_Score|SIFT|Need to add "sift" in "genomenexus.enrichment_fields"|
+|Ref_Tri||Need to add "nucleotide_context" in "genomenexus.enrichment_field"|
+|Var_Tri||Need to add "nucleotide_context" in "genomenexus.enrichment_field"|
+|oncokb_geneExist|OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+|oncokb_highestDXLevel|OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+|oncokb_highestPXLevel|OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+|oncokb_highestResistanceLevel|OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+| oncokb_highestSensitiveLevel |OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+| oncokb_mutationEffect|OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+|oncokb_mutationEffectCitations|OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+| oncokb_oncogenic|OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+| oncokb_variantExist   |OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+|Annotation_Status||FAILED / SUCCESS|
 
+
+### Add additional annotation columns
+Genome Nexus supports additional annotation columns with the setting of "enrichment_fields". The configuration for these enrichment fields is managed through the `application.properties` file, please refer to `Pre-build steps` section.
+To configure the enrichment fields, you need to include the desired field names from the provided list in the `-Dgenomenexus.enrichment_fields=` parameter of the command line, or directly add field names in `genomenexus.enrichment_fields=` in `application.properties` file. Multiple field names can be specified by separating them with commas. `annotation_summary` is highly recommended to add as default since it's crucial for lots of annotation fields.
 **Example**:
 ```
 java 
--Dgenomenexus.enrichment_fields=annotation_summary,my_variant_info
+-Dgenomenexus.enrichment_fields=annotation_summary,my_variant_info 
 -jar annotationPipeline/target/annotationPipeline-*.jar \ -r \ 
 --filename test/data/minimal_example.in.txt \ 
 --output-filename test/data/minimal_example.out.uniprot.txt \ 
 --isoform-override uniprot
 ```
-
-### Enrichment fields
-Genome Nexus supports additional enrichment fields to add more annotation columns. Enrichment fields setting is in `application.properties`, please refer to `Pre-build steps` section.
-To set enrichment fields, add fields name from the list below to `genomenexus.enrichment_fields=` and separate with `,`, `annotation_summary` is highly recommended to add as default since it's crucial for lots of annotation fields.
-Available enrichment fields:
+##### Available enrichment fields:
 - annotation_summary:
-    - 'annotation_summary' is required for most annotation fields
+    - This field is essential for most annotation processes.
 - my_variant_info
-    - 'my_variant_info' provides gnomAD information. Genome Nexus cached static myvariant.info annotation into database. If you add 'my_variant_info' in enrichment_fields, Genome Nexus search myvariant.info cache from databas for existing variants. For new variants, Genome Nexus fetch from myvariant.info and save into database.
+    - This field provides gnomAD information. Genome Nexus caches static myvariant.info annotation into database.  Upon adding `my_variant_info` to the `enrichment_fields`, Genome Nexus will query the existing variant information from the myvariant.info cache within the database for relevant variants. For new variants, Genome Nexus will retrieve the data from myvariant.info and store it in the database.
 - polyphen
 - sift
 - mutation_assessor
     - 'mutation_assessor' provides V3 version annotation from Mutation Assessor, which is currently stored in Genome Nexus database
 - nucleotide_context
 - oncokb:
-    - 'oncokb' provides annotations of the biological consequences and clinical implications from OncoKB website. OncoKB token is required (see more information from: [https://www.oncokb.org/apiAccess](https://www.oncokb.org/apiAccess)). Please provide your token in  `application.properties` in the format of `oncokb.token=abc123`. Token parameter in command line will be supported in the future.
+    - 'oncokb' provides annotations of the biological consequences and clinical implications from OncoKB website. OncoKB token is required (see more information from: [https://www.oncokb.org/apiAccess](https://www.oncokb.org/apiAccess)). Please also provide your token in `-Doncokb.token=abc123` command line parameter, or directly add `oncokb.token=abc123`in the `application.properties`. No OncoKB annotation columns will be added if no valid token is provided
 
 ### Minimal MAF Example
 
