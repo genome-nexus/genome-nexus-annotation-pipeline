@@ -118,6 +118,20 @@ public class GenomeNexusImpl implements Annotator {
         return (new Gson()).toJson(tokens);
     }
 
+    private List<String> queryFields() {
+        // Only need to send a few resources field name in the query to Genome Nexus server
+        // Other annotation enrichment (e.g. sift) can be resolved by vep response
+        List<String> validFields = Arrays.asList("annotation_summary", "my_variant_info", "mutation_assessor", "nucleotide_context", "oncokb");
+        List<String> enrichmentFieldsList = Arrays.asList(this.enrichmentFields.split(","));
+        List<String> fetchFieldList = new ArrayList<>();
+        for (String field : enrichmentFieldsList) {
+            if (validFields.contains(field)) {
+                fetchFieldList.add(field);
+            }
+        }
+        return fetchFieldList;
+    }
+
     private boolean annotationNeeded(MutationRecord record) {
         Map<String, String> additionalProperties = record.getAdditionalProperties();
         if (!additionalProperties.containsKey("HGVSp_Short")) {
@@ -141,7 +155,7 @@ public class GenomeNexusImpl implements Annotator {
             gnResponse = this.apiClient.fetchVariantAnnotationByGenomicLocationGET(genomicLocation,
                     isoformOverridesSource,
                     tokens,
-                    Arrays.asList(this.enrichmentFields.split(",")));
+                    queryFields());
         } catch (ApiException e) {
             // catch case where Genome Nexus Server is down
             // not logging here because if GN is down you could write out an arbitarily large logfile of "failures"
@@ -477,7 +491,7 @@ public class GenomeNexusImpl implements Annotator {
         String genomicLocation = parseGenomicLocationString(record);
         // TODO this is now handled by the API client, we don't really need this (keeping for logging purposes only)
         return genomeNexusBaseUrl + "annotation/genomic/" + genomicLocation + "?" +
-                isoformQueryParameter + "=" + isoformOverridesSource + "&fields=" + enrichmentFields;
+                isoformQueryParameter + "=" + isoformOverridesSource + "&fields=" + String.join(",", queryFields());
     }
 
 
@@ -599,7 +613,7 @@ public class GenomeNexusImpl implements Annotator {
             // Get annotations from Genome Nexus and log if server error (e.g VEP is down)
             try {
                  gnResponseList = apiClient.fetchVariantAnnotationByGenomicLocationPOST(partitionedList,
-                    isoformOverridesSource, tokens, Arrays.asList(this.enrichmentFields.split(",")));
+                    isoformOverridesSource, tokens, queryFields());
             } catch (Exception e) {
                 LOG.error("Annotation failed for ALL variants in this partition. " + e.getMessage());
             }
