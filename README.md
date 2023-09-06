@@ -45,7 +45,7 @@ Genome Nexus Annotation Pipeline is available on Docker: https://hub.docker.com/
 
 #### Usage instruction
 ```
-docker run -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master --filename /wd/input.txt  --output-filename /wd/output.txt
+docker run -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master java -jar /genome-nexus-annotation-pipeline/annotationPipeline/target/annotationPipeline.jar --filename /wd/input.txt  --output-filename /wd/output.txt
 ```
 - `-v ${PWD}:/wd`: This option maps the current working directory to a volume within the Docker container at the path `/wd`. This makes it possible for files in the host directory to be accessed and modified between container and host.
 - `--filename /wd/input.txt`: This option specifies the input file location at `/wd/input.txt`, which should be under the same directory as output file.
@@ -55,7 +55,7 @@ docker run -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master --filename /w
 #### View logging file
 To enable logging in the Genome Nexus Annotation Pipeline and access the log file, you need to mount your local path to view the log file locally. By default, the log file is stored at `/genome-nexus-annotation-pipeline/logs/genome-nexus-annotation-pipeline.log`. Use the following command as an example:
 ```
-docker run  -v ${PWD}:/wd -v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs gn-annotation-pipeline:master --filename  /wd/input.txt  --output-filename /wd/output.txt
+docker run  -v ${PWD}:/wd -v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs gn-annotation-pipeline:master java -jar /genome-nexus-annotation-pipeline/annotationPipeline/target/annotationPipeline.jar --filename  /wd/input.txt  --output-filename /wd/output.txt
 ```
 - `-v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs` flag mounts the logs directory inside the current working directory to the corresponding directory inside the Docker container.
 - Other flags are the same as above
