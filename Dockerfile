@@ -22,4 +22,4 @@ COPY annotationPipeline/src/main/resources/application.properties.EXAMPLE $GN_HO
 
 RUN apt-get update && apt-get install procps -y
 
-CMD ["java", "-jar", "/genome-nexus-annotation-pipeline/annotationPipeline/target/annotationPipeline.jar"]
+ENTRYPOINT ["java", "-jar", "/genome-nexus-annotation-pipeline/annotationPipeline/target/annotationPipeline.jar"]
