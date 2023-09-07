@@ -107,9 +107,9 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
         List<MutationRecord> mutationRecords = loadMutationRecordsFromMaf();
         if (!mutationRecords.isEmpty()) {
             if (postIntervalSize > 1) {
-                allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, replace, postIntervalSize, true, stripMatchingBases, ignoreOriginalGenomicLocation, addOriginalGenomicLocation);
+                allAnnotatedRecords = annotator.getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverride, true, postIntervalSize, true, stripMatchingBases, ignoreOriginalGenomicLocation, addOriginalGenomicLocation);
             } else {
-                allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, replace, true, stripMatchingBases, ignoreOriginalGenomicLocation, addOriginalGenomicLocation);
+                allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, true, true, stripMatchingBases, ignoreOriginalGenomicLocation, addOriginalGenomicLocation);
             }
             // if output-format option is supplied, we only need to convert its data into header
             if (outputFormat != null) {
