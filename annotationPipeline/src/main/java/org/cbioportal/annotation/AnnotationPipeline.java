@@ -257,8 +257,9 @@ public class AnnotationPipeline {
         try {
             annotateJob(args, subcommand.getOptionValue("filename"), subcommand.getOptionValue("output-filename"), outputFormat, subcommand.getOptionValue("isoform-override"),
                     subcommand.getOptionValue("error-report-location", ""),
-                    subcommand.hasOption("replace-symbol-entrez"), subcommand.getOptionValue("post-interval-size", "100"), subcommand.getOptionValue("strip-matching-bases", "all"), subcommand.hasOption("ignore-original-genomic-location"), subcommand.hasOption("add-original-genomic-location"));
+                    true, subcommand.getOptionValue("post-interval-size", "100"), subcommand.getOptionValue("strip-matching-bases", "all"), subcommand.hasOption("ignore-original-genomic-location"), subcommand.hasOption("add-original-genomic-location"));
             // When you change the default value of post-interval-size, do not forget to update MutationRecordReader.postIntervalSize accordingly
+            // "replace-symbol-entrez" is true by default
         } catch (Exception e) {
             throw new AnnotationFailedException(e);
         }
