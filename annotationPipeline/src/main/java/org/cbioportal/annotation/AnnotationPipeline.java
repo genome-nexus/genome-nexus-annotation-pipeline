@@ -67,7 +67,7 @@ public class AnnotationPipeline {
     private static final Logger LOG = LoggerFactory.getLogger(AnnotationPipeline.class);
 
     private static void annotateJob(String[] args, String filename, String outputFilename, String outputFormat, String isoformOverride,
-                                    String errorReportLocation, boolean replace, String postIntervalSize, String stripMatchingBases, Boolean ignoreOriginalGenomicLocation, Boolean addOriginalGenomicLocation) throws Exception {
+                                    String errorReportLocation, boolean replace, String postIntervalSize, String stripMatchingBases, Boolean ignoreOriginalGenomicLocation, Boolean addOriginalGenomicLocation, Boolean noteColumn) throws Exception {
         SpringApplication app = new SpringApplication(AnnotationPipeline.class);
         app.setWebApplicationType(WebApplicationType.NONE);
         app.setAllowBeanDefinitionOverriding(Boolean.TRUE);
@@ -86,6 +86,7 @@ public class AnnotationPipeline {
             .addString("stripMatchingBases", stripMatchingBases)
             .addString("ignoreOriginalGenomicLocation", String.valueOf(ignoreOriginalGenomicLocation))
             .addString("addOriginalGenomicLocation", String.valueOf(addOriginalGenomicLocation))
+            .addString("noteColumn", String.valueOf(noteColumn))
             .toJobParameters();
         JobExecution jobExecution = jobLauncher.run(annotationJob, jobParameters);
         if (!jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
@@ -257,7 +258,7 @@ public class AnnotationPipeline {
         try {
             annotateJob(args, subcommand.getOptionValue("filename"), subcommand.getOptionValue("output-filename"), outputFormat, subcommand.getOptionValue("isoform-override"),
                     subcommand.getOptionValue("error-report-location", ""),
-                    true, subcommand.getOptionValue("post-interval-size", "100"), subcommand.getOptionValue("strip-matching-bases", "all"), subcommand.hasOption("ignore-original-genomic-location"), subcommand.hasOption("add-original-genomic-location"));
+                    true, subcommand.getOptionValue("post-interval-size", "100"), subcommand.getOptionValue("strip-matching-bases", "all"), subcommand.hasOption("ignore-original-genomic-location"), subcommand.hasOption("add-original-genomic-location"), subcommand.hasOption("note-column"));
             // When you change the default value of post-interval-size, do not forget to update MutationRecordReader.postIntervalSize accordingly
             // "replace-symbol-entrez" is true by default
         } catch (Exception e) {

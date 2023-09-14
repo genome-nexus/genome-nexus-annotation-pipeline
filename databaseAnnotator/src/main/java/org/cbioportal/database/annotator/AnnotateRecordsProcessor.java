@@ -66,6 +66,9 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
     @Value("#{jobParameters[addOriginalGenomicLocation]}")
     private Boolean addOriginalGenomicLocation;
 
+    @Value("#{jobParameters[noteColumn]}")
+    private Boolean noteColumn;
+
     @Autowired
     Annotator annotator;
 
@@ -98,7 +101,7 @@ public class AnnotateRecordsProcessor implements ItemProcessor<MutationEvent, Mu
         MutationRecord record = annotator.createRecord(mafLine);
         AnnotatedRecord annotatedRecord;
         try {
-            annotatedRecord = annotator.annotateRecord(record, true, isoform, true, stripMatchingBases, ignoreOriginalGenomicLocation, addOriginalGenomicLocation);
+            annotatedRecord = annotator.annotateRecord(record, true, isoform, true, stripMatchingBases, ignoreOriginalGenomicLocation, addOriginalGenomicLocation, noteColumn);
         }
         catch (GenomeNexusAnnotationFailureException ex1) {
             LOG.warn("Failed to annotate record: " + ex1.getMessage());
