@@ -520,8 +520,8 @@ public class GenomeNexusImpl implements Annotator {
         GenomicLocation genomicLocation = new GenomicLocation();
         if (ignoreOriginalGenomicLocation) {
             genomicLocation.setChromosome(record.getCHROMOSOME());
-            genomicLocation.setStart(Integer.valueOf(record.getSTART_POSITION()));
-            genomicLocation.setEnd(Integer.valueOf(record.getEND_POSITION()));
+            genomicLocation.setStart(Strings.isNullOrEmpty(record.getSTART_POSITION()) ? null : Integer.valueOf(record.getSTART_POSITION()));
+            genomicLocation.setEnd(Strings.isNullOrEmpty(record.getEND_POSITION()) ? null : Integer.valueOf(record.getEND_POSITION()));
             genomicLocation.setReferenceAllele(record.getREFERENCE_ALLELE());
             genomicLocation.setVariantAllele(MafUtil.resolveTumorSeqAllele(record.getREFERENCE_ALLELE(),
                     record.getTUMOR_SEQ_ALLELE1(),
@@ -531,8 +531,8 @@ public class GenomeNexusImpl implements Annotator {
             // Try to get data from original genomic location info columns
             // If those columns not exist, get from genomic location input columns instead
             genomicLocation.setChromosome(Strings.isNullOrEmpty(record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome")) ? record.getCHROMOSOME() : record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Chromosome"));
-            genomicLocation.setStart(Strings.isNullOrEmpty(record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Start_Position")) ? Integer.valueOf(record.getSTART_POSITION()) : Integer.valueOf(record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Start_Position")));
-            genomicLocation.setEnd(Strings.isNullOrEmpty(record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_End_Position")) ? Integer.valueOf(record.getEND_POSITION()) : Integer.valueOf(record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_End_Position")));
+            genomicLocation.setStart(parsePosition(record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Start_Position"), record.getSTART_POSITION()));
+            genomicLocation.setEnd(parsePosition(record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_End_Position"), record.getEND_POSITION()));
             genomicLocation.setReferenceAllele(Strings.isNullOrEmpty(record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Reference_Allele")) ? record.getREFERENCE_ALLELE() : record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Reference_Allele"));
             genomicLocation.setVariantAllele(MafUtil.resolveTumorSeqAllele(genomicLocation.getReferenceAllele(),
             Strings.isNullOrEmpty(record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1")) ? record.getTUMOR_SEQ_ALLELE1() : record.getAdditionalProperties().get("IGNORE_Genome_Nexus_Original_Tumor_Seq_Allele1"),
@@ -541,12 +541,26 @@ public class GenomeNexusImpl implements Annotator {
         return genomicLocation;
     }
 
+    public Integer parsePosition(String originalPosition, String inputPosition) {
+        if (Strings.isNullOrEmpty(originalPosition)) {
+            if (inputPosition.length() == 0) {
+                return null;
+            }
+            else {
+                return Integer.valueOf(inputPosition);
+            }
+        }
+        else {
+            return Integer.valueOf(originalPosition);
+        }
+    }
+    
     public String parseGenomicLocationString(MutationRecord record, Boolean ignoreOriginalGenomicLocation) {
         GenomicLocation genomicLocation = parseGenomicLocationFromRecord(record, ignoreOriginalGenomicLocation);
         return StringUtils.join(new String[]{
             genomicLocation.getChromosome(),
-            genomicLocation.getStart().toString(),
-            genomicLocation.getEnd().toString(),
+            genomicLocation.getStart() != null ? genomicLocation.getStart().toString() : "",
+            genomicLocation.getEnd() != null ? genomicLocation.getEnd().toString() : "",
             genomicLocation.getReferenceAllele(),
             genomicLocation.getVariantAllele()},
                 ",");
@@ -556,8 +570,8 @@ public class GenomeNexusImpl implements Annotator {
         GenomicLocation genomicLocation = parseGenomicLocationFromRecord(record, false);
         return StringUtils.join(new String[]{
             genomicLocation.getChromosome(),
-            genomicLocation.getStart().toString(),
-            genomicLocation.getEnd().toString(),
+            genomicLocation.getStart() != null ? genomicLocation.getStart().toString() : "",
+            genomicLocation.getEnd() != null ? genomicLocation.getEnd().toString() : "",
             genomicLocation.getReferenceAllele(),
             genomicLocation.getVariantAllele()},
                 ",");

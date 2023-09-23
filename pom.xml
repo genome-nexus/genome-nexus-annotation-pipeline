@@ -115,12 +115,12 @@
     <dependency>
       <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
       <artifactId>genomeNexusPublicApiClient</artifactId>
-      <version>0f319c652c311a3839f304ad812738aaa83f10c3</version>
+      <version>7128635f2704eb9ebe9c3062770f748ab4127003</version>
     </dependency>
     <dependency>
       <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
       <artifactId>genomeNexusInternalApiClient</artifactId>
-      <version>0f319c652c311a3839f304ad812738aaa83f10c3</version>
+      <version>7128635f2704eb9ebe9c3062770f748ab4127003</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>

@@ -89,7 +89,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
     @Value("#{jobParameters[addOriginalGenomicLocation] ?: 'false'}")
     private Boolean addOriginalGenomicLocation;
 
-    @Value("#{jobParameters[noteColumn] ?: 'false'}")
+    @Value("#{jobParameters[noteColumn] ?: 'true'}")
     private Boolean noteColumn;
 
     private AnnotationSummaryStatistics summaryStatistics;
