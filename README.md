@@ -34,11 +34,7 @@ To use it, build the project using maven and run it like so:
         --output-filename <OUTPUT DESTINATION> \
         --isoform-override <mskcc or uniprot>
     
-You can choose to replace the gene symbols in the new maf by the gene symbols
-found by Genome Nexus by supplying the `-r` optional parameter. To output error
-reporting to a file, supply the `-e` option a location for the file to be
-saved. By running the jar without any arguments or by providing the optional
-parameter `-h` you can view the full usage statement. 
+To output error reporting to a file, supply the `-e` option a location for the file to be saved. By running the jar without any arguments or by providing the optional parameter `-h` you can view the full usage statement. 
 
 ## Annotate data with Docker
 Genome Nexus Annotation Pipeline is available on Docker: https://hub.docker.com/r/genomenexus/gn-annotation-pipeline.
@@ -71,7 +67,7 @@ Make sure to adjust the file paths according to your specific requirements. Once
 | `-t` | `--output-format`  | extended, minimal or a file path which includes output format (FORMAT EXAMPLE: Chromosome,Hugo_Symbol,Entrez_Gene_Id,Center,NCBI_Build)|
 | `-i` | `--isoform-override` | Isoform Overrides. Options: mskcc or uniprot|
 | `-e` | `--error-report-location` | Error report filename (including path)|
-| `-r` | `--replace-symbol-entrez` | Replace gene symbols and entrez id with what is provided by annotator"|
+| `-r` | `--replace-symbol-entrez` | Replace gene symbols and entrez id with what is provided by annotator, this is enabled by default|
 | `-p` | `--post-interval-size` | Number of records to make POST requests to Genome Nexus with at a time |
 | `-s` | `--strip-matching-bases` | Strip matching allele bases. Options: first, all, none. For example: AAC/AAT, strip-off first: AC/AT, strip-off all: C/T, strip-off none: AAC/AAT  |
 | `-a` | `--add-original-genomic-location` | Add original genomic location data columns into the output, name columns with prefix 'IGNORE_Genome_Nexus_Original_'). This would be useful if saving a reference of original input is needed and won't be changed in any condition|

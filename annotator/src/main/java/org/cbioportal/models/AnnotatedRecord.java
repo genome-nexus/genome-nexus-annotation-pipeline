@@ -64,6 +64,7 @@ public class AnnotatedRecord extends MutationRecord {
     protected String gnomadAlleleFrequencyOTH;
     protected String gnomadAlleleFrequencySAS;
     protected String annotationStatus;
+    protected String errorMessage;
 
     public AnnotatedRecord() {
         addAnnotatedFieldsToHeader();
@@ -325,6 +326,10 @@ public class AnnotatedRecord extends MutationRecord {
 
     }
 
+    public void setGenomicLocationExplanation(String genomicLocationExplanation) {
+        addAdditionalProperty("genomic_location_explanation", genomicLocationExplanation);
+    }
+
     public String getHGVSC() {
         return this.hgvsc;
     }
@@ -483,6 +488,14 @@ public class AnnotatedRecord extends MutationRecord {
 
     public void setANNOTATION_STATUS(String annotationStatus) {
         this.annotationStatus = annotationStatus;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     private void addAnnotatedFieldsToHeader() {

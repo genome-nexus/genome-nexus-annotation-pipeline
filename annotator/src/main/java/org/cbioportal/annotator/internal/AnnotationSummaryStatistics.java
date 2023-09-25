@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AnnotationSummaryStatistics {
 private final List<String> ERROR_FILE_HEADER = Arrays.asList("SAMPLE_ID", "CHR", "START",
-        "END", "REF", "ALT", "VARIANT_CLASSIFICATION",
+        "END", "REF", "Tumor_Seq_Allele1", "Tumor_Seq_Allele2", "VARIANT_CLASSIFICATION",
         "FAILURE_REASON", "URL");
     private final String AMBIGUOUS_ALLELE_ERROR_MESSAGE = "Record contains ambiguous SNP and INDEL allele change - SNP allele will be used";
     private final String NULL_VAR_CLASSIFICATION_ERROR_MESSGAE = "Record contains null HGVSp variant classification";
@@ -146,7 +146,7 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList("SAMPLE_ID", "CHR",
                 this.failedAnnotatedRecordsErrorMessages.add(
                         constructErrorMessageFromRecord(record,
                                 record.getVARIANT_CLASSIFICATION(),
-                                UNKNOWN_ANNOTATION_ERROR_MESSAGE,
+                                UNKNOWN_ANNOTATION_ERROR_MESSAGE + ";" + annotatedRecord.getErrorMessage(),
                                 annotator.getUrlForRecord(record, isoformOverride))
                 );
                 failedAnnotation = Boolean.TRUE;

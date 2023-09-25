@@ -146,7 +146,7 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
             throw new RuntimeException(e);
         }
 
-        return convertResponseToAnnotatedRecord(gnResponse, record, REPLACE, stripMatchingBases, true, false);
+        return convertResponseToAnnotatedRecord(gnResponse, record, REPLACE, stripMatchingBases, true, false, false);
     }
 
     public AnnotatedRecord makeMockPOSTAnnotatedRecord(MutationRecord record) {
@@ -158,7 +158,7 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
             throw new RuntimeException(e);
         }
 
-        return convertResponseToAnnotatedRecord(gnResponse, record, REPLACE, stripMatchingBases, true, false);
+        return convertResponseToAnnotatedRecord(gnResponse, record, REPLACE, stripMatchingBases, true, false, false);
     }
 
     public AnnotatedRecord makeMockMyVariantInfoAnnotatedRecord(MutationRecord record) {
@@ -170,7 +170,7 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
             throw new RuntimeException(e);
         }
 
-        return convertResponseToAnnotatedRecord(gnResponse, record, REPLACE, stripMatchingBases, true, false);
+        return convertResponseToAnnotatedRecord(gnResponse, record, REPLACE, stripMatchingBases, true, false, false);
     }
 
     private VariantAnnotation makeMockGenomeNexusResponse(String mockReturnJsonString) throws IOException {

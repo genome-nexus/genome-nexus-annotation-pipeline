@@ -68,7 +68,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(false))
+                .addString("replace", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .addString("errorReportLocation", null)
                 .toJobParameters();
@@ -85,7 +85,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(false))
+                .addString("replace", String.valueOf(true))
                 .addString("isoformOverride", "mskcc")
                 .addString("errorReportLocation", null)
                 .toJobParameters();
@@ -192,7 +192,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(false))
+                .addString("replace", String.valueOf(true))
                 .addString("isoformOverride", "mskcc")
                 .addString("errorReportLocation", null)
                 .toJobParameters();
@@ -214,7 +214,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(false))
+                .addString("replace", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .addString("errorReportLocation", null)
                 .toJobParameters();
@@ -248,7 +248,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(false))
+                .addString("replace", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .addString("errorReportLocation", null)
                 .toJobParameters();
