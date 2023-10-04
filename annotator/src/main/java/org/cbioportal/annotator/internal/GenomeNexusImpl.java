@@ -656,7 +656,7 @@ public class GenomeNexusImpl implements Annotator {
             AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
             // if not a failed annotation then convert/merge the response from gn with the maf record
             VariantAnnotation gnResponse = gnResponseVariantKeyMap.get(genomicLocation);
-            if (gnResponse == null) {
+            if (gnResponse == null || !gnResponse.isSuccessfullyAnnotated()) {
                 if(reannotate || annotationNeeded(record)) {
                     // only log if record actually attempted annotation
                     annotatedRecord.setANNOTATION_STATUS("FAILED");
