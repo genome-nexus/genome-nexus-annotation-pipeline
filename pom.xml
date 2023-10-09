@@ -80,7 +80,7 @@
     <dependency>
       <groupId>com.github.cbioportal.cbioportal</groupId>
       <artifactId>maf</artifactId>
-      <version>a9757e287527b167ef9569ac8f05fcb60cbf3665</version>
+      <version>ee5802d836c05ed846d7d1ea3f584febdc07ffa8</version>
       <exclusions>
         <exclusion>
           <groupId>ch.qos.logback</groupId>
