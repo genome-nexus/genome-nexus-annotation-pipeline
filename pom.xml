@@ -116,6 +116,12 @@
       <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
       <artifactId>genomeNexusPublicApiClient</artifactId>
       <version>7128635f2704eb9ebe9c3062770f748ab4127003</version>
+      <exclusions>  
+        <exclusion>
+          <groupId>com.squareup.okhttp</groupId>
+          <artifactId>okhttp</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
