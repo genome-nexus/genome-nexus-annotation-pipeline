@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016, 2024 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -67,30 +67,37 @@ public class AnnotationPipeline {
     private static final Logger LOG = LoggerFactory.getLogger(AnnotationPipeline.class);
 
     private static void annotateJob(String[] args, String filename, String outputFilename, String outputFormat, String isoformOverride,
-                                    String errorReportLocation, boolean replace, String postIntervalSize, String stripMatchingBases, Boolean ignoreOriginalGenomicLocation, Boolean addOriginalGenomicLocation, Boolean noteColumn) throws Exception {
+                                    String errorReportLocation, boolean replace, String postIntervalSize, String stripMatchingBases,
+                                    Boolean ignoreOriginalGenomicLocation, Boolean addOriginalGenomicLocation, Boolean noteColumn) throws Exception {
         SpringApplication app = new SpringApplication(AnnotationPipeline.class);
         app.setWebApplicationType(WebApplicationType.NONE);
         app.setAllowBeanDefinitionOverriding(Boolean.TRUE);
         ConfigurableApplicationContext ctx = app.run(args);
         JobLauncher jobLauncher = ctx.getBean(JobLauncher.class);
-
         Job annotationJob = ctx.getBean(BatchConfiguration.ANNOTATION_JOB, Job.class);
-        JobParameters jobParameters = new JobParametersBuilder()
-            .addString("filename", filename)
-            .addString("outputFilename", outputFilename)
-            .addString("outputFormat", outputFormat)
-            .addString("replace", String.valueOf(replace))
-            .addString("isoformOverride", isoformOverride)
-            .addString("errorReportLocation", errorReportLocation)
-            .addString("postIntervalSize", postIntervalSize)
-            .addString("stripMatchingBases", stripMatchingBases)
-            .addString("ignoreOriginalGenomicLocation", String.valueOf(ignoreOriginalGenomicLocation))
-            .addString("addOriginalGenomicLocation", String.valueOf(addOriginalGenomicLocation))
-            .addString("noteColumn", String.valueOf(noteColumn))
-            .toJobParameters();
+        JobParametersBuilder jobParametersBuilder = new JobParametersBuilder();
+        addJobParameterIfValueIsNotNull(jobParametersBuilder, "filename", filename);
+        addJobParameterIfValueIsNotNull(jobParametersBuilder, "outputFilename", outputFilename);
+        addJobParameterIfValueIsNotNull(jobParametersBuilder, "outputFormat", outputFormat);
+        addJobParameterIfValueIsNotNull(jobParametersBuilder, "replace", String.valueOf(replace));
+        addJobParameterIfValueIsNotNull(jobParametersBuilder, "isoformOverride", isoformOverride);
+        addJobParameterIfValueIsNotNull(jobParametersBuilder, "errorReportLocation", errorReportLocation);
+        addJobParameterIfValueIsNotNull(jobParametersBuilder, "postIntervalSize", postIntervalSize);
+        addJobParameterIfValueIsNotNull(jobParametersBuilder, "stripMatchingBases", stripMatchingBases);
+        addJobParameterIfValueIsNotNull(jobParametersBuilder, "ignoreOriginalGenomicLocation", String.valueOf(ignoreOriginalGenomicLocation));
+        addJobParameterIfValueIsNotNull(jobParametersBuilder, "ignoreOriginalGenomicLocation", String.valueOf(addOriginalGenomicLocation));
+        addJobParameterIfValueIsNotNull(jobParametersBuilder, "noteColumn", String.valueOf(noteColumn));
+        JobParameters jobParameters = jobParametersBuilder.toJobParameters();
         JobExecution jobExecution = jobLauncher.run(annotationJob, jobParameters);
         if (!jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
             System.exit(2);
+        }
+    }
+
+    // in Spring Batch 5.x, null valued JobParameters are not allowed. (java.lang.IllegalArgumentException: value must not be null)
+    private static void addJobParameterIfValueIsNotNull(JobParametersBuilder jobParametersBuilder, String key, String jobParameter) {
+        if (jobParameter != null && !jobParameter.trim().isEmpty()) {
+            jobParametersBuilder.addString(key, jobParameter);
         }
     }
 
@@ -219,7 +226,7 @@ public class AnnotationPipeline {
             subcommand.printHelp();
             throw new AnnotationFailedException("required option: output-filename");
         }
-        String outputFormat = null;
+        String outputFormat = "";
         if (subcommand.hasOption("output-format")) {
             String outputFormatFile = subcommand.getOptionValue("output-format");
             if ("extended".equals(outputFormatFile)) {

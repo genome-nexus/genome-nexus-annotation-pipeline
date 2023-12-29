@@ -204,26 +204,14 @@ The output file was generated with:
 
 
 ## Direct Database Annotation
-If you have data already loaded into a cBioPortal database but did not properly
-annotate it or discovered issues later, you can use the `databaseAnnotator`
-utility to fix it.
-
-You will need to specify some database connection parameters inside the
-`application.properties` file located in
-`databaseAnnotator/src/main/resources`. Once this is done, build the project
-using maven and run like so:
-
-    $JAVA_HOME/bin/java -jar databaseAnnotator/target/databaseAnnotator-*.jar \
-        --isoform <mskcc or uniprot>
-
-As with the above tool, running the jar without any arguments or by providing
-the optional parameter `-h` will bring up the full usage statement. You can
-also specify a single study or set of studies to annotate by using the
-`--studies` parameter.
+There used to be a utility/module called databaseAnnotator which could be
+used to annotate database records which were already loaded into a
+cBioPortal database. This module was not being maintained and has been
+removed (code is still reachable through git history).
 
 ## Annotator
 The `annotator` module is the client code that makes calls to the Genome Nexus
-server and interprets the response. The other two modules use this as a
+server and interprets the response. The `annotationPipeline` module uses this as a
 dependency.
 
 ## Updating the Genome Nexus Annotation Pipeline

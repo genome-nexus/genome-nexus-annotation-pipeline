@@ -98,7 +98,7 @@ public class MutationRecordWriter implements ItemStreamWriter<String> {
     }
 
     @Override
-    public void write(List<? extends String> items) throws Exception {
+    public void write(Chunk<? extends String> items) throws Exception {
         if (recordsToWriteCount > 0) {
             flatFileItemWriter.write(items);
         }

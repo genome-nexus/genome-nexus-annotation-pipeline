@@ -14,21 +14,21 @@
   <modules>
     <module>annotationPipeline</module>
     <module>annotator</module>
-    <module>databaseAnnotator</module>
   </modules>
 
   <!-- inherit defaults from spring boot -->
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.3.3.RELEASE</version>
+    <version>3.1.4</version>
   </parent>
 
   <properties>
-    <java.version>11</java.version>
+    <java.version>21</java.version>
     <slf4j.version>1.7.30</slf4j.version>
-    <spring.version>5.2.6.RELEASE</spring.version>
-    <jackson.version>2.11.2</jackson.version>
+    <spring.version>6.0.12</spring.version>
+    <jackson.version>2.14.3</jackson.version>
+    <mockito.version>5.10.0</mockito.version>
   </properties>
 
   <dependencies>
@@ -77,21 +77,6 @@
       <artifactId>guava</artifactId>
       <version>29.0-jre</version>
     </dependency>
-    <dependency>
-      <groupId>com.github.cbioportal.cbioportal</groupId>
-      <artifactId>maf</artifactId>
-      <version>ee5802d836c05ed846d7d1ea3f584febdc07ffa8</version>
-      <exclusions>
-        <exclusion>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-classic</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
     <!-- spring embedded datasource for testing -->
     <dependency>
       <groupId>com.h2database</groupId>
@@ -108,7 +93,7 @@
     <dependency>
       <groupId>org.junit.vintage</groupId>
       <artifactId>junit-vintage-engine</artifactId>
-      <version>5.6.2</version>
+      <version>5.10.1</version>
       <scope>test</scope>
     </dependency>
     <!-- api client -->
@@ -123,29 +108,15 @@
       <version>7128635f2704eb9ebe9c3062770f748ab4127003</version>
     </dependency>
     <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>4.6.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-inline</artifactId>
-      <version>4.6.1</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy-dep -->
-    <dependency>
-      <groupId>net.bytebuddy</groupId>
-      <artifactId>byte-buddy-dep</artifactId>
-      <version>1.12.10</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy-agent -->
-    <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy-agent</artifactId>
-      <version>1.12.10</version>
+      <version>1.14.10</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy</artifactId>
+      <version>1.14.10</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

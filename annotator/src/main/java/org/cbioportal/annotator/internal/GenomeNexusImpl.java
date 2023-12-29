@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2020 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 - 2024 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -67,7 +67,7 @@ import org.cbioportal.annotator.util.AnnotationUtil;
  *
  */
 
-@Configuration
+@Configuration(enforceUniqueMethods=false)
 public class GenomeNexusImpl implements Annotator {
 
     @Value("${genomenexus.base:https://www.genomenexus.org}")

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2020 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 - 2024 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -66,7 +66,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
     private String filename;
 
     @Value("#{jobParameters[replace]}")
-    private boolean replace;
+    private Boolean replace;
 
     @Value("#{jobParameters[isoformOverride]}")
     private String isoformOverride;
@@ -115,7 +115,7 @@ public class MutationRecordReader implements ItemStreamReader<AnnotatedRecord> {
                 allAnnotatedRecords = annotator.annotateRecordsUsingGET(summaryStatistics, mutationRecords, isoformOverride, replace, true, stripMatchingBases, ignoreOriginalGenomicLocation, addOriginalGenomicLocation, noteColumn);
             }
             // if output-format option is supplied, we only need to convert its data into header
-            if (outputFormat != null) {
+            if (outputFormat != null && !outputFormat.equals("")) {
                 if ("extended".equals(outputFormat)) {
                     header.addAll(ExtendedMafFormat.headers);
                 } else if ("minimal".equals(outputFormat)) {

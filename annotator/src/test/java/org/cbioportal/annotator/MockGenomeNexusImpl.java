@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 - 2020 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2018 - 2024 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -64,7 +64,7 @@ import org.springframework.context.annotation.*;
  *
  * @author ochoaa
  */
-@Configuration
+@Configuration(enforceUniqueMethods=false)
 public class MockGenomeNexusImpl extends GenomeNexusImpl {
 
     private final boolean REPLACE = false;
