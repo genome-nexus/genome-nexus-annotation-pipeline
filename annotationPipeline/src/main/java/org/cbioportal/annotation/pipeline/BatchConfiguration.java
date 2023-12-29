@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 - 2024 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -36,37 +36,33 @@ import org.cbioportal.annotator.util.AnnotationUtil;
 import org.cbioportal.models.AnnotatedRecord;
 
 import org.springframework.batch.core.*;
-import org.springframework.batch.item.*;
 import org.springframework.batch.core.configuration.annotation.*;
-import org.springframework.context.annotation.*;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.*;
+import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  * @author Zachary Heins
  */
 @Configuration
-@EnableBatchProcessing
 @ComponentScan(basePackages="org.cbioportal.annotator")
 public class BatchConfiguration
 {
     public static final String ANNOTATION_JOB = "annotationJob";
 
-    @Autowired
-    public JobBuilderFactory jobBuilderFactory;
-
-    @Autowired
-    public StepBuilderFactory stepBuilderFactory;
-
     @Value("${chunk:1000000}")
-    private String chunk;
+    private String chunkSize;
 
     @Bean
-    public Job annotationJob()
+    public Job annotationJob(JobRepository jobRepository, Step step)
     {
-        return jobBuilderFactory.get(ANNOTATION_JOB)
-            .start(step())
+        return new JobBuilder(ANNOTATION_JOB, jobRepository)
+            .start(step)
             .build();
     }
 
@@ -76,10 +72,10 @@ public class BatchConfiguration
     }
 
     @Bean
-    public Step step()
+    public Step step(JobRepository jobRepository, PlatformTransactionManager transactionManager)
     {
-        return stepBuilderFactory.get("step")
-            .<AnnotatedRecord, String> chunk(Integer.parseInt(chunk))
+        return new StepBuilder("step", jobRepository)
+            .<AnnotatedRecord, String> chunk(Integer.parseInt(chunkSize), transactionManager)
             .reader(reader())
             .processor(processor())
             .writer(writer())
