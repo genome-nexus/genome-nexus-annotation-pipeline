@@ -73,6 +73,17 @@ Make sure to adjust the file paths according to your specific requirements. Once
 | `-a` | `--add-original-genomic-location` | Add original genomic location data columns into the output, name columns with prefix 'IGNORE_Genome_Nexus_Original_'). This would be useful if saving a reference of original input is needed and won't be changed in any condition|
 | `-d` | `--ignore-original-location` | Genome-nexus-annotation-pipeline reads original genomic location info as input by default, if not existing, reading from normal genomic location info columns. Adding `-d` ignores original genomic location info columns (columns with prefix 'IGNORE_Genome_Nexus_Original_') and only use whatever in normal genomic location info columns. This would be helpful if you'd like to stick with current genomic location info columns.|
 
+### Reference Genome
+The Genome Nexus Annotation Pipeline supports two versions of the human genome reference assembly: **GRCh37** and **GRCh38**.
+By default, the pipeline uses **GRCh37**. 
+#### Using GRCh38
+
+If you want to annotate with **GRCh38**, please set the `GENOMENEXUS_BASE` environment variable to `https://grch38.genomenexus.org`. Here's an example of how to do this:
+
+```
+docker run -e GENOMENEXUS_BASE=https://grch38.genomenexus.org -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:latest --filename /wd/input.txt  --output-filename /wd/output.txt --isoform-override uniprot
+```
+
 ### Annotation fields
 | Field | Source | Note |
 | --| -- | -- |
