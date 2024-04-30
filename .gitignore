@@ -11,3 +11,5 @@ swagger-codegen-cli.jar
 *repository.sqlite
 annotationPipeline/data/output.txt
 /.idea/
+.sdkmanrc
+.vim/
