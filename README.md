@@ -1,62 +1,81 @@
 # Genome Nexus Annotation Pipeline
-These tools allow for annotation of genomic variants from a MAF for import into
+Annotation of genomic variants from a MAF for import into
 the cBioPortal using [Genome Nexus](http://genomenexus.org).
 
 ## MAF Annotation
 The `annotationPipeline` module is a command line tool to annotate a maf using genome nexus. 
 
-**Pre-build steps**
+## Build From Source
 
-Create your `application.properties`:
-
-```
+1. **Create `application.properties` file:**
+```sh
 cp annotationPipeline/src/main/resources/application.properties.EXAMPLE annotationPipeline/src/main/resources/application.properties
 ```
+> If you have your own installation of Genome Nexus, you can point to it by 
+> modifying the `genomenexus.base=<URL>` in `application.properties` 
 
-If you have your own
-installation of Genome Nexus, you can point to it by modifying the
-`application.properties` file located in
-`annotationPipeline/src/main/resources`.
+2. **Create `log4j.properties`:**
 
-Create your `log4j.properties`:
-
+```sh
+cp annotationPipeline/src/main/resources/log4j.properties.console.EXAMPLE annotationPipeline/src/main/resources/log4j.properties
 ```
+-OR-
+```sh
 cp annotationPipeline/src/main/resources/log4j.properties.EXAMPLE annotationPipeline/src/main/resources/log4j.properties
 ```
+> Copy either the console (stdout) or the file logger config
 
-Modify the property `log4j.appender.a.File` in your `log4j.properties` file to the desired log file path.
+> Modify the property `log4j.appender.a.File` in your `log4j.properties` file to the desired log file path
 
+## Build
+```sh
+mvn clean install
+```
+## Run Annotate
 To use it, build the project using maven and run it like so:
-    
-    mvn clean install
-    $JAVA_HOME/bin/java -jar annotationPipeline/target/annotationPipeline-*.jar \
-        --filename <INPUT_MAF> \
-        --output-filename <OUTPUT DESTINATION> \
-        --isoform-override <mskcc or uniprot>
-    
+```sh
+java -jar annotationPipeline/target/annotationPipeline-*.jar \
+    --filename <INPUT_MAF> \
+    --output-filename <OUTPUT DESTINATION> \
+    --isoform-override <mskcc or uniprot>
+```
+
 To output error reporting to a file, supply the `-e` option a location for the file to be saved. By running the jar without any arguments or by providing the optional parameter `-h` you can view the full usage statement. 
 
-## Annotate data with Docker
-Genome Nexus Annotation Pipeline is available on Docker: https://hub.docker.com/r/genomenexus/gn-annotation-pipeline.
+## Annotate with Docker
+Genome Nexus Annotation Pipeline is available on DockerHub: https://hub.docker.com/r/genomenexus/gn-annotation-pipeline.
 
 #### Usage instruction
 ```
-docker run -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master --filename /wd/input.txt  --output-filename /wd/output.txt
+docker pull genomenexus/gn-annotation-pipeline:master 
+```
+```
+docker run -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master java -jar annotationPipeline.jar --filename /wd/input.txt  --output-filename /wd/output.txt
 ```
 - `-v ${PWD}:/wd`: This option maps the current working directory to a volume within the Docker container at the path `/wd`. This makes it possible for files in the host directory to be accessed and modified between container and host.
 - `--filename /wd/input.txt`: This option specifies the input file location at `/wd/input.txt`, which should be under the same directory as output file.
-
 - `--output-filename /wd/output.txt`: This option specifies the output file where the annotated results will be saved. The file will be created at `/wd/output.txt`, which should be under the same directory as input file.
 
-#### View logging file
-To enable logging in the Genome Nexus Annotation Pipeline and access the log file, you need to mount your local path to view the log file locally. By default, the log file is stored at `/genome-nexus-annotation-pipeline/logs/genome-nexus-annotation-pipeline.log`. Use the following command as an example:
-```
-docker run  -v ${PWD}:/wd -v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs gn-annotation-pipeline:master --filename  /wd/input.txt  --output-filename /wd/output.txt
-```
-- `-v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs` flag mounts the logs directory inside the current working directory to the corresponding directory inside the Docker container.
-- Other flags are the same as above
+### Logging
+![Note]
+> Logging via docker has been changed to `stdout` by default.
 
-Make sure to adjust the file paths according to your specific requirements. Once the command is executed, the log file will be generated and stored in the logs directory within your local directory. 
+##### View logging file (if built with file logging config)
+To access the log file, you need to mount your local path to view the log file locally. 
+
+By default, the log file is stored at 
+`/genome-nexus-annotation-pipeline/logs/genome-nexus-annotation-pipeline.log`. 
+
+Use the following command as an example
+```
+docker run -v ${PWD}:/wd -v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs gn-annotation-pipeline:master java -jar annotationPipeline.jar --filename /wd/input.txt --output-filename /wd/output.txt
+```
+- `-v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs` flag mounts the current working directory to the corresponding log directory inside the Docker container.
+
+![Note]
+> Make sure to adjust the file paths according to your specific requirements. 
+> The log file will be generated and stored in the logs directory within 
+> your local directory. 
 
 ### Optional parameters
 | Short | Long | Description | 
@@ -74,14 +93,18 @@ Make sure to adjust the file paths according to your specific requirements. Once
 | `-d` | `--ignore-original-location` | Genome-nexus-annotation-pipeline reads original genomic location info as input by default, if not existing, reading from normal genomic location info columns. Adding `-d` ignores original genomic location info columns (columns with prefix 'IGNORE_Genome_Nexus_Original_') and only use whatever in normal genomic location info columns. This would be helpful if you'd like to stick with current genomic location info columns.|
 
 ### Reference Genome
-The Genome Nexus Annotation Pipeline supports two versions of the human genome reference assembly: **GRCh37** and **GRCh38**.
-By default, the pipeline uses **GRCh37**. 
-#### Using GRCh38
+The Genome Nexus Annotation Pipeline supports two versions of the human genome reference assembly: 
+1. **GRCh37** (default)
+2. **GRCh38**
 
+![NOTE]
+> By default, the pipeline uses **GRCh37**. 
+
+#### Using GRCh38
 If you want to annotate with **GRCh38**, please set the `GENOMENEXUS_BASE` environment variable to `https://grch38.genomenexus.org`. Here's an example of how to do this:
 
 ```
-docker run -e GENOMENEXUS_BASE=https://grch38.genomenexus.org -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:latest --filename /wd/input.txt  --output-filename /wd/output.txt --isoform-override uniprot
+docker run -e GENOMENEXUS_BASE=https://grch38.genomenexus.org -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master --filename /wd/input.txt --output-filename /wd/output.txt --isoform-override uniprot
 ```
 
 ### Annotation fields
@@ -165,15 +188,17 @@ docker run -e GENOMENEXUS_BASE=https://grch38.genomenexus.org -v ${PWD}:/wd geno
 
 ### Add additional annotation columns
 Genome Nexus supports additional annotation columns with the setting of "enrichment_fields". The configuration for these enrichment fields is managed through the `application.properties` file, please refer to `Pre-build steps` section.
+
 To configure the enrichment fields, you need to include the desired field names from the provided list in the `-Dgenomenexus.enrichment_fields=` parameter of the command line, or directly add field names in `genomenexus.enrichment_fields=` in `application.properties` file. Multiple field names can be specified by separating them with commas. `annotation_summary` is highly recommended to add as default since it's crucial for lots of annotation fields.
+
 **Example**:
 ```
-java 
--Dgenomenexus.enrichment_fields=annotation_summary,my_variant_info 
--jar annotationPipeline/target/annotationPipeline-*.jar \ -r \ 
---filename test/data/minimal_example.in.txt \ 
---output-filename test/data/minimal_example.out.uniprot.txt \ 
---isoform-override uniprot
+java -Dgenomenexus.enrichment_fields=annotation_summary,my_variant_info \
+    -jar annotationPipeline/target/annotationPipeline-*.jar \ 
+    -r \ 
+    --filename test/data/minimal_example.in.txt \ 
+    --output-filename test/data/minimal_example.out.uniprot.txt \ 
+    --isoform-override uniprot
 ```
 ##### Available enrichment fields:
 - annotation_summary:
@@ -195,13 +220,13 @@ For an example minimal input file see
 corresponding output
 [test/data/minimal_example.out.uniprot.txt](test/data/minimal_example.out.uniprot.txt).
 The output file was generated with:
-
-    $JAVA_HOME/bin/java -jar annotationPipeline/target/annotationPipeline-*.jar \
-        -r \
-        --filename test/data/minimal_example.in.txt  \
-        --output-filename test/data/minimal_example.out.uniprot.txt \
-        --isoform-override uniprot
-
+```
+$JAVA_HOME/bin/java -jar annotationPipeline/target/annotationPipeline-*.jar \
+    -r \
+    --filename test/data/minimal_example.in.txt  \
+    --output-filename test/data/minimal_example.out.uniprot.txt \
+    --isoform-override uniprot
+```
 
 ## Direct Database Annotation
 There used to be a utility/module called databaseAnnotator which could be
