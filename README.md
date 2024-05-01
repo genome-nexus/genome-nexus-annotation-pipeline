@@ -68,7 +68,7 @@ By default, the log file is stored at
 
 Use the following command as an example
 ```
-docker run -v ${PWD}:/wd -v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs gn-annotation-pipeline:master java -jar annotationPipeline.jar --filename /wd/input.txt --output-filename /wd/output.txt
+docker run -v ${PWD}:/wd -v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs genomenexus/gn-annotation-pipeline:master java -jar annotationPipeline.jar --filename /wd/input.txt --output-filename /wd/output.txt
 ```
 - `-v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs` flag mounts the current working directory to the corresponding log directory inside the Docker container.
 
