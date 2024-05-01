@@ -1,15 +1,23 @@
-annotationPipeline/target/*
+# Core
 annotator/target/*
+annotationPipeline/target/*
 annotationPipeline/src/main/resources/application.properties
+annotationPipeline/src/main/resources/log4j.properties
+annotationPipeline/data/output.txt
+
 databaseAnnotator/target/*
 databaseAnnotator/src/main/resources/application.properties
-.DS_Store
-annotationPipeline/src/main/resources/log4j.properties
 databaseAnnotator/src/main/resources/log4j.properties
-*.iml
+
+# Utilities Ignore
 swagger-codegen-cli.jar
+*.iml
 *repository.sqlite
-annotationPipeline/data/output.txt
+
+# OS Ignore
+.DS_Store
+
+# Editor Ignore
 /.idea/
-.sdkmanrc
 .vim/
+.sdkmanrc
