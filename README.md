@@ -60,6 +60,7 @@ docker run -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master java -jar ann
 - `--output-filename /wd/output.txt`: This option specifies the output file where the annotated results will be saved. The file will be created at `/wd/output.txt`, which should be under the same directory as input file.
 
 ### Logging
+
 > ![IMPORTANT]
 > Logging via docker has been changed to `stdout` by default.
 
@@ -75,10 +76,9 @@ docker run -v ${PWD}:/wd -v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs g
 ```
 - `-v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs` flag mounts the current working directory to the corresponding log directory inside the Docker container.
 
-> ![Note]
+> ![NOTE]
 > Make sure to adjust the file paths according to your specific requirements. 
-> The log file will be generated and stored in the logs directory within 
-> your local directory. 
+> The log file will be generated and stored in the logs directory within your local directory. 
 
 ### Optional parameters
 | Short | Long | Description | 
