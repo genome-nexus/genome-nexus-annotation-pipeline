@@ -11,6 +11,7 @@ The `annotationPipeline` module is a command line tool to annotate a maf using g
 ```sh
 cp annotationPipeline/src/main/resources/application.properties.EXAMPLE annotationPipeline/src/main/resources/application.properties
 ```
+> [!TIP]
 > If you have your own installation of Genome Nexus, you can point to it by 
 > modifying the `genomenexus.base=<URL>` in `application.properties` 
 
@@ -23,8 +24,10 @@ cp annotationPipeline/src/main/resources/log4j.properties.console.EXAMPLE annota
 ```sh
 cp annotationPipeline/src/main/resources/log4j.properties.EXAMPLE annotationPipeline/src/main/resources/log4j.properties
 ```
+> [!NOTE]
 > Copy either the console (stdout) or the file logger config
 
+> [!NOTE]
 > Modify the property `log4j.appender.a.File` in your `log4j.properties` file to the desired log file path
 
 ## Build
@@ -57,7 +60,7 @@ docker run -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master java -jar ann
 - `--output-filename /wd/output.txt`: This option specifies the output file where the annotated results will be saved. The file will be created at `/wd/output.txt`, which should be under the same directory as input file.
 
 ### Logging
-![Note]
+> ![IMPORTANT]
 > Logging via docker has been changed to `stdout` by default.
 
 ##### View logging file (if built with file logging config)
@@ -72,7 +75,7 @@ docker run -v ${PWD}:/wd -v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs g
 ```
 - `-v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs` flag mounts the current working directory to the corresponding log directory inside the Docker container.
 
-![Note]
+> ![Note]
 > Make sure to adjust the file paths according to your specific requirements. 
 > The log file will be generated and stored in the logs directory within 
 > your local directory. 
@@ -97,7 +100,7 @@ The Genome Nexus Annotation Pipeline supports two versions of the human genome r
 1. **GRCh37** (default)
 2. **GRCh38**
 
-![NOTE]
+> ![NOTE]
 > By default, the pipeline uses **GRCh37**. 
 
 #### Using GRCh38
