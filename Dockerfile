@@ -1,31 +1,25 @@
 # Multi-stage build
-# Stage-0
-FROM openjdk:21-jdk-slim as build
+FROM maven:3-eclipse-temurin-21 as build
 
 # Build args
-ARG mvnprofiles=''
+ARG MAVEN_OPTS=-DskipTests 
 
 # ENV variables
 ENV GN_HOME=/genome-nexus-annotation-pipeline
 ENV GN_RESOURCES=$GN_HOME/annotationPipeline/src/main/resources
 
-# Update and install dependencies
-RUN apt-get update && apt-get -y install \
-    maven \ 
-    && apt-get clean
-
 # Add source files
 COPY . $GN_HOME
+WORKDIR $GN_HOME
 
 # Configure log4j file in properties
 RUN cp $GN_RESOURCES/log4j.properties.console.EXAMPLE $GN_RESOURCES/log4j.properties
 
 # Maven build
-WORKDIR $GN_HOME
-RUN mvn -DskipTests clean install $mvnprofiles
+RUN mvn ${MAVEN_OPTS} clean install -q
 
 # Stage-1
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21
 
 ENV GN_HOME=/genome-nexus-annotation-pipeline
 ENV GN_RESOURCES=$GN_HOME/annotationPipeline/src/main/resources
