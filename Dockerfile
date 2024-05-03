@@ -19,8 +19,6 @@ COPY . $GN_HOME
 
 # Configure log4j file in properties
 RUN cp $GN_RESOURCES/log4j.properties.console.EXAMPLE $GN_RESOURCES/log4j.properties
-# RUN cp $GN_RESOURCES/log4j.properties.EXAMPLE $GN_RESOURCES/log4j.properties
-# RUN sed -i "s|log4j\.appender\.a\.File.*|log4j.appender.a.File = $GN_HOME/logs/genome-nexus-annotation-pipeline.log|" $GN_RESOURCES/log4j.properties
 
 # Maven build
 WORKDIR $GN_HOME
