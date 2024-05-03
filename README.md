@@ -62,7 +62,7 @@ docker run -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master java -jar ann
 ### Logging
 
 > ![IMPORTANT]
-> Logging via docker has been changed to `stdout` by default.
+> Logging via docker has been changed to `stdout` by default since v1.0.4
 
 ##### View logging file (if built with file logging config)
 To access the log file, you need to mount your local path to view the log file locally. 
