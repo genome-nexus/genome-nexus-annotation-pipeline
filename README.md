@@ -19,16 +19,6 @@ cp annotationPipeline/src/main/resources/application.properties.EXAMPLE annotati
 
 ```sh
 cp annotationPipeline/src/main/resources/log4j.properties.console.EXAMPLE annotationPipeline/src/main/resources/log4j.properties
-```
--OR-
-```sh
-cp annotationPipeline/src/main/resources/log4j.properties.EXAMPLE annotationPipeline/src/main/resources/log4j.properties
-```
-> [!NOTE]
-> Copy either the console (stdout) or the file logger config
-
-> [!NOTE]
-> Modify the property `log4j.appender.a.File` in your `log4j.properties` file to the desired log file path
 
 ## Build
 ```sh
@@ -63,22 +53,6 @@ docker run -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master java -jar ann
 
 > ![IMPORTANT]
 > Logging via docker has been changed to `stdout` by default since v1.0.4
-
-##### View logging file (if built with file logging config)
-To access the log file, you need to mount your local path to view the log file locally. 
-
-By default, the log file is stored at 
-`/genome-nexus-annotation-pipeline/logs/genome-nexus-annotation-pipeline.log`. 
-
-Use the following command as an example
-```
-docker run -v ${PWD}:/wd -v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs genomenexus/gn-annotation-pipeline:master java -jar annotationPipeline.jar --filename /wd/input.txt --output-filename /wd/output.txt
-```
-- `-v ${PWD}/logs:/genome-nexus-annotation-pipeline/logs` flag mounts the current working directory to the corresponding log directory inside the Docker container.
-
-> ![NOTE]
-> Make sure to adjust the file paths according to your specific requirements. 
-> The log file will be generated and stored in the logs directory within your local directory. 
 
 ### Optional parameters
 | Short | Long | Description | 
