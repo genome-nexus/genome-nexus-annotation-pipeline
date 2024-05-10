@@ -75,7 +75,7 @@ The Genome Nexus Annotation Pipeline supports two versions of the human genome r
 1. **GRCh37** (default)
 2. **GRCh38**
 
-> ![NOTE]
+> [!NOTE]
 > By default, the pipeline uses **GRCh37**. 
 
 #### Using GRCh38
