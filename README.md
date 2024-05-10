@@ -19,6 +19,7 @@ cp annotationPipeline/src/main/resources/application.properties.EXAMPLE annotati
 
 ```sh
 cp annotationPipeline/src/main/resources/log4j.properties.console.EXAMPLE annotationPipeline/src/main/resources/log4j.properties
+```
 
 ## Build
 ```sh
