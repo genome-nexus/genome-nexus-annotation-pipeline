@@ -416,6 +416,12 @@ public class GenomeNexusImpl implements Annotator {
         if (noteColumn) {
             annotatedRecord.setGenomicLocationExplanation(gnResponse.getGenomicLocationExplanation() != null ? gnResponse.getGenomicLocationExplanation() : "");
         }
+        
+        // override fields variantClassification and consequence to "IGR" and "intergenic_variant" when gnResponse.getMostSevereConsequence() is "intergenic_variant"
+        if (gnResponse.getMostSevereConsequence() != null && gnResponse.getMostSevereConsequence().equals("intergenic_variant")) {
+            annotatedRecord.setVARIANT_CLASSIFICATION("IGR");
+            annotatedRecord.setCONSEQUENCE("intergenic_variant");
+        }
 
         if (enrichmentFields.contains("my_variant_info")) {
             // get the gnomad allele frequency
