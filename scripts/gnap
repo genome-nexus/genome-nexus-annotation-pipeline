@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+# Make annotationPipeline.sh executable and findable anywhere via PATH
+# Let THIS bash script pass on the array of arguments
+
+# annotationPipeline.sh --arg1 value1 --arg2 value2
+# annotationPipeline.sh --filename /path/to/input_maf.txt --output-filename
+# /path/to/output.txt
+# docker run --rm -it -v $(pwd):/wd genomenexus/gn-annotation-pipeline:dev java -jar annotationPipeline.jar 
+#
+# ENV GN_HOME=/genome-nexus-annotation-pipeline
+# ENV GN_RESOURCES=$GN_HOME/annotationPipeline/src/main/resources
+# ENV GN_TARGET=$GN_HOME/annotationPipeline/target
+DEFAULT_TARGET="/genome-nexus-annotation-pipeline/annotationPipeline/target"
+
+# if [[ -z "${GN_TARGET}" ]]; then
+#     SCRIPTS=${DEFAULT_TARGET}
+# else
+#     SCRIPTS="${GN_TARGET}"
+# fi
+
+SCRIPTS="${GN_TARGET:-$DEFAULT_TARGET}"
+
+# Pre-hook block
+
+java -jar $SCRIPTS/annotationPipeline.jar $@
+
+# Post-hook block
+
