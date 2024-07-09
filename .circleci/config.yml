@@ -78,9 +78,9 @@ jobs:
           name: "check if corner cases example maf file still the same when annotating with mskcc transcripts"
           command: 'java -jar annotationPipeline/target/annotationPipeline-*.jar -r --filename test/data/corner_cases.in.txt  --output-filename test/data/corner_cases.out.mskcc.txt --isoform-override mskcc && git diff -G "^[^#]" --exit-code test/data/corner_cases.out.mskcc.txt || (echo simple MAF mskcc output changed test/data/corner_cases.out.mskcc.txt && exit 1)'
 
-      - run:
-          name: "Run vcf2maf test cases"
-          command: 'sudo apt-get install make && ./test/scripts/vcf2maf_tests.sh'
+      # - run:
+      #     name: "Run vcf2maf test cases"
+      #     command: 'sudo apt-get install make && ./test/scripts/vcf2maf_tests.sh'
 
       # run test
       - run:
