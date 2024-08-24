@@ -34,7 +34,6 @@ package org.cbioportal.annotator.internal;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.Temporal;
 import java.util.*;
 import org.mskcc.cbio.maf.MafUtil;
 
@@ -409,6 +408,7 @@ public class GenomeNexusImpl implements Annotator {
                 annotationUtil.resolveConsequence(canonicalTranscript),
                 annotationUtil.resolveProteinPosition(canonicalTranscript, mRecord),
                 annotationUtil.resolveExon(canonicalTranscript),
+                annotationUtil.resolveAlphaMissense(canonicalTranscript),
                 mRecord.getAdditionalProperties());
         if (addOriginalGenomicLocation) {
             annotatedRecord.setOriginalGenomicLocation(genomeNexusOriginalChromosome, genomeNexusOriginalStartPosition, genomeNexusOriginalEndPosition, genomeNexusOriginalReferenceAllele, genomeNexusOriginalTumorSeqAllele1, genomeNexusOriginalTumorSeqAllele2);
@@ -416,6 +416,7 @@ public class GenomeNexusImpl implements Annotator {
         if (noteColumn) {
             annotatedRecord.setGenomicLocationExplanation(gnResponse.getGenomicLocationExplanation() != null ? gnResponse.getGenomicLocationExplanation() : "");
         }
+        annotatedRecord.setAlphaMissenseFields(annotationUtil.resolveAlphaMissense(canonicalTranscript));
 
         if (enrichmentFields.contains("my_variant_info")) {
             // get the gnomad allele frequency

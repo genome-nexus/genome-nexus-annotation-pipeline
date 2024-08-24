@@ -376,6 +376,24 @@ public class AnnotationUtil {
         return parseDoubleAsString(toReturn);
     }
 
+    public String resolveAlphaMissense(TranscriptConsequenceSummary canonicalTranscript) {
+        String pathogenicity = null;
+        String score = null;
+        String res =  "N/A";
+        if (canonicalTranscript != null && canonicalTranscript.getAlphaMissense() != null){
+            AlphaMissense alphaMissense = canonicalTranscript.getAlphaMissense();
+            if (alphaMissense.getPathogenicity() != null){
+                pathogenicity = alphaMissense.getPathogenicity();
+            }
+            if (alphaMissense.getScore() != null){
+                score = " (" + alphaMissense.getScore() + ")";
+            }
+            res = pathogenicity + score;
+        }
+        return res;
+
+    }
+
     public String resolvePolyphenPrediction(TranscriptConsequenceSummary canonicalTranscript) {
         String polyphenPrediction = "";
         if (canonicalTranscript != null && canonicalTranscript.getPolyphenPrediction() != null) {

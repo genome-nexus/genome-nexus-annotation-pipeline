@@ -54,6 +54,7 @@ public class AnnotatedRecord extends MutationRecord {
     protected String consequence;
     protected String proteinPosition;
     protected String exon;
+    protected String alphaMissense;
     protected String gnomadAlleleFrequency;
     protected String gnomadAlleleFrequencyAFR;
     protected String gnomadAlleleFrequencyAMR;
@@ -120,6 +121,7 @@ public class AnnotatedRecord extends MutationRecord {
         String consequence,
         String proteinPosition,
         String exon,
+        String alphaMissense,
         Map<String, String> additionalProperties
     ) {
         super(hugoSymbol,
@@ -228,6 +230,7 @@ public class AnnotatedRecord extends MutationRecord {
         this.consequence = additionalProperties.get("Consequence") != null ? additionalProperties.get("Consequence") : "";
         this.proteinPosition = additionalProperties.get("Protein_position") != null ? additionalProperties.get("Protein_position") : "";
         this.exon = additionalProperties.get("exon") != null ? additionalProperties.get("exon") : "";
+        this.alphaMissense = additionalProperties.get("alphaMissense") != null ? additionalProperties.get("alphaMissense") : "";
         this.additionalProperties = additionalProperties;
     }
     
@@ -297,7 +300,11 @@ public class AnnotatedRecord extends MutationRecord {
         addAdditionalProperty("SIFT_Prediction", siftPrediction);
         addAdditionalProperty("SIFT_Score", siftScore);
     }
-    
+
+    public void setAlphaMissenseFields(String alphaMissense){
+        addAdditionalProperty("AlphaMissense", alphaMissense);
+    }
+
     public void setMutationAssessorFields(String maFunctionalImpact,
             String maFunctionalImpactScore,
             String maLinkMSA,
@@ -506,6 +513,7 @@ public class AnnotatedRecord extends MutationRecord {
         header.add("RefSeq");
         header.add("Protein_position");
         header.add("Codons");
+        header.add("AlphaMissense");
         header.add("Exon_Number");
         header.add(header.indexOf("Variant_Classification"), "Consequence");
     }

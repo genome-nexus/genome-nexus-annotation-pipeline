@@ -100,12 +100,12 @@
     <dependency>
       <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
       <artifactId>genomeNexusPublicApiClient</artifactId>
-      <version>7128635f2704eb9ebe9c3062770f748ab4127003</version>
+      <version>1.2.0-beta</version>
     </dependency>
     <dependency>
       <groupId>com.github.genome-nexus.genome-nexus-java-api-client</groupId>
       <artifactId>genomeNexusInternalApiClient</artifactId>
-      <version>7128635f2704eb9ebe9c3062770f748ab4127003</version>
+      <version>1.2.0-beta</version>
     </dependency>
     <dependency>
       <groupId>net.bytebuddy</groupId>
