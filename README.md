@@ -86,82 +86,83 @@ docker run -e GENOMENEXUS_BASE=https://grch38.genomenexus.org -v ${PWD}:/wd geno
 ```
 
 ### Annotation fields
-| Field | Source | Note |
-| --| -- | -- |
-| Hugo_Symbol |||
-|Entrez_Gene_Id|||
-|Center|||
-|NCBI_Build|||
-|Chromosome|GN response / Input||
-|Start_Position|GN response / Input||
-|End_Position|GN response / Input||
-|Strand|||
-|Consequence|||
-|Variant_Classification|||
-|Variant_Type|||
-|Reference_Allele|GN response / Input||
-|Tumor_Seq_Allele1|||
-|Tumor_Seq_Allele2|GN response / Input||
-|dbSNP_RS|||
-|dbSNP_Val_Status|||
-|Tumor_Sample_Barcode|||
-|Matched_Norm_Sample_Barcode|||
-|Match_Norm_Seq_Allele1|||
-|Match_Norm_Seq_Allele2|||
-|Tumor_Validation_Allele1|||
-|Tumor_Validation_Allele2|||
-|Match_Norm_Validation_Allele1|||
-|Match_Norm_Validation_Allele2|||
-|Verification_Status|||
-|Validation_Status|||
-|Mutation_Status|||
-|Sequencing_Phase|||
-|Sequence_Source|||
-|Validation_Method|||
-|Score|||
-|BAM_File|||
-|Sequencer|||
-|t_ref_count|||
-|t_alt_count|||
-|n_ref_count|||
-|n_alt_count|||
-|HGVSc|||
-|HGVSp|||
-|HGVSp_Short|||
-|Transcript_ID|||
-|RefSeq|VEP||
-|Protein_position|VEP||
-|Codons|VEP||
-|Exon_Number|VEP||
-|gnomAD_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
-|gnomAD_AFR_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
-|gnomAD_AMR_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
-|gnomAD_ASJ_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
-|gnomAD_EAS_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
-|gnomAD_FIN_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
-|gnomAD_NFE_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
-|gnomAD_OTH_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
-|gnomAD_SAS_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
-|MA:FIS|Mutation Assessor|Need to add "mutation_assessor" in "genomenexus.enrichment_fields"|
-|MA:FImpact|Mutation Assessor|Need to add "mutation_assessor" in genomenexus.enrichment_fields"|
-|MA:link.MSA|Mutation Assessor|Need to add "mutation_assessor" in "genomenexus.enrichment_fields"|
-|MA:link.PDB|Mutation Assessor|Need to add "mutation_assessor" in "genomenexus.enrichment_fields"|
-|Polyphen_Prediction|Polyphen|Need to add "polyphen" in "genomenexus.enrichment_fields"|
-|Polyphen_Score|Polyphen|Need to add "polyphen" in "genomenexus.enrichment_fields"|
-|SIFT_Prediction|SIFT|Need to add "sift" in "genomenexus.enrichment_fields"|
-|SIFT_Score|SIFT|Need to add "sift" in "genomenexus.enrichment_fields"|
-|Ref_Tri||Need to add "nucleotide_context" in "genomenexus.enrichment_field"|
-|Var_Tri||Need to add "nucleotide_context" in "genomenexus.enrichment_field"|
-|oncokb_geneExist|OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
-|oncokb_highestDXLevel|OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
-|oncokb_highestPXLevel|OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
-|oncokb_highestResistanceLevel|OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
-| oncokb_highestSensitiveLevel |OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
-| oncokb_mutationEffect|OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
-|oncokb_mutationEffectCitations|OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
-| oncokb_oncogenic|OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
-| oncokb_variantExist   |OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
-|Annotation_Status||FAILED / SUCCESS|
+| Field                          | Source | Note |
+|--------------------------------| -- | -- |
+| Hugo_Symbol                    |||
+| Entrez_Gene_Id                 |||
+| Center                         |||
+| NCBI_Build                     |||
+| Chromosome                     |GN response / Input||
+| Start_Position                 |GN response / Input||
+| End_Position                   |GN response / Input||
+| Strand                         |||
+| Consequence                    |||
+| Variant_Classification         |||
+| Variant_Type                   |||
+| Reference_Allele               |GN response / Input||
+| Tumor_Seq_Allele1              |||
+| Tumor_Seq_Allele2              |GN response / Input||
+| dbSNP_RS                       |||
+| dbSNP_Val_Status               |||
+| Tumor_Sample_Barcode           |||
+| Matched_Norm_Sample_Barcode    |||
+| Match_Norm_Seq_Allele1         |||
+| Match_Norm_Seq_Allele2         |||
+| Tumor_Validation_Allele1       |||
+| Tumor_Validation_Allele2       |||
+| Match_Norm_Validation_Allele1  |||
+| Match_Norm_Validation_Allele2  |||
+| Verification_Status            |||
+| Validation_Status              |||
+| Mutation_Status                |||
+| Sequencing_Phase               |||
+| Sequence_Source                |||
+| Validation_Method              |||
+| Score                          |||
+| BAM_File                       |||
+| Sequencer                      |||
+| t_ref_count                    |||
+| t_alt_count                    |||
+| n_ref_count                    |||
+| n_alt_count                    |||
+| HGVSc                          |||
+| HGVSp                          |||
+| HGVSp_Short                    |||
+| Transcript_ID                  |||
+| RefSeq                         |VEP||
+| Protein_position               |VEP||
+| Codons                         |VEP||
+| Exon_Number                    |VEP||
+| AlphaMissense                  |VEP||
+| gnomAD_AF                      |myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+| gnomAD_AFR_AF                  |myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+| gnomAD_AMR_AF                  |myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+| gnomAD_ASJ_AF                  |myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+| gnomAD_EAS_AF                  |myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+| gnomAD_FIN_AF                  |myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+| gnomAD_NFE_AF                  |myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+| gnomAD_OTH_AF                  |myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+| gnomAD_SAS_AF                  |myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
+| MA:FIS                         |Mutation Assessor|Need to add "mutation_assessor" in "genomenexus.enrichment_fields"|
+| MA:FImpact                     |Mutation Assessor|Need to add "mutation_assessor" in genomenexus.enrichment_fields"|
+| MA:link.MSA                    |Mutation Assessor|Need to add "mutation_assessor" in "genomenexus.enrichment_fields"|
+| MA:link.PDB                    |Mutation Assessor|Need to add "mutation_assessor" in "genomenexus.enrichment_fields"|
+| Polyphen_Prediction            |Polyphen|Need to add "polyphen" in "genomenexus.enrichment_fields"|
+| Polyphen_Score                 |Polyphen|Need to add "polyphen" in "genomenexus.enrichment_fields"|
+| SIFT_Prediction                |SIFT|Need to add "sift" in "genomenexus.enrichment_fields"|
+| SIFT_Score                     |SIFT|Need to add "sift" in "genomenexus.enrichment_fields"|
+| Ref_Tri                        ||Need to add "nucleotide_context" in "genomenexus.enrichment_field"|
+| Var_Tri                        ||Need to add "nucleotide_context" in "genomenexus.enrichment_field"|
+| oncokb_geneExist               |OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+| oncokb_highestDXLevel          |OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+| oncokb_highestPXLevel          |OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+| oncokb_highestResistanceLevel  |OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+| oncokb_highestSensitiveLevel   |OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+| oncokb_mutationEffect          |OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+| oncokb_mutationEffectCitations |OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+| oncokb_oncogenic               |OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+| oncokb_variantExist            |OncoKb|Need to add "oncokb" in "genomenexus.enrichment_fields" and provide your OncoKB token in "oncokb.token"|
+| Annotation_Status              ||FAILED / SUCCESS|
 
 
 ### Add additional annotation columns

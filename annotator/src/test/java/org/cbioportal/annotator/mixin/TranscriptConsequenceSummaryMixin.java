@@ -43,4 +43,10 @@ public class TranscriptConsequenceSummaryMixin {
 
     @JsonProperty("exon")
     private String exon;
+
+    @JsonProperty("pathogencity")
+    private String pathogencity;
+
+    @JsonProperty("score")
+    private String pathogencityScore;;
 }
