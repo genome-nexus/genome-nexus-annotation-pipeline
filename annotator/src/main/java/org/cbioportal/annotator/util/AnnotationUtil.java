@@ -331,11 +331,16 @@ public class AnnotationUtil {
         return hgvsp;
     }
 
-    public String resolveConsequence(TranscriptConsequenceSummary canonicalTranscript) {
-        if (canonicalTranscript == null || canonicalTranscript.getConsequenceTerms() == null) {
-            return "";
-        } else {
+    public String resolveConsequence(VariantAnnotation gnResponse, TranscriptConsequenceSummary canonicalTranscript) {
+        if (canonicalTranscript != null && canonicalTranscript.getConsequenceTerms() != null) {
             return canonicalTranscript.getConsequenceTerms();
+        } else if (gnResponse != null && 
+                   gnResponse.getAnnotationSummary() != null && 
+                   gnResponse.getAnnotationSummary().getIntergenicConsequenceSummaries() != null &&
+                   !gnResponse.getAnnotationSummary().getIntergenicConsequenceSummaries().isEmpty()) {
+            return String.join(",", gnResponse.getAnnotationSummary().getIntergenicConsequenceSummaries().get(0).getConsequenceTerms());
+        } else {
+            return "";
         }
     }
 
@@ -356,10 +361,17 @@ public class AnnotationUtil {
 
     }
 
-    public String resolveVariantClassification(TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord) {
+    public String resolveVariantClassification(VariantAnnotation gnResponse, TranscriptConsequenceSummary canonicalTranscript, MutationRecord mRecord) {
         String variantClassification = null;
         if (canonicalTranscript != null) {
             variantClassification = canonicalTranscript.getVariantClassification();
+        } else if (gnResponse != null && 
+                   gnResponse.getAnnotationSummary() != null && 
+                   gnResponse.getAnnotationSummary().getIntergenicConsequenceSummaries() != null &&
+                   !gnResponse.getAnnotationSummary().getIntergenicConsequenceSummaries().isEmpty()) {
+            // for most cases there is only one intergenic consequence in the list, so we use first intergenic consequence here
+            // but multiple intergenic consequences are possible, maybe we need to handle this case in the future
+            variantClassification = gnResponse.getAnnotationSummary().getIntergenicConsequenceSummaries().get(0).getVariantClassification();
         }
         return variantClassification != null ? variantClassification : mRecord.getVARIANT_CLASSIFICATION();
     }

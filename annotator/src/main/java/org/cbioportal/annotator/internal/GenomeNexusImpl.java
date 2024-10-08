@@ -367,7 +367,7 @@ public class GenomeNexusImpl implements Annotator {
                 resolvedStartPosition,
                 annotationUtil.resolveEnd(gnResponse, mRecord),
                 annotationUtil.resolveStrandSign(gnResponse, mRecord),
-                annotationUtil.resolveVariantClassification(canonicalTranscript, mRecord),
+                annotationUtil.resolveVariantClassification(gnResponse, canonicalTranscript, mRecord),
                 annotationUtil.resolveVariantType(gnResponse),
                 resolvedReferenceAllele,
                 resolvedTumorSeqAllele1,
@@ -406,7 +406,7 @@ public class GenomeNexusImpl implements Annotator {
                 annotationUtil.resolveProteinPosEnd(canonicalTranscript),
                 annotationUtil.resolveCodonChange(canonicalTranscript),
                 annotationUtil.resolveHotspot(),
-                annotationUtil.resolveConsequence(canonicalTranscript),
+                annotationUtil.resolveConsequence(gnResponse, canonicalTranscript),
                 annotationUtil.resolveProteinPosition(canonicalTranscript, mRecord),
                 annotationUtil.resolveExon(canonicalTranscript),
                 mRecord.getAdditionalProperties());
@@ -417,12 +417,6 @@ public class GenomeNexusImpl implements Annotator {
             annotatedRecord.setGenomicLocationExplanation(gnResponse.getGenomicLocationExplanation() != null ? gnResponse.getGenomicLocationExplanation() : "");
         }
         
-        // override fields variantClassification and consequence to "IGR" and "intergenic_variant" when gnResponse.getMostSevereConsequence() is "intergenic_variant"
-        if (gnResponse.getMostSevereConsequence() != null && gnResponse.getMostSevereConsequence().equals("intergenic_variant")) {
-            annotatedRecord.setVARIANT_CLASSIFICATION("IGR");
-            annotatedRecord.setCONSEQUENCE("intergenic_variant");
-        }
-
         if (enrichmentFields.contains("my_variant_info")) {
             // get the gnomad allele frequency
             AlleleFrequency alleleFrequency = getGnomadAlleleFrequency(gnResponse);
