@@ -446,8 +446,9 @@ public class GenomeNexusImpl implements Annotator {
             annotatedRecord.setMutationAssessorFields(
                     annotationUtil.resolveMaFunctionalImpact(gnResponse),
                     annotationUtil.resolveMaFunctionalImpactScore(gnResponse),
-                    annotationUtil.resolveMaLinkMSA(gnResponse),
-                    annotationUtil.resolveMaLinkPDB(gnResponse));
+                    annotationUtil.resolveMaMSA(gnResponse),
+                    annotationUtil.resolveMaMAV(gnResponse),
+                    annotationUtil.resolveMaSV(gnResponse));
         }
         if (enrichmentFields.contains("nucleotide_context")) {
             annotatedRecord.setNucleotideContextFields(

@@ -298,14 +298,13 @@ public class AnnotatedRecord extends MutationRecord {
         addAdditionalProperty("SIFT_Score", siftScore);
     }
     
-    public void setMutationAssessorFields(String maFunctionalImpact,
-            String maFunctionalImpactScore,
-            String maLinkMSA,
-            String maLinkPDB) {
-        addAdditionalProperty("MA:FImpact", maFunctionalImpact);
-        addAdditionalProperty("MA:FIS", maFunctionalImpactScore);
-        addAdditionalProperty("MA:link.MSA", maLinkMSA);
-        addAdditionalProperty("MA:link.PDB", maLinkPDB);
+    public void setMutationAssessorFields(String maFunctionalImpactPrediction,
+            String maFunctionalImpactScore, String maMSA, String maMAV, String maSV) {
+        addAdditionalProperty("MutationAssessor_FunctionalImpactPrediction", maFunctionalImpactPrediction);
+        addAdditionalProperty("MutationAssessor_FunctionalImpactScore", maFunctionalImpactScore);
+        addAdditionalProperty("MutationAssessor_MSA", maMSA);
+        addAdditionalProperty("MutationAssessor_MAV", maMAV);
+        addAdditionalProperty("MutationAssessor_SV", maSV);
     }
 
     public void setNucleotideContextFields(String refTri, String varTri) {
