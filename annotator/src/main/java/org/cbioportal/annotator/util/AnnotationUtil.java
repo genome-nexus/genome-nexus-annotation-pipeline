@@ -338,6 +338,8 @@ public class AnnotationUtil {
                    gnResponse.getAnnotationSummary() != null && 
                    gnResponse.getAnnotationSummary().getIntergenicConsequenceSummaries() != null &&
                    !gnResponse.getAnnotationSummary().getIntergenicConsequenceSummaries().isEmpty()) {
+            // for most cases there is only one intergenic consequence in the list, so we use first intergenic consequence here
+            // but multiple intergenic consequences are possible, maybe we need to handle this case in the future
             return String.join(",", gnResponse.getAnnotationSummary().getIntergenicConsequenceSummaries().get(0).getConsequenceTerms());
         } else {
             return "";

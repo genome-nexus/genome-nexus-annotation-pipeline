@@ -416,7 +416,7 @@ public class GenomeNexusImpl implements Annotator {
         if (noteColumn) {
             annotatedRecord.setGenomicLocationExplanation(gnResponse.getGenomicLocationExplanation() != null ? gnResponse.getGenomicLocationExplanation() : "");
         }
-        
+
         if (enrichmentFields.contains("my_variant_info")) {
             // get the gnomad allele frequency
             AlleleFrequency alleleFrequency = getGnomadAlleleFrequency(gnResponse);
