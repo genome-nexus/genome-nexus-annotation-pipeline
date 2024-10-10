@@ -32,14 +32,18 @@
 
 package org.cbioportal.annotator.util;
 
-import org.mskcc.cbio.maf.MafUtil;
-import org.cbioportal.models.MutationRecord;
-import org.springframework.stereotype.Component;
-import org.genome_nexus.client.*;
-
-import com.google.common.base.Strings;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.cbioportal.models.MutationRecord;
+import org.genome_nexus.client.AlleleFrequency;
+import org.genome_nexus.client.ColocatedVariant;
+import org.genome_nexus.client.TranscriptConsequenceSummary;
+import org.genome_nexus.client.VariantAnnotation;
+import org.mskcc.cbio.maf.MafUtil;
+import org.springframework.stereotype.Component;
+
+import com.google.common.base.Strings;
 
 /**
  * Utility class for resolving values from the Genome Nexus annotation JSON.
@@ -394,34 +398,42 @@ public class AnnotationUtil {
     
     public String resolveMaFunctionalImpact(VariantAnnotation gnResponse) {
         String maFunctionalImpact = "";
-        if (gnResponse.getMutationAssessor() != null && gnResponse.getMutationAssessor().getAnnotation() != null) {
-            maFunctionalImpact = gnResponse.getMutationAssessor().getAnnotation().getFunctionalImpact();
+        if (gnResponse.getMutationAssessor() != null) {
+            maFunctionalImpact = gnResponse.getMutationAssessor().getFunctionalImpactPrediction();
         }
         return maFunctionalImpact != null ? maFunctionalImpact : "";
     }
 
     public String resolveMaFunctionalImpactScore(VariantAnnotation gnResponse) {
-        Double toReturn = null;
-        if (gnResponse.getMutationAssessor() != null && gnResponse.getMutationAssessor().getAnnotation() != null) {
-            toReturn = gnResponse.getMutationAssessor().getAnnotation().getFunctionalImpactScore();
+        Double maFunctionalImpactScore = null;
+        if (gnResponse.getMutationAssessor() != null) {
+            maFunctionalImpactScore = gnResponse.getMutationAssessor().getFunctionalImpactScore();
         }
-        return parseDoubleAsString(toReturn);
+        return parseDoubleAsString(maFunctionalImpactScore);
     }
 
-    public String resolveMaLinkMSA(VariantAnnotation gnResponse) {
-        String maLinkMSA = "";
-        if (gnResponse.getMutationAssessor() != null && gnResponse.getMutationAssessor().getAnnotation() != null) {
-            maLinkMSA = gnResponse.getMutationAssessor().getAnnotation().getMsaLink();
+    public String resolveMaMSA(VariantAnnotation gnResponse) {
+        String maMSA = "";
+        if (gnResponse.getMutationAssessor() != null) {
+            maMSA = gnResponse.getMutationAssessor().getMsa();
         }
-        return maLinkMSA != null ? maLinkMSA : "";
+        return maMSA;
     }
 
-    public String resolveMaLinkPDB(VariantAnnotation gnResponse) {
-        String maLinkPDB = "";
-        if (gnResponse.getMutationAssessor() != null && gnResponse.getMutationAssessor().getAnnotation() != null) {
-            maLinkPDB = gnResponse.getMutationAssessor().getAnnotation().getPdbLink();
+    public String resolveMaMAV(VariantAnnotation gnResponse) {
+        Integer maMAV = null;
+        if (gnResponse.getMutationAssessor() != null) {
+            maMAV = gnResponse.getMutationAssessor().getMav();
         }
-        return maLinkPDB != null ? maLinkPDB : "";
+        return parseIntegerAsString(maMAV);
+    }
+
+    public String resolveMaSV(VariantAnnotation gnResponse) {
+        Integer maSV = null;
+        if (gnResponse.getMutationAssessor() != null) {
+            maSV = gnResponse.getMutationAssessor().getSv();
+        }
+        return parseIntegerAsString(maSV);
     }
 
     public String resolveRefTri(VariantAnnotation gnResponse) {

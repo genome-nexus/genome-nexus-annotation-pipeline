@@ -142,10 +142,11 @@ docker run -e GENOMENEXUS_BASE=https://grch38.genomenexus.org -v ${PWD}:/wd geno
 |gnomAD_NFE_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
 |gnomAD_OTH_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
 |gnomAD_SAS_AF|myvariant.info|Need to add "my_variant_info" in "genomenexus.enrichment_fields"|
-|MA:FIS|Mutation Assessor|Need to add "mutation_assessor" in "genomenexus.enrichment_fields"|
-|MA:FImpact|Mutation Assessor|Need to add "mutation_assessor" in genomenexus.enrichment_fields"|
-|MA:link.MSA|Mutation Assessor|Need to add "mutation_assessor" in "genomenexus.enrichment_fields"|
-|MA:link.PDB|Mutation Assessor|Need to add "mutation_assessor" in "genomenexus.enrichment_fields"|
+|MutationAssessor_FunctionalImpactPrediction|Mutation Assessor|Need to add "mutation_assessor" in "genomenexus.enrichment_fields"|
+|MutationAssessor_FunctionalImpactScore|Mutation Assessor|Need to add "mutation_assessor" in genomenexus.enrichment_fields"|
+|MutationAssessor_MSA|Mutation Assessor|Need to add "mutation_assessor" in genomenexus.enrichment_fields"|
+|MutationAssessor_MAV|Mutation Assessor|Need to add "mutation_assessor" in genomenexus.enrichment_fields"|
+|MutationAssessor_SV|Mutation Assessor|Need to add "mutation_assessor" in genomenexus.enrichment_fields"|
 |Polyphen_Prediction|Polyphen|Need to add "polyphen" in "genomenexus.enrichment_fields"|
 |Polyphen_Score|Polyphen|Need to add "polyphen" in "genomenexus.enrichment_fields"|
 |SIFT_Prediction|SIFT|Need to add "sift" in "genomenexus.enrichment_fields"|
@@ -186,7 +187,7 @@ java -Dgenomenexus.enrichment_fields=annotation_summary,my_variant_info \
 - polyphen
 - sift
 - mutation_assessor
-    - 'mutation_assessor' provides V3 version annotation from Mutation Assessor, which is currently stored in Genome Nexus database
+    - 'mutation_assessor' provides V4 version annotation from Mutation Assessor, which is currently stored in Genome Nexus database
 - nucleotide_context
 - oncokb:
     - 'oncokb' provides annotations of the biological consequences and clinical implications from OncoKB website. OncoKB token is required (see more information from: [https://www.oncokb.org/apiAccess](https://www.oncokb.org/apiAccess)). Please also provide your token in `-Doncokb.token=abc123` command line parameter, or directly add `oncokb.token=abc123`in the `application.properties`. No OncoKB annotation columns will be added if no valid token is provided
