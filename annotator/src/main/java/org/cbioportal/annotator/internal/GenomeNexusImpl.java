@@ -367,7 +367,7 @@ public class GenomeNexusImpl implements Annotator {
                 resolvedStartPosition,
                 annotationUtil.resolveEnd(gnResponse, mRecord),
                 annotationUtil.resolveStrandSign(gnResponse, mRecord),
-                annotationUtil.resolveVariantClassification(canonicalTranscript, mRecord),
+                annotationUtil.resolveVariantClassification(gnResponse, canonicalTranscript, mRecord),
                 annotationUtil.resolveVariantType(gnResponse),
                 resolvedReferenceAllele,
                 resolvedTumorSeqAllele1,
@@ -406,7 +406,7 @@ public class GenomeNexusImpl implements Annotator {
                 annotationUtil.resolveProteinPosEnd(canonicalTranscript),
                 annotationUtil.resolveCodonChange(canonicalTranscript),
                 annotationUtil.resolveHotspot(),
-                annotationUtil.resolveConsequence(canonicalTranscript),
+                annotationUtil.resolveConsequence(gnResponse, canonicalTranscript),
                 annotationUtil.resolveProteinPosition(canonicalTranscript, mRecord),
                 annotationUtil.resolveExon(canonicalTranscript),
                 mRecord.getAdditionalProperties());
