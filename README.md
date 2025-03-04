@@ -36,6 +36,9 @@ java -jar annotationPipeline/target/annotationPipeline-*.jar \
 
 To output error reporting to a file, supply the `-e` option a location for the file to be saved. By running the jar without any arguments or by providing the optional parameter `-h` you can view the full usage statement. 
 
+> [!TIP]
+> `mskcc` is the preferred isoform override, while `uniprot` is a legacy option 
+
 ## Annotate with Docker
 Genome Nexus Annotation Pipeline is available on DockerHub: https://hub.docker.com/r/genomenexus/gn-annotation-pipeline.
 
@@ -62,12 +65,12 @@ docker run -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master java -jar ann
 | `-f` | `--filename` |Mutation filename|
 | `-o` | `--output-filename` | Output filename (including path)|
 | `-t` | `--output-format`  | extended, minimal or a file path which includes output format (FORMAT EXAMPLE: Chromosome,Hugo_Symbol,Entrez_Gene_Id,Center,NCBI_Build)|
-| `-i` | `--isoform-override` | Isoform Overrides. Options: mskcc or uniprot|
+| `-i` | `--isoform-override` | Isoform Overrides. Options: mskcc (preferred) or uniprot (legacy)|
 | `-e` | `--error-report-location` | Error report filename (including path)|
 | `-r` | `--replace-symbol-entrez` | Replace gene symbols and entrez id with what is provided by annotator, this is enabled by default|
 | `-p` | `--post-interval-size` | Number of records to make POST requests to Genome Nexus with at a time |
 | `-s` | `--strip-matching-bases` | Strip matching allele bases. Options: first, all, none. For example: AAC/AAT, strip-off first: AC/AT, strip-off all: C/T, strip-off none: AAC/AAT  |
-| `-a` | `--add-original-genomic-location` | Add original genomic location data columns into the output, name columns with prefix 'IGNORE_Genome_Nexus_Original_'). This would be useful if saving a reference of original input is needed and won't be changed in any condition|
+| `-a` | `--add-original-genomic-location` | Add original genomic location data columns into the output, name columns with prefix 'IGNORE_Genome_Nexus_Original_'. This would be useful if saving a reference of original input is needed and won't be changed in any condition|
 | `-d` | `--ignore-original-location` | Genome-nexus-annotation-pipeline reads original genomic location info as input by default, if not existing, reading from normal genomic location info columns. Adding `-d` ignores original genomic location info columns (columns with prefix 'IGNORE_Genome_Nexus_Original_') and only use whatever in normal genomic location info columns. This would be helpful if you'd like to stick with current genomic location info columns.|
 
 ### Reference Genome
@@ -82,7 +85,7 @@ The Genome Nexus Annotation Pipeline supports two versions of the human genome r
 If you want to annotate with **GRCh38**, please set the `GENOMENEXUS_BASE` environment variable to `https://grch38.genomenexus.org`. Here's an example of how to do this:
 
 ```
-docker run -e GENOMENEXUS_BASE=https://grch38.genomenexus.org -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master --filename /wd/input.txt --output-filename /wd/output.txt --isoform-override uniprot
+docker run -e GENOMENEXUS_BASE=https://grch38.genomenexus.org -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master --filename /wd/input.txt --output-filename /wd/output.txt --isoform-override mskcc
 ```
 
 ### Annotation fields
@@ -176,8 +179,8 @@ java -Dgenomenexus.enrichment_fields=annotation_summary,my_variant_info \
     -jar annotationPipeline/target/annotationPipeline-*.jar \ 
     -r \ 
     --filename test/data/minimal_example.in.txt \ 
-    --output-filename test/data/minimal_example.out.uniprot.txt \ 
-    --isoform-override uniprot
+    --output-filename test/data/minimal_example.out.mskcc.txt \ 
+    --isoform-override mskcc
 ```
 ##### Available enrichment fields:
 - annotation_summary:
@@ -197,14 +200,14 @@ java -Dgenomenexus.enrichment_fields=annotation_summary,my_variant_info \
 For an example minimal input file see
 [test/data/minimal_example.in.txt](test/data/minimal_example.in.txt) and
 corresponding output
-[test/data/minimal_example.out.uniprot.txt](test/data/minimal_example.out.uniprot.txt).
+[test/data/minimal_example.out.mskcc.txt](test/data/minimal_example.out.mskcc.txt).
 The output file was generated with:
 ```
 $JAVA_HOME/bin/java -jar annotationPipeline/target/annotationPipeline-*.jar \
     -r \
     --filename test/data/minimal_example.in.txt  \
-    --output-filename test/data/minimal_example.out.uniprot.txt \
-    --isoform-override uniprot
+    --output-filename test/data/minimal_example.out.mskcc.txt \
+    --isoform-override mskcc
 ```
 
 ## Direct Database Annotation

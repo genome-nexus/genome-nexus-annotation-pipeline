@@ -18,7 +18,7 @@ annotate subcommand options:
  -e,--error-report-location <arg>   Error report filename (including path)
  -f,--filename <arg>                Mutation filename
  -h,--help                          shows this help document and quits.
- -i,--isoform-override <arg>        Isoform Overrides (mskcc or uniprot)
+ -i,--isoform-override <arg>        Isoform Overrides. Options: `mskcc` (preferred) or uniprot (legacy)
  -o,--output-filename <arg>         Output filename (including path)
  -p,--post-interval-size <arg>      Number of records to make POST requests to Genome Nexus with at
                                     a time
@@ -77,14 +77,14 @@ java -jar gnap.jar annotate --filename in.txt --output-filename out.txt
 After the above command is completed successfully, a file named out.txt, which includes all variants annotated successfully and unsuccessfully will be created.
 
 * **-i, --isoform-override**:
-  * **mskcc** for [Memorial Sloan Kettering Cancer Center](https://www.mskcc.org/) isoforms
-  * **uniprot** for [UniProt](https://www.uniprot.org/) isoforms
+  * **mskcc** for [Memorial Sloan Kettering Cancer Center](https://www.mskcc.org/) isoforms (preferred)
+  * **uniprot** (legacy)
 
 ```
-java -jar gnap.jar annotate --filename in.txt --output-filename out.txt --isoform-override uniprot
+java -jar gnap.jar annotate --filename in.txt --output-filename out.txt --isoform-override mskcc
 ```
 
-After the above command is completed successfully, a file named out.txt, which includes all variants annotated successfully and unsuccessfully overridden by uniprot isoform, will be created.
+After the above command is completed successfully, a file named out.txt, which includes all variants annotated successfully and unsuccessfully overridden by mskcc isoform, will be created.
 
 * **-o, --output-filename**: filename to which annotations will be written.
 
