@@ -36,9 +36,12 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.Temporal;
 import java.util.*;
+import java.util.stream.Collectors;
+
 import org.mskcc.cbio.maf.MafUtil;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 import org.cbioportal.annotator.Annotator;
 import org.cbioportal.annotator.GenomeNexusAnnotationFailureException;
 import org.cbioportal.models.AnnotatedRecord;
@@ -55,8 +58,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
+
 import org.cbioportal.annotator.util.AnnotationUtil;
 
 /**
@@ -609,91 +614,157 @@ public class GenomeNexusImpl implements Annotator {
         return getAnnotatedRecordsUsingPOST(summaryStatistics, mutationRecords, isoformOverridesSource, replace, mutationRecords.size(), reannotate, stripMatchingBases, ignoreOriginalGenomicLocation, addOriginalGenomicLocation, noteColumn);
     }
 
-    @Override
-    public List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(AnnotationSummaryStatistics summaryStatistics, List<MutationRecord> mutationRecords, String isoformOverridesSource, Boolean replace, Integer postIntervalSize, boolean reannotate, String stripMatchingBases, Boolean ignoreOriginalGenomicLocation, Boolean addOriginalGenomicLocation, Boolean noteColumn) {
-        // construct list of genomic location objects to pass to api client
-        // TODO use SortedSet (or at least Set) instead?  Do we anticipate a lot of redundancy? Probably quite a bit.
-        // Maybe test which is faster with a large study
-        List<GenomicLocation> genomicLocations = new ArrayList<>();
-        for (MutationRecord record : mutationRecords) {
-            if(reannotate || annotationNeeded(record)) {
-                genomicLocations.add(parseGenomicLocationFromRecord(record, ignoreOriginalGenomicLocation));
+   @Override
+    public List<AnnotatedRecord> getAnnotatedRecordsUsingPOST(
+        AnnotationSummaryStatistics summaryStatistics,
+        List<MutationRecord> mutationRecords,
+        String isoformOverridesSource,
+        Boolean replace,
+        Integer postIntervalSize,
+        boolean reannotate,
+        String stripMatchingBases,
+        Boolean ignoreOriginalGenomicLocation,
+        Boolean addOriginalGenomicLocation,
+        Boolean noteColumn
+    ) {
+        // Create mapping for records that need annotation
+        List<MutationRecord> recordsToAnnotate = new ArrayList<>();
+        Map<String, List<Integer>> genomicLocationToRecordIndices = new HashMap<>();
+        
+        for (int i = 0; i < mutationRecords.size(); i++) {
+            MutationRecord record = mutationRecords.get(i);
+            if (reannotate || annotationNeeded(record)) {
+                recordsToAnnotate.add(record);
+                GenomicLocation location = parseGenomicLocationFromRecord(record, ignoreOriginalGenomicLocation);
+                String locationKey = getLocationKey(location);
+                
+                genomicLocationToRecordIndices.computeIfAbsent(locationKey, k -> new ArrayList<>()).add(i);
             }
         }
-        // sort and partition the genomic locations
-        List<List<GenomicLocation>> partitionedGenomicLocationList = sortAndPartitionMutationRecordsListForPOST(genomicLocations, postIntervalSize);
-
-        Map<String, VariantAnnotation> gnResponseVariantKeyMap = new HashMap<>();
-        int totalVariantsToAnnotateCount = genomicLocations.size();
+        
+        int totalVariantsToAnnotateCount = recordsToAnnotate.size();
         int annotatedVariantsCount = 0;
-        for (List<GenomicLocation> partitionedList : partitionedGenomicLocationList) {
+        List<AnnotatedRecord> annotatedRecords = new ArrayList<>(Collections.nCopies(mutationRecords.size(), null));
+        
+        // Extract genomic locations and sort
+        List<GenomicLocation> genomicLocations = recordsToAnnotate.stream()
+            .map(r -> parseGenomicLocationFromRecord(r, ignoreOriginalGenomicLocation))
+            .collect(Collectors.toList());
+        
+        List<List<GenomicLocation>> partitionedLocations = sortAndPartitionGenomicLocations(
+            genomicLocations, postIntervalSize);
+        
+        // Process each partition
+        for (List<GenomicLocation> locationBatch : partitionedLocations) {
             List<VariantAnnotation> gnResponseList = null;
             Instant startTime = Instant.now();
-            // Get annotations from Genome Nexus and log if server error (e.g VEP is down)
+            
             try {
-                 gnResponseList = apiClient.fetchVariantAnnotationByGenomicLocationPOST(partitionedList,
-                    isoformOverridesSource, tokens, queryFields());
+                gnResponseList = apiClient.fetchVariantAnnotationByGenomicLocationPOST(
+                    locationBatch, isoformOverridesSource, tokens, queryFields());
             } catch (Exception e) {
                 LOG.error("Annotation failed for ALL variants in this partition. " + e.getMessage());
             }
-            summaryStatistics.addDuration(Duration.between(startTime, Instant.now()).getSeconds());
-            // Verify annotations coming back from Genome Nexus and log annotation failures (e.g used to be 404s)
+            
             if (gnResponseList != null) {
                 for (VariantAnnotation gnResponse : gnResponseList) {
-                    logAnnotationProgress(++annotatedVariantsCount, totalVariantsToAnnotateCount, postIntervalSize);
+                    
                     if (!gnResponse.isSuccessfullyAnnotated()) {
-                        LOG.warn("Annotation failed for variant " + gnResponse.getVariant() + (gnResponse.getErrorMessage() != null ? ";" + gnResponse.getErrorMessage() : ""));
+                        LOG.warn("Annotation failed for variant " + gnResponse.getVariant() + 
+                            (gnResponse.getErrorMessage() != null ? ";" + gnResponse.getErrorMessage() : ""));
                     }
-                    gnResponseVariantKeyMap.put(gnResponse.getOriginalVariantQuery(), gnResponse);
-                }
-            }
-        }
-
-        List<AnnotatedRecord> annotatedRecords = new ArrayList<>();
-        // loop through the original mutationRecords (in original sort order) and
-        // create annotated records by merging the responses from gn with their corresponding MAF record
-        for (MutationRecord record : mutationRecords) {
-            String genomicLocation = parseGenomicLocationString(record, ignoreOriginalGenomicLocation);
-            AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
-            // if not a failed annotation then convert/merge the response from gn with the maf record
-            VariantAnnotation gnResponse = gnResponseVariantKeyMap.get(genomicLocation);
-            if (gnResponse == null || !gnResponse.isSuccessfullyAnnotated()) {
-                if(reannotate || annotationNeeded(record)) {
-                    // only log if record actually attempted annotation
-                    annotatedRecord.setANNOTATION_STATUS("FAILED");
-                    annotatedRecord.setErrorMessage(gnResponse != null && gnResponse.getErrorMessage() != null ? gnResponse.getErrorMessage() : "");
-                    summaryStatistics.addFailedAnnotatedRecordDueToServer(record, annotatedRecord.getErrorMessage(), isoformOverridesSource);
+                    
+                    String locationKey = gnResponse.getOriginalVariantQuery();
+                    List<Integer> recordIndices = genomicLocationToRecordIndices.get(locationKey);
+                    
+                    if (recordIndices != null) {
+                        for (Integer index : recordIndices) {
+                            logAnnotationProgress(++annotatedVariantsCount, totalVariantsToAnnotateCount, postIntervalSize);
+                            MutationRecord record = mutationRecords.get(index);
+                            AnnotatedRecord annotatedRecord;
+                            
+                            if (!gnResponse.isSuccessfullyAnnotated()) {
+                                annotatedRecord = new AnnotatedRecord(record);
+                                annotatedRecord.setANNOTATION_STATUS("FAILED");
+                                annotatedRecord.setErrorMessage(gnResponse.getErrorMessage() != null ? 
+                                                            gnResponse.getErrorMessage() : "");
+                                summaryStatistics.addFailedAnnotatedRecordDueToServer(
+                                    record, annotatedRecord.getErrorMessage(), isoformOverridesSource);
+                            } else {
+                                annotatedRecord = convertResponseToAnnotatedRecord(
+                                    gnResponse, record, replace, stripMatchingBases,
+                                    ignoreOriginalGenomicLocation, addOriginalGenomicLocation, noteColumn);
+                                annotatedRecord.setANNOTATION_STATUS("SUCCESS");
+                                
+                                if (summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverridesSource)) {
+                                    LOG.warn("Annotated record is invalid for variant " + gnResponse.getVariant());
+                                }
+                            }
+                            
+                            annotatedRecords.set(index, annotatedRecord);
+                        }
+                    }
                 }
             } else {
-                annotatedRecord = convertResponseToAnnotatedRecord(gnResponseVariantKeyMap.get(genomicLocation), record, replace, stripMatchingBases, ignoreOriginalGenomicLocation, addOriginalGenomicLocation, noteColumn);
-                annotatedRecord.setANNOTATION_STATUS("SUCCESS"); // annotation status indicates if a response was returned from GN, not whether the annotation is considered valid or not
-                if (summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverridesSource)) {
-                    // Log case where annotation comes back from Genome Nexus but still invalid (e.g null variant classification)
-                    LOG.warn("Annotated record is invalid for variant " + gnResponseVariantKeyMap.get(genomicLocation).getVariant());
+                // Handle failed batch
+                for (GenomicLocation location : locationBatch) {
+                    String locationKey = getLocationKey(location);
+                    List<Integer> recordIndices = genomicLocationToRecordIndices.get(locationKey);
+                    
+                    if (recordIndices != null) {
+                        for (Integer index : recordIndices) {
+                            MutationRecord record = mutationRecords.get(index);
+                            AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
+                            annotatedRecord.setANNOTATION_STATUS("FAILED");
+                            annotatedRecord.setErrorMessage("Batch annotation failed");
+                            summaryStatistics.addFailedAnnotatedRecordDueToServer(
+                                record, annotatedRecord.getErrorMessage(), isoformOverridesSource);
+                            
+                            annotatedRecords.set(index, annotatedRecord);
+                        }
+                    }
                 }
             }
-            annotatedRecords.add(annotatedRecord);
+            
+            // clearing references no longer needed
+            if (gnResponseList != null) {
+                gnResponseList.clear();
+            }
+            summaryStatistics.addDuration(Duration.between(startTime, Instant.now()).getSeconds());
+        }
+        
+        for (int i = 0; i < mutationRecords.size(); i++) {
+            if (annotatedRecords.get(i) == null) {
+                annotatedRecords.set(i, new AnnotatedRecord(mutationRecords.get(i)));
+            }
         }
         return annotatedRecords;
     }
 
-    private List<List<GenomicLocation>> sortAndPartitionMutationRecordsListForPOST(List<GenomicLocation> genomicLocations, Integer postIntervalSize) {
-        // sort
-        List<GenomicLocation> sortedGenomicLocations = new ArrayList<>(genomicLocations);
-        Collections.sort(sortedGenomicLocations, GENOMIC_LOCATION_COMPARATOR);
-        // partition
-        int start = 0;
-        int end = postIntervalSize;
-        List<List<GenomicLocation>> genomicLocationPartitionedLists = new ArrayList<>();
-        while(end <= sortedGenomicLocations.size()) {
-            genomicLocationPartitionedLists.add(sortedGenomicLocations.subList(start, end));
-            start = end;
-            end = start + postIntervalSize;
+    private String getLocationKey(GenomicLocation location) {
+        return String.join(",",
+            location.getChromosome(),
+            String.valueOf(location.getStart()),
+            String.valueOf(location.getEnd()),
+            location.getReferenceAllele(),
+            location.getVariantAllele()
+        );
+    }
+
+    private List<List<GenomicLocation>> sortAndPartitionGenomicLocations(
+        List<GenomicLocation> genomicLocations, Integer postIntervalSize) {
+        
+        List<GenomicLocation> sortedLocations = new ArrayList<>(genomicLocations);
+        Collections.sort(sortedLocations, GENOMIC_LOCATION_COMPARATOR);
+        
+        // Partition into batches
+        List<List<GenomicLocation>> partitionedList = new ArrayList<>();
+        for (int start = 0; start < sortedLocations.size(); start += postIntervalSize) {
+            int end = Math.min(start + postIntervalSize, sortedLocations.size());
+            partitionedList.add(sortedLocations.subList(start, end));
         }
-        if (start < sortedGenomicLocations.size()) {
-            genomicLocationPartitionedLists.add(sortedGenomicLocations.subList(start, sortedGenomicLocations.size()));
-        }
-        return genomicLocationPartitionedLists;
+        
+        return partitionedList;
     }
 
     private void logAnnotationProgress(Integer annotatedVariantsCount, Integer totalVariantsToAnnotateCount, Integer intervalSize) {
