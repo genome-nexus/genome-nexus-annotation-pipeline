@@ -498,12 +498,11 @@ public class GenomeNexusImpl implements Annotator {
 
     @Override
     public String getUrlForRecord(MutationRecord record, String isoformOverridesSource) {
-        String genomicLocation = parseGenomicLocationString(record);
+        String genomicLocation = parseGenomicLocationString(record, false);
         // TODO this is now handled by the API client, we don't really need this (keeping for logging purposes only)
         return genomeNexusBaseUrl + "annotation/genomic/" + genomicLocation + "?" +
                 isoformQueryParameter + "=" + isoformOverridesSource + "&fields=" + String.join(",", queryFields());
     }
-
 
     private AlleleFrequency getGnomadAlleleFrequency(VariantAnnotation gnResponse) {
         MyVariantInfoAnnotation myVariantInfoAnnotation = gnResponse.getMyVariantInfo();
@@ -563,24 +562,17 @@ public class GenomeNexusImpl implements Annotator {
     
     public String parseGenomicLocationString(MutationRecord record, Boolean ignoreOriginalGenomicLocation) {
         GenomicLocation genomicLocation = parseGenomicLocationFromRecord(record, ignoreOriginalGenomicLocation);
-        return StringUtils.join(new String[]{
-            genomicLocation.getChromosome(),
-            genomicLocation.getStart() != null ? genomicLocation.getStart().toString() : "",
-            genomicLocation.getEnd() != null ? genomicLocation.getEnd().toString() : "",
-            genomicLocation.getReferenceAllele(),
-            genomicLocation.getVariantAllele()},
-                ",");
+        return getGenomicLocationString(genomicLocation);
     }
 
-    public String parseGenomicLocationString(MutationRecord record) {
-        GenomicLocation genomicLocation = parseGenomicLocationFromRecord(record, false);
-        return StringUtils.join(new String[]{
-            genomicLocation.getChromosome(),
-            genomicLocation.getStart() != null ? genomicLocation.getStart().toString() : "",
-            genomicLocation.getEnd() != null ? genomicLocation.getEnd().toString() : "",
-            genomicLocation.getReferenceAllele(),
-            genomicLocation.getVariantAllele()},
-                ",");
+    private String getGenomicLocationString(GenomicLocation location) {
+        return String.join(",",
+            location.getChromosome(),
+            String.valueOf(location.getStart() != null ? location.getStart() : ""),
+            String.valueOf(location.getEnd() != null ? location.getEnd() : ""),
+            location.getReferenceAllele(),
+            location.getVariantAllele()
+        );
     }
 
     private TranscriptConsequenceSummary getCanonicalTranscript(VariantAnnotation gnResponse) {
@@ -594,7 +586,6 @@ public class GenomeNexusImpl implements Annotator {
             return null;
         }
     }
-
 
     private static List<String> initNullClassifications() {
         List<String> hgvspNullClassifications = new ArrayList<>();
@@ -636,7 +627,7 @@ public class GenomeNexusImpl implements Annotator {
             if (reannotate || annotationNeeded(record)) {
                 recordsToAnnotate.add(record);
                 GenomicLocation location = parseGenomicLocationFromRecord(record, ignoreOriginalGenomicLocation);
-                String locationKey = getLocationKey(location);
+                String locationKey = getGenomicLocationString(location);
                 
                 genomicLocationToRecordIndices.computeIfAbsent(locationKey, k -> new ArrayList<>()).add(i);
             }
@@ -695,10 +686,6 @@ public class GenomeNexusImpl implements Annotator {
                                     gnResponse, record, replace, stripMatchingBases,
                                     ignoreOriginalGenomicLocation, addOriginalGenomicLocation, noteColumn);
                                 annotatedRecord.setANNOTATION_STATUS("SUCCESS");
-                                
-                                if (summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverridesSource)) {
-                                    LOG.warn("Annotated record is invalid for variant " + gnResponse.getVariant());
-                                }
                             }
                             
                             annotatedRecords.set(index, annotatedRecord);
@@ -708,7 +695,7 @@ public class GenomeNexusImpl implements Annotator {
             } else {
                 // Handle failed batch
                 for (GenomicLocation location : locationBatch) {
-                    String locationKey = getLocationKey(location);
+                    String locationKey = getGenomicLocationString(location);
                     List<Integer> recordIndices = genomicLocationToRecordIndices.get(locationKey);
                     
                     if (recordIndices != null) {
@@ -739,16 +726,6 @@ public class GenomeNexusImpl implements Annotator {
             }
         }
         return annotatedRecords;
-    }
-
-    private String getLocationKey(GenomicLocation location) {
-        return String.join(",",
-            location.getChromosome(),
-            String.valueOf(location.getStart()),
-            String.valueOf(location.getEnd()),
-            location.getReferenceAllele(),
-            location.getVariantAllele()
-        );
     }
 
     private List<List<GenomicLocation>> sortAndPartitionGenomicLocations(
