@@ -656,10 +656,11 @@ public class GenomeNexusImpl implements Annotator {
             } catch (Exception e) {
                 LOG.error("Annotation failed for ALL variants in this partition. " + e.getMessage());
             }
+            summaryStatistics.addDuration(Duration.between(startTime, Instant.now()).getSeconds());
             
             if (gnResponseList != null) {
                 for (VariantAnnotation gnResponse : gnResponseList) {
-                    
+                    logAnnotationProgress(++annotatedVariantsCount, totalVariantsToAnnotateCount, postIntervalSize);
                     if (!gnResponse.isSuccessfullyAnnotated()) {
                         LOG.warn("Annotation failed for variant " + gnResponse.getVariant() + 
                             (gnResponse.getErrorMessage() != null ? ";" + gnResponse.getErrorMessage() : ""));
@@ -668,24 +669,30 @@ public class GenomeNexusImpl implements Annotator {
                     String locationKey = gnResponse.getOriginalVariantQuery();
                     List<Integer> recordIndices = genomicLocationToRecordIndices.get(locationKey);
                     
-                    if (recordIndices != null) {
+                    if (recordIndices != null && !recordIndices.isEmpty() && annotatedRecords.get(recordIndices.getFirst()) == null) {
                         for (Integer index : recordIndices) {
-                            logAnnotationProgress(++annotatedVariantsCount, totalVariantsToAnnotateCount, postIntervalSize);
                             MutationRecord record = mutationRecords.get(index);
-                            AnnotatedRecord annotatedRecord;
+                            AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
                             
                             if (!gnResponse.isSuccessfullyAnnotated()) {
-                                annotatedRecord = new AnnotatedRecord(record);
-                                annotatedRecord.setANNOTATION_STATUS("FAILED");
-                                annotatedRecord.setErrorMessage(gnResponse.getErrorMessage() != null ? 
-                                                            gnResponse.getErrorMessage() : "");
-                                summaryStatistics.addFailedAnnotatedRecordDueToServer(
-                                    record, annotatedRecord.getErrorMessage(), isoformOverridesSource);
+                                if (reannotate || annotationNeeded(record)) {
+                                    // only log if record actually attempted annotation
+                                    annotatedRecord = new AnnotatedRecord(record);
+                                    annotatedRecord.setANNOTATION_STATUS("FAILED");
+                                    annotatedRecord.setErrorMessage(gnResponse.getErrorMessage() != null ?
+                                            gnResponse.getErrorMessage() : "");
+                                    summaryStatistics.addFailedAnnotatedRecordDueToServer(
+                                            record, annotatedRecord.getErrorMessage(), isoformOverridesSource);
+                                }
                             } else {
                                 annotatedRecord = convertResponseToAnnotatedRecord(
                                     gnResponse, record, replace, stripMatchingBases,
                                     ignoreOriginalGenomicLocation, addOriginalGenomicLocation, noteColumn);
                                 annotatedRecord.setANNOTATION_STATUS("SUCCESS");
+                                if (summaryStatistics.isFailedAnnotatedRecord(annotatedRecord, record, isoformOverridesSource)) {
+                                    // Log case where annotation comes back from Genome Nexus but still invalid (e.g null variant classification)
+                                    LOG.warn("Annotated record is invalid for variant " + gnResponse.getVariant());
+                                }
                             }
                             
                             annotatedRecords.set(index, annotatedRecord);
@@ -717,7 +724,6 @@ public class GenomeNexusImpl implements Annotator {
             if (gnResponseList != null) {
                 gnResponseList.clear();
             }
-            summaryStatistics.addDuration(Duration.between(startTime, Instant.now()).getSeconds());
         }
         
         for (int i = 0; i < mutationRecords.size(); i++) {
