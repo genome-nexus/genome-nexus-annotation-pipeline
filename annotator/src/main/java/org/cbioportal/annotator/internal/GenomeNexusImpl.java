@@ -705,7 +705,7 @@ public class GenomeNexusImpl implements Annotator {
                     String locationKey = getGenomicLocationString(location);
                     List<Integer> recordIndices = genomicLocationToRecordIndices.get(locationKey);
                     
-                    if (recordIndices != null) {
+                    if (recordIndices != null && !recordIndices.isEmpty() && annotatedRecords.get(recordIndices.getFirst()) == null) {
                         for (Integer index : recordIndices) {
                             MutationRecord record = mutationRecords.get(index);
                             AnnotatedRecord annotatedRecord = new AnnotatedRecord(record);
