@@ -26,6 +26,7 @@
     <dependency>
       <groupId>org.cbioportal.annotation.pipeline</groupId>
       <artifactId>annotator</artifactId>
+      <version>0-auto-generated-version-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
