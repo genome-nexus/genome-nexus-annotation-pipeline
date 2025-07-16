@@ -53,6 +53,24 @@ jobs:
         run: tree -L 2
       - name: Run versioning script
         run: ./version.sh
+      - name: Show all module versions and parents
+        run: |
+          echo "Root POM version:"
+          grep '<version>' pom.xml | head -1
+          echo
+          echo "annotationPipeline parent reference:"
+          grep '<parent>' annotationPipeline/pom.xml -A 4
+          grep '<version>' annotationPipeline/pom.xml | head -1
+          echo
+          echo "annotator parent reference:"
+          grep '<parent>' annotator/pom.xml -A 4
+          grep '<version>' annotator/pom.xml | head -1
+      
+      - name: Show annotationPipeline POM
+        run: cat annotationPipeline/pom.xml
+      
+      - name: Show annotator POM
+        run: cat annotator/pom.xml
       - name: Build Java code and install to local Maven repo
         run: mvn -DskipTests install --batch-mode --no-transfer-progress -X
       - name: Publish Docker Image on Tag
