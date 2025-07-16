@@ -15,6 +15,7 @@
     <!-- project version is generated through git or can be passed as
        PROJECT_VERSION env variable (see version.sh) -->
     <version>0-auto-generated-version-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <properties>
