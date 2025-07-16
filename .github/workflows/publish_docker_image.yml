@@ -52,7 +52,7 @@ jobs:
       - name: Run versioning script
         run: ./version.sh
       - name: Build Java code and install to local Maven repo
-        run: mvn -DskipTests install --batch-mode --no-transfer-progress
+        run: mvn -DskipTests install --batch-mode --no-transfer-progress -X
       - name: Publish Docker Image on Tag
         uses: docker/build-push-action@v3
         with:
