@@ -32,14 +32,17 @@
 
 package org.cbioportal.annotator.internal;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.cbioportal.annotator.Annotator;
 import org.cbioportal.models.AnnotatedRecord;
 import org.cbioportal.models.MutationRecord;
 import org.mskcc.cbio.maf.MafUtil;
-
-import java.io.*;
-import java.util.*;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

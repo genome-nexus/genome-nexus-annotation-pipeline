@@ -32,16 +32,19 @@
 
 package org.cbioportal.annotator.internal;
 
-import org.cbioportal.models.AnnotatedRecord;
-import org.cbioportal.models.MutationRecord;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.cbioportal.annotator.GenomeNexusTestConfiguration;
 import org.cbioportal.annotator.MockGenomeNexusImpl;
-
-import java.util.*;
-import org.junit.*;
+import org.cbioportal.models.AnnotatedRecord;
+import org.cbioportal.models.MutationRecord;
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -144,7 +147,7 @@ public class GenomeNexusImplTest {
 
         Map<String, String> expectedGenomicLocations = makeMockExpectedGenomicLocations();
         for (AnnotatedRecord record : mockAnnotatedRecords) {
-            String genomicLocation = annotator.parseGenomicLocationString(record);
+            String genomicLocation = annotator.parseGenomicLocationString(record, false);
             if (!genomicLocation.equals(expectedGenomicLocations.get(record.getTUMOR_SAMPLE_BARCODE()))) {
                 errorMessage.append("testConvertToHgvs(), record genomicLocation '")
                         .append(genomicLocation)

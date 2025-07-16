@@ -140,7 +140,7 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
     public AnnotatedRecord makeMockAnnotatedRecord(MutationRecord record) {
         VariantAnnotation gnResponse = null;
         try {
-            gnResponse = makeMockGenomeNexusResponse(mockGenomeNexusHgvsResponseMap.get(parseGenomicLocationString(record)));
+            gnResponse = makeMockGenomeNexusResponse(mockGenomeNexusHgvsResponseMap.get(parseGenomicLocationString(record, false)));
         }
         catch (IOException e) {
             throw new RuntimeException(e);
@@ -152,7 +152,7 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
     public AnnotatedRecord makeMockPOSTAnnotatedRecord(MutationRecord record) {
         VariantAnnotation gnResponse = null;
         try {
-            gnResponse = makeMockGenomeNexusResponse(mockGenomeNexusHgvsPOSTResponseMap.get(parseGenomicLocationString(record)));
+            gnResponse = makeMockGenomeNexusResponse(mockGenomeNexusHgvsPOSTResponseMap.get(parseGenomicLocationString(record, false)));
         }
         catch (IOException e) {
             throw new RuntimeException(e);
@@ -164,7 +164,7 @@ public class MockGenomeNexusImpl extends GenomeNexusImpl {
     public AnnotatedRecord makeMockMyVariantInfoAnnotatedRecord(MutationRecord record) {
         VariantAnnotation gnResponse = null;
         try {
-            gnResponse = makeMockGenomeNexusResponse(mockGenomeNexusMyVariantInfoResponseMap.get(parseGenomicLocationString(record)));
+            gnResponse = makeMockGenomeNexusResponse(mockGenomeNexusMyVariantInfoResponseMap.get(parseGenomicLocationString(record, false)));
         }
         catch (IOException e) {
             throw new RuntimeException(e);
