@@ -12,9 +12,11 @@ jobs:
     if: github.repository == 'genome-nexus/genome-nexus-annotation-pipeline'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout git repo
+      - name: Checkout repo
         uses: actions/checkout@v3
-
+        with:
+          fetch-depth: 0   # fetch all history for git describe to work correctly with tags
+          tags: true       # explicitly fetch all tags
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v4
