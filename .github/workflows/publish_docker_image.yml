@@ -44,7 +44,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
       - name: Build Java code and install to local Maven repo
-        run: mvn -DskipTests clean install --no-transfer-progress
+        run: mvn -DskipTests install --batch-mode --no-transfer-progress
       - name: Publish Docker Image on Tag
         uses: docker/build-push-action@v3
         with:
