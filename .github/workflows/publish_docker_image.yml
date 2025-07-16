@@ -43,6 +43,14 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+      - name: Show directory structure
+        run: tree -L 2
+      - name: Move to repo root
+        run: cd ${{ github.workspace }}
+      - name: Show directory structure again
+        run: tree -L 2
+      - name: Run versioning script
+        run: ./version.sh
       - name: Build Java code and install to local Maven repo
         run: mvn -DskipTests install --batch-mode --no-transfer-progress
       - name: Publish Docker Image on Tag
