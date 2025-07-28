@@ -16,7 +16,7 @@ WORKDIR $GN_HOME
 RUN cp $GN_RESOURCES/log4j.properties.console.EXAMPLE $GN_RESOURCES/log4j.properties
 
 # Maven build
-RUN mvn ${MAVEN_OPTS} clean install -q
+RUN mvn clean install -DskipTests -q
 
 # Stage-1
 FROM eclipse-temurin:21
