@@ -14,7 +14,8 @@ jobs:
     steps:
       - name: Checkout git repo
         uses: actions/checkout@v3
-
+      - name: Build Maven Project
+        run: mvn clean install -DskipTests
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v4
@@ -25,7 +26,6 @@ jobs:
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
-
       # The following two actions are required to build multi-platform images
       # buildx is an extension of docker build, QUEM is used to convert the binary to varies architecture
       - name: Set up QEMU

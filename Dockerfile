@@ -31,9 +31,9 @@ RUN apt-get update && apt-get -y install \
     && apt-get clean
 
 # Copy artifact from build-stage
-COPY --from=build $GN_TARGET/annotationPipeline-*.jar $GN_TARGET/annotationPipeline.jar
-COPY --from=build $GN_HOME/scripts $GN_HOME/scripts
-COPY --from=build $GN_RESOURCES/application.properties.EXAMPLE $GN_RESOURCES/application.properties
+COPY annotationPipeline/target/annotationPipeline-*.jar $GN_TARGET/annotationPipeline.jar
+COPY scripts $GN_HOME/scripts
+COPY annotationPipeline/src/main/resources/application.properties.EXAMPLE $GN_RESOURCES/application.properties
 
 ENV PATH="${PATH}:${GN_HOME}/scripts"
 
