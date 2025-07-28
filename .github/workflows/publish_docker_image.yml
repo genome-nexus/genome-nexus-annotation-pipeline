@@ -19,6 +19,8 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+      - name: Install root POM (master)
+        run: mvn install -N -DskipTests
       - name: Build Maven Project
         run: mvn clean install -DskipTests
       - name: Extract metadata
