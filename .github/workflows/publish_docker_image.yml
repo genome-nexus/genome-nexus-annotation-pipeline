@@ -14,7 +14,15 @@ jobs:
     steps:
       - name: Checkout git repo
         uses: actions/checkout@v3
-
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Install root POM (master)
+        run: mvn install -N -DskipTests
+      - name: Build Maven Project
+        run: mvn clean install -DskipTests
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v4
