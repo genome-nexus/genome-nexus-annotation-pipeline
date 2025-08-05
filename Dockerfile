@@ -1,9 +1,6 @@
 # Multi-stage build
 FROM maven:3-eclipse-temurin-21 as build
 
-# Build args
-ARG MAVEN_OPTS=-DskipTests 
-
 # ENV variables
 ENV GN_HOME=/genome-nexus-annotation-pipeline
 ENV GN_RESOURCES=$GN_HOME/annotationPipeline/src/main/resources
@@ -16,7 +13,7 @@ WORKDIR $GN_HOME
 RUN cp $GN_RESOURCES/log4j.properties.console.EXAMPLE $GN_RESOURCES/log4j.properties
 
 # Maven build
-RUN mvn ${MAVEN_OPTS} clean install -q
+RUN mvn clean install -DskipTests -q
 
 # Stage-1
 FROM eclipse-temurin:21
