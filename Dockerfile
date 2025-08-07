@@ -1,5 +1,5 @@
 # Multi-stage build
-FROM maven:3.9.10-eclipse-temurin-21 as build
+FROM maven:3.9.9-eclipse-temurin-21 as build
 
 # Build args
 ARG MAVEN_OPTS=-DskipTests 
@@ -16,7 +16,7 @@ WORKDIR $GN_HOME
 RUN cp $GN_RESOURCES/log4j.properties.console.EXAMPLE $GN_RESOURCES/log4j.properties
 
 # Maven build
-RUN mvn ${MAVEN_OPTS} clean install -DreuseRepositoryLayout=false -q
+RUN mvn ${MAVEN_OPTS} clean install -q
 
 # Stage-1
 FROM eclipse-temurin:21
