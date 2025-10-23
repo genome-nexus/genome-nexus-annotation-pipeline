@@ -68,7 +68,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
@@ -84,7 +84,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "mskcc")
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
@@ -100,7 +100,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
@@ -116,7 +116,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
@@ -132,7 +132,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "mskcc")
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
@@ -148,7 +148,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
@@ -164,7 +164,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "mskcc")
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
@@ -185,7 +185,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "mskcc")
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
@@ -206,7 +206,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
@@ -222,7 +222,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
@@ -238,7 +238,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .toJobParameters();
         testWith(jobParameters, expectedFile, actualFile);
@@ -255,7 +255,7 @@ public class SpringBatchIntegrationTest {
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
                 .addString("outputFormat", "extended")
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .addString("postIntervalSize", String.valueOf(-1))
                 .toJobParameters();
@@ -273,7 +273,7 @@ public class SpringBatchIntegrationTest {
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
                 .addString("outputFormat", "minimal")
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .addString("postIntervalSize", String.valueOf(-1))
                 .toJobParameters();
@@ -295,7 +295,7 @@ public class SpringBatchIntegrationTest {
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
                 .addString("outputFormat", "Hugo_Symbol,Entrez_Gene_Id,Center,NCBI_Build,Chromosome,Annotation_Status")
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "uniprot")
                 .addString("postIntervalSize", String.valueOf(-1))
                 .toJobParameters();
@@ -312,7 +312,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "mskcc")
                 .addString("postIntervalSize", String.valueOf(-1))
                 .addString("addOriginalGenomicLocation", String.valueOf(true))
@@ -330,7 +330,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "mskcc")
                 .addString("postIntervalSize", String.valueOf(-1))
                 .addString("stripMatchingBases", "first")
@@ -348,7 +348,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "mskcc")
                 .addString("postIntervalSize", String.valueOf(-1))
                 .addString("stripMatchingBases", "none")
@@ -366,7 +366,7 @@ public class SpringBatchIntegrationTest {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filename", inputFile)
                 .addString("outputFilename", actualFile)
-                .addString("replace", String.valueOf(true))
+                .addString("replaceSymbolEntrez", String.valueOf(true))
                 .addString("isoformOverride", "mskcc")
                 .addString("postIntervalSize", String.valueOf(-1))
                 .addString("stripMatchingBases", "none")
@@ -384,6 +384,25 @@ public class SpringBatchIntegrationTest {
         ExitStatus actualJobExitStatus = jobExecution.getExitStatus();
 
         assertEquals("COMPLETED", actualJobExitStatus.getExitCode());
-        AssertFile.assertFileEquals(expectedResult, actualResult);
+        assertFiles(expectedResult, actualResult);
+
+    }
+
+    private static java.nio.file.Path stripFirstLine(java.nio.file.Path in) throws java.io.IOException {
+        java.util.List<String> lines = java.nio.file.Files.readAllLines(in);
+        java.nio.file.Path tmp = java.nio.file.Files.createTempFile("cmp-", ".txt");
+        tmp.toFile().deleteOnExit();
+        java.nio.file.Files.write(tmp, lines.size() > 1 ? lines.subList(1, lines.size()) : java.util.Collections.emptyList());
+        return tmp;
+    }
+
+    private static void assertFiles(org.springframework.core.io.FileSystemResource expected, org.springframework.core.io.FileSystemResource actual) throws Exception {
+        // ignore first line which contains genome nexus version info
+        java.nio.file.Path e2 = stripFirstLine(expected.getFile().toPath());
+        java.nio.file.Path a2 = stripFirstLine(actual.getFile().toPath());
+        org.springframework.batch.test.AssertFile.assertFileEquals(
+            new org.springframework.core.io.FileSystemResource(e2.toFile()),
+            new org.springframework.core.io.FileSystemResource(a2.toFile())
+        );
     }
 }

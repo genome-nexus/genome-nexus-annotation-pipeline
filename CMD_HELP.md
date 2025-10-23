@@ -23,7 +23,7 @@ annotate subcommand options:
  -p,--post-interval-size <arg>      Number of records to make POST requests to Genome Nexus with at
                                     a time
  -r,--replace-symbol-entrez         Replace gene symbols and entrez id with what is provided by
-                                    annotator
+                                    annotator, otherwise use what is in the input file. By default it's set to true.
  -t,--output-format <arg>           extended, minimal or a file path which includes output format
                                     (FORMAT EXAMPLE:
                                     Chromosome,Hugo_Symbol,Entrez_Gene_Id,Center,NCBI_Build)
