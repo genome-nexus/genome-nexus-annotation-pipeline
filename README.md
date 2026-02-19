@@ -44,10 +44,10 @@ Genome Nexus Annotation Pipeline is available on DockerHub: https://hub.docker.c
 
 #### Usage instruction
 ```
-docker pull genomenexus/gn-annotation-pipeline:master 
+docker pull genomenexus/gn-annotation-pipeline:latest 
 ```
 ```
-docker run -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master java -jar annotationPipeline.jar --filename /wd/input.txt  --output-filename /wd/output.txt
+docker run -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:latest java -jar annotationPipeline.jar --filename /wd/input.txt  --output-filename /wd/output.txt
 ```
 - `-v ${PWD}:/wd`: This option maps the current working directory to a volume within the Docker container at the path `/wd`. This makes it possible for files in the host directory to be accessed and modified between container and host.
 - `--filename /wd/input.txt`: This option specifies the input file location at `/wd/input.txt`, which should be under the same directory as output file.
@@ -85,7 +85,7 @@ The Genome Nexus Annotation Pipeline supports two versions of the human genome r
 If you want to annotate with **GRCh38**, please set the `GENOMENEXUS_BASE` environment variable to `https://grch38.genomenexus.org`. Here's an example of how to do this:
 
 ```
-docker run -e GENOMENEXUS_BASE=https://grch38.genomenexus.org -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:master --filename /wd/input.txt --output-filename /wd/output.txt --isoform-override mskcc
+docker run -e GENOMENEXUS_BASE=https://grch38.genomenexus.org -v ${PWD}:/wd genomenexus/gn-annotation-pipeline:latest java -jar annotationPipeline.jar --filename /wd/input.txt --output-filename /wd/output.txt --isoform-override mskcc
 ```
 
 ### Annotation fields
