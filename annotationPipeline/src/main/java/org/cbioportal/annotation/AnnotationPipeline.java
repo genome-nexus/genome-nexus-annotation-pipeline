@@ -88,7 +88,9 @@ public class AnnotationPipeline {
         addJobParameterIfValueIsNotNull(jobParametersBuilder, "addOriginalGenomicLocation", String.valueOf(addOriginalGenomicLocation));
         addJobParameterIfValueIsNotNull(jobParametersBuilder, "noteColumn", String.valueOf(noteColumn));
         JobParameters jobParameters = jobParametersBuilder.toJobParameters();
+        Instant annotationStart = Instant.now();
         JobExecution jobExecution = jobLauncher.run(annotationJob, jobParameters);
+        System.out.println(" ANNOTATION_TIME: " + Duration.between(annotationStart, Instant.now()).getSeconds() + " secs.");
         if (!jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
             System.exit(2);
         }
