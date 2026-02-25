@@ -120,20 +120,21 @@ jobs:
               TOTAL_VARIANTS=$(tail -n +2 test/data/chol_tcga_gdc_data_mutations.txt | grep -cv '^#' || echo "")
             fi
             RUNTIME=$(grep -oP '(?<=RUNTIME: )\d+' "$LOG" || echo "")
+            ANNOTATION_TIME=$(grep -oP '(?<=ANNOTATION_TIME: )\d+' "$LOG" || echo "")
             AVG_RESPONSE=$(grep -oP '(?<=Average Response Time:  )[\d.]+' "$LOG" || echo "")
             TOTAL_RESPONSE=$(grep -oP '(?<=Total Response Time:  )\d+' "$LOG" || echo "")
             AMBIGUOUS=$(grep -oP '(?<=ambiguous SNP and INDEL allele changes:  )\d+' "$LOG" || echo "")
             FAILED=$(grep -oP '\d+(?= total failed annotations)' "$LOG" || echo "0")
 
-            if [ -n "$TOTAL_VARIANTS" ] && [ -n "$RUNTIME" ] && [ "$RUNTIME" -gt 0 ]; then
-              VARIANTS_PER_SEC=$(awk "BEGIN {printf \"%.1f\", $TOTAL_VARIANTS / $RUNTIME}")
+            if [ -n "$TOTAL_VARIANTS" ] && [ -n "$ANNOTATION_TIME" ] && [ "$ANNOTATION_TIME" -gt 0 ]; then
+              VARIANTS_PER_SEC=$(awk "BEGIN {printf \"%.1f\", $TOTAL_VARIANTS / $ANNOTATION_TIME}")
             else
               VARIANTS_PER_SEC=""
             fi
 
             CSV=test/data/benchmark_results.csv
-            echo "dataset,server,total_variants,runtime_secs,variants_per_sec,avg_response_secs,total_response_secs,ambiguous_records,failed_annotations" > "$CSV"
-            echo "chol_tcga_gdc,grch38.genomenexus.org,$TOTAL_VARIANTS,$RUNTIME,$VARIANTS_PER_SEC,$AVG_RESPONSE,$TOTAL_RESPONSE,$AMBIGUOUS,$FAILED" >> "$CSV"
+            echo "dataset,server,total_variants,runtime_secs,annotation_time_secs,variants_per_sec,avg_response_secs,total_response_secs,ambiguous_records,failed_annotations" > "$CSV"
+            echo "chol_tcga_gdc,grch38.genomenexus.org,$TOTAL_VARIANTS,$RUNTIME,$ANNOTATION_TIME,$VARIANTS_PER_SEC,$AVG_RESPONSE,$TOTAL_RESPONSE,$AMBIGUOUS,$FAILED" >> "$CSV"
 
             echo ""
             echo "=== Benchmark Results ==="
