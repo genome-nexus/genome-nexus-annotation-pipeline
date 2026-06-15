@@ -51,9 +51,13 @@ import org.slf4j.LoggerFactory;
  * @author ochoaa
  */
 public class AnnotationSummaryStatistics {
-private final List<String> ERROR_FILE_HEADER = Arrays.asList("SAMPLE_ID", "CHR", "START",
+    public enum ErrorLevel {
+        ERROR, WARN, INFO
+    }
+
+    private final List<String> ERROR_FILE_HEADER = Arrays.asList("SAMPLE_ID", "CHR", "START",
         "END", "REF", "Tumor_Seq_Allele1", "Tumor_Seq_Allele2", "VARIANT_CLASSIFICATION",
-        "FAILURE_REASON", "URL");
+        "LEVEL", "FAILURE_REASON", "URL");
     private final String AMBIGUOUS_ALLELE_ERROR_MESSAGE = "Record contains ambiguous SNP and INDEL allele change - SNP allele will be used";
     private final String NULL_VAR_CLASSIFICATION_ERROR_MESSGAE = "Record contains null HGVSp variant classification";
     private final String UNKNOWN_ANNOTATION_ERROR_MESSAGE = "Failed to annotate variant";
@@ -113,6 +117,7 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList("SAMPLE_ID", "CHR",
         failedAnnotatedRecords.add(record);
         failedAnnotatedRecordsErrorMessages.add(constructErrorMessageFromRecord(record,
                 record.getVARIANT_CLASSIFICATION(),
+                ErrorLevel.ERROR,
                 serverErrorMessage,
                 annotator.getUrlForRecord(record, isoformOverride))
         );
@@ -128,6 +133,7 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList("SAMPLE_ID", "CHR",
             this.failedAnnotatedRecordsErrorMessages.add(
                     constructErrorMessageFromRecord(record,
                             annotatedRecord.getVARIANT_CLASSIFICATION(),
+                            ErrorLevel.WARN,
                             AMBIGUOUS_ALLELE_ERROR_MESSAGE,
                             annotator.getUrlForRecord(record, isoformOverride))
             );
@@ -136,20 +142,40 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList("SAMPLE_ID", "CHR",
         }
         if (annotatedRecord.getHGVSC().isEmpty() && annotatedRecord.getHGVSP().isEmpty()) {
             if (annotator.isHgvspNullClassifications(annotatedRecord.getVARIANT_CLASSIFICATION())) {
+                // Expected: non-coding variants (UTR, IGR, Intron, etc.) have no HGVSc/HGVSp
                 this.nullVariantClassificationRecords++;
                 this.failedAnnotatedRecordsErrorMessages.add(
                         constructErrorMessageFromRecord(record,
                                 annotatedRecord.getVARIANT_CLASSIFICATION(),
+                                ErrorLevel.INFO,
                                 NULL_VAR_CLASSIFICATION_ERROR_MESSGAE,
+                                annotator.getUrlForRecord(record, isoformOverride))
+                );
+                failedAnnotation = Boolean.TRUE;
+            } else if (isVariantSpanningNonCodingRegion(annotatedRecord) && annotatedRecord.getErrorMessage() == null) {
+                // Multi-nucleotide deletion/insertion that spans a coding/UTR boundary:
+                // VEP classifies it as Frame_Shift or In_Frame (based on the coding portion)
+                // but cannot produce HGVSc/HGVSp because the variant extends past the stop codon
+                // or start codon into the UTR
+                this.nullVariantClassificationRecords++;
+                this.failedAnnotatedRecordsErrorMessages.add(
+                        constructErrorMessageFromRecord(record,
+                                annotatedRecord.getVARIANT_CLASSIFICATION(),
+                                ErrorLevel.INFO,
+                                "Variant spans coding/UTR boundary - HGVSc and HGVSp not computed by VEP for cross-boundary variants",
                                 annotator.getUrlForRecord(record, isoformOverride))
                 );
                 failedAnnotation = Boolean.TRUE;
             } else {
                 this.otherFailedAnnotatedRecords++;
+                String errorDetail = annotatedRecord.getErrorMessage() != null
+                    ? annotatedRecord.getErrorMessage()
+                    : "no error details available - check genome nexus logs";
                 this.failedAnnotatedRecordsErrorMessages.add(
                         constructErrorMessageFromRecord(record,
                                 record.getVARIANT_CLASSIFICATION(),
-                                UNKNOWN_ANNOTATION_ERROR_MESSAGE + ";" + annotatedRecord.getErrorMessage(),
+                                ErrorLevel.ERROR,
+                                UNKNOWN_ANNOTATION_ERROR_MESSAGE + ";" + errorDetail,
                                 annotator.getUrlForRecord(record, isoformOverride))
                 );
                 failedAnnotation = Boolean.TRUE;
@@ -162,14 +188,24 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList("SAMPLE_ID", "CHR",
         return failedAnnotation;
     }
 
+    /**
+     * Returns true if this variant is a multi-nucleotide deletion or insertion that could
+     * physically span a coding/UTR boundary (Frame_Shift or In_Frame only).
+     */
+    private boolean isVariantSpanningNonCodingRegion(AnnotatedRecord annotatedRecord) {
+        String varClass = annotatedRecord.getVARIANT_CLASSIFICATION();
+        if (varClass == null) return false;
+        return varClass.contains("Frame_Shift") || varClass.contains("In_Frame");
+    }
+
     public void printSummaryStatistics() {
         StringBuilder builder = new StringBuilder();
         builder.append("\nAnnotation Summary:")
-                .append("\n\tRecords with ambiguous SNP and INDEL allele changes:  ").append(ambiguousTumorSeqAlleleRecords);
+                .append("\n\t[WARN] Records with ambiguous SNP and INDEL allele changes:  ").append(ambiguousTumorSeqAlleleRecords);
         if (totalFailedAnnotatedRecords > 0) {
-                builder.append("\n\n\tFailed annotations summary:  ").append(totalFailedAnnotatedRecords).append(" total failed annotations")
-                .append("\n\t\tRecords with HGVSp null variant classification:  ").append(nullVariantClassificationRecords)
-                .append("\n\t\tRecords that failed due to other unknown reason: ").append(otherFailedAnnotatedRecords);
+                builder.append("\n\n\tFailed annotations summary:  ").append(totalFailedAnnotatedRecords).append(" total records in error report")
+                .append("\n\t\t[INFO]  Records with expected empty HGVSc/HGVSp (non-coding variants or cross-boundary deletions/insertions):  ").append(nullVariantClassificationRecords)
+                .append("\n\t\t[ERROR] Records that failed annotation: ").append(otherFailedAnnotatedRecords);
         } else {
             builder.append("\n\tAll variants annotated successfully without failures!");
         }
@@ -179,11 +215,11 @@ private final List<String> ERROR_FILE_HEADER = Arrays.asList("SAMPLE_ID", "CHR",
         System.out.print(builder.toString());
     }
 
-    private String constructErrorMessageFromRecord(MutationRecord record, String variantClassification, String errorMessage, String url) {
+    private String constructErrorMessageFromRecord(MutationRecord record, String variantClassification, ErrorLevel level, String errorMessage, String url) {
         List<String> msg = Arrays.asList(record.getTUMOR_SAMPLE_BARCODE(), record.getCHROMOSOME(),
                 record.getSTART_POSITION(), record.getEND_POSITION(), record.getREFERENCE_ALLELE(),
                 record.getTUMOR_SEQ_ALLELE1(), record.getTUMOR_SEQ_ALLELE2(), variantClassification,
-                errorMessage, url);
+                level.name(), errorMessage, url);
         return StringUtils.join(msg, "\t");
     }
 
