@@ -67,6 +67,7 @@ public class AnnotatedRecord extends MutationRecord {
     protected String annotationStatus;
     protected String errorMessage;
     protected String additionalTranscripts;
+    protected String hgvsOffset;
 
     public AnnotatedRecord() {
         addAnnotatedFieldsToHeader();
@@ -231,6 +232,7 @@ public class AnnotatedRecord extends MutationRecord {
         this.proteinPosition = additionalProperties.get("Protein_position") != null ? additionalProperties.get("Protein_position") : "";
         this.exon = additionalProperties.get("exon") != null ? additionalProperties.get("exon") : "";
         this.additionalTranscripts = additionalProperties.get("Additional_Transcripts") != null ? additionalProperties.get("Additional_Transcripts") : "";
+        this.hgvsOffset = additionalProperties.get("HGVS_Offset") != null ? additionalProperties.get("HGVS_Offset") : "";
         this.additionalProperties = additionalProperties;
     }
     
@@ -510,6 +512,18 @@ public class AnnotatedRecord extends MutationRecord {
         }
         this.additionalTranscripts = additionalTranscripts;
         addAdditionalProperty("Additional_Transcripts", additionalTranscripts);
+    }
+
+    public String getHgvsOffset() {
+        return this.hgvsOffset != null ? this.hgvsOffset : "";
+    }
+
+    public void setHgvsOffset(String hgvsOffset) {
+        if (!header.contains("HGVS_Offset")) {
+            header.add("HGVS_Offset");
+        }
+        this.hgvsOffset = hgvsOffset;
+        addAdditionalProperty("HGVS_Offset", hgvsOffset);
     }
 
     private void addAnnotatedFieldsToHeader() {

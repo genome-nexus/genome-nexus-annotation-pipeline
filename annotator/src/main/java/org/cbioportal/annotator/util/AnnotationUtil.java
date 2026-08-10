@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
 import org.cbioportal.models.MutationRecord;
 import org.genome_nexus.client.AlleleFrequency;
 import org.genome_nexus.client.ColocatedVariant;
+import org.genome_nexus.client.TranscriptConsequence;
 import org.genome_nexus.client.TranscriptConsequenceSummary;
 import org.genome_nexus.client.VariantAnnotation;
 import org.mskcc.cbio.maf.MafUtil;
@@ -561,6 +562,7 @@ public class AnnotationUtil {
             }
             String entry = String.join(",",
                 t.getTranscriptId() != null ? t.getTranscriptId() : "",
+                t.getRefSeq() != null ? t.getRefSeq() : "",
                 t.getHugoGeneSymbol() != null ? t.getHugoGeneSymbol() : "",
                 t.getHgvspShort() != null ? t.getHgvspShort() : "",
                 t.getHgvsc() != null ? t.getHgvsc() : "",
@@ -569,6 +571,22 @@ public class AnnotationUtil {
             alternates.add(entry);
         }
         return String.join(";", alternates);
+    }
+
+    public String resolveHgvsOffset(VariantAnnotation gnResponse, TranscriptConsequenceSummary canonicalTranscript) {
+        if (gnResponse.getTranscriptConsequences() == null || canonicalTranscript == null) {
+            return "";
+        }
+        String canonicalId = canonicalTranscript.getTranscriptId();
+        if (canonicalId == null) {
+            return "";
+        }
+        for (TranscriptConsequence t : gnResponse.getTranscriptConsequences()) {
+            if (canonicalId.equals(t.getTranscriptId())) {
+                return parseIntegerAsString(t.getHgvsOffset());
+            }
+        }
+        return "";
     }
 
     private boolean hasIntergenicConsequenceSummaries(VariantAnnotation gnResponse) {

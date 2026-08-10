@@ -423,6 +423,7 @@ public class GenomeNexusImpl implements Annotator {
         }
         if (extendedMode) {
             annotatedRecord.setAdditionalTranscripts(annotationUtil.resolveAdditionalTranscripts(gnResponse, canonicalTranscript));
+            annotatedRecord.setHgvsOffset(annotationUtil.resolveHgvsOffset(gnResponse, canonicalTranscript));
         }
 
         if (enrichmentFields.contains("my_variant_info")) {
